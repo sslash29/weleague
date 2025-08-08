@@ -102,10 +102,52 @@ async function deleteModeratorQuery(prevState, formData) {
   };
 }
 
+async function getTeamsYellowCardsQuery() {
+  const { data, error } = await supabase.from("team").select("yellow_cards");
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return data;
+}
+
+async function getTeamsRedCardsQuery() {
+  const { data, error } = await supabase.from("team").select("red_cards");
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return data;
+}
+
+async function getAllReports() {
+  const { data, error } = await supabase.from("report").select("*");
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return data;
+}
+
 export {
   addAdminQuery,
   deleteAdminQuery,
   getReportsQuery,
   addModeratorQuery,
   deleteModeratorQuery,
+  getTeamsRedCardsQuery,
+  getTeamsYellowCardsQuery,
+  getAllReports,
 };

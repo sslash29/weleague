@@ -3,7 +3,9 @@ import {
   createModeratorRepsitory,
   deleteAdminRepository,
   deleteModeratorRepsitory,
+  getAllReportsRepository,
   getReportsRepository,
+  getSuspentionStatisticsRepository,
 } from "@/lib/db-(Persistence)/repositories/rootAdminRepository";
 import bcrypt from "bcrypt";
 
@@ -49,10 +51,23 @@ async function deleteModerator(prevState, formData) {
   const data = await deleteModeratorRepsitory(prevState, formData);
   return data;
 }
+
+async function getSuspentionStatistics() {
+  const data = await getSuspentionStatisticsRepository();
+  return data;
+}
+
+async function getAllReports() {
+  const data = await getAllReportsRepository();
+  return data;
+}
+
 export {
   createAdmin,
   deleteAdmin,
   getReports,
   createModerator,
   deleteModerator,
+  getSuspentionStatistics,
+  getAllReports,
 };

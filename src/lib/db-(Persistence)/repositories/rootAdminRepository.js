@@ -3,7 +3,10 @@ import {
   addModeratorQuery,
   deleteAdminQuery,
   deleteModeratorQuery,
+  getAllReports,
   getReportsQuery,
+  getTeamsRedCardsQuery,
+  getTeamsYellowCardsQuery,
 } from "../queries/rootAdminQueries";
 
 async function createAdminRepository(prevState, formData) {
@@ -31,10 +34,23 @@ async function deleteModeratorRepsitory(prevState, formData) {
   return data;
 }
 
+async function getSuspentionStatisticsRepository() {
+  const yellowCards = await getTeamsYellowCardsQuery();
+  const redCards = await getTeamsRedCardsQuery();
+  return { yellowCards, redCards };
+}
+
+async function getAllReportsRepository() {
+  const data = await getAllReports();
+  return data;
+}
+
 export {
   createAdminRepository,
   deleteAdminRepository,
   getReportsRepository,
   createModeratorRepsitory,
   deleteModeratorRepsitory,
+  getSuspentionStatisticsRepository,
+  getAllReportsRepository,
 };
