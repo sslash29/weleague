@@ -1,7 +1,7 @@
-import RootAdminOptionDisplayer from "@/components-(presentation)/RootAdminOptionDisplayer";
-import RootAdminOptions from "@/components-(presentation)/RootAdminOptions";
+import RootAdminOptionDisplayer from "@/components/RootAdminOptionDisplayer";
+import RootAdminOptions from "@/components/RootAdminOptions";
 import { RootAdminProvider } from "@/context/rootAdminContext";
-import { getAllAdmins } from "@/services-(Bussiness)/rootAdminService";
+import { getAllAdmins } from "@/services/rootAdminService";
 
 async function page() {
   const admins = await getAllAdmins();

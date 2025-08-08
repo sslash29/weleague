@@ -1,4 +1,4 @@
-import CreateAdminForm from "@/components-(presentation)/CreateAdminForm";
+import CreateAdminForm from "@/components/CreateAdminForm";
 
 function page() {
   return (
