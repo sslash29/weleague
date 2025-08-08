@@ -1,27 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  colors: {
-    violet-light: #f0eafa;
-    violet-light-hover: #e9dff8;
-    violet-light-active: #d1bef0;
-    violet-normal: #692cce;
-    violet-normal-hover: #5f28b9;
-    violet-normal-active: #5423a5;
-    violet-dark: #4f219b;
-    violet-dark-hover: #3f1a7c;
-    violet-dark-active: #2f145d;
-    violet-darker: #250f48;
+  violet-light: #f0eafa;
+  violet-light-hover: #e9dff8;
+  violet-light-active: #d1bef0;
+  violet-normal: #692cce;
+  violet-normal-hover: #5f28b9;
+  violet-normal-active: #5423a5;
+  violet-dark: #4f219b;
+  violet-dark-hover: #3f1a7c;
+  violet-dark-active: #2f145d;
+  violet-darker: #250f48;
 
-    red-light: #fde8e9;
-    red-light-hover: #fcddde;
-    red-light-active: #f9b9ba;
-    red-normal: #eb1c22;
-    red-normal-hover: #d4191f;
-    red-normal-active: #bc161b;
-    red-dark: #b0151a;
-    red-dark-hover: #8d1114;
-    red-dark-active: #6a0d0f;
-    red-darker: #520a0c;
-  }
+  red-light: #fde8e9;
+  red-light-hover: #fcddde;
+  red-light-active: #f9b9ba;
+  red-normal: #eb1c22;
+  red-normal-hover: #d4191f;
+  red-normal-active: #bc161b;
+  red-dark: #b0151a;
+  red-dark-hover: #8d1114;
+  red-dark-active: #6a0d0f;
+  red-darker: #520a0c;
 }
