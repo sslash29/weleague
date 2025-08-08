@@ -44,6 +44,18 @@ async function deleteAdminQuery(prevState, formData) {
   };
 }
 
+async function getAllAdminsQuery() {
+  const { data, error } = await supabase.from("admin").select("*");
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return data;
+}
+
 async function getReportsQuery() {
   const { data, error } = await supabase
     .from("report")
@@ -128,7 +140,7 @@ async function getTeamsRedCardsQuery() {
   return data;
 }
 
-async function getAllReports() {
+async function getAllReportsQuery() {
   const { data, error } = await supabase.from("report").select("*");
 
   if (error) {
@@ -149,5 +161,5 @@ export {
   deleteModeratorQuery,
   getTeamsRedCardsQuery,
   getTeamsYellowCardsQuery,
-  getAllReports,
+  getAllReportsQuery,
 };

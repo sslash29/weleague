@@ -4,7 +4,7 @@ import {
   deleteAdminQuery,
   deleteModeratorQuery,
   getAllReports,
-  getReportsQuery,
+  getAllReportsQuery,
   getTeamsRedCardsQuery,
   getTeamsYellowCardsQuery,
 } from "../queries/rootAdminQueries";
@@ -19,8 +19,13 @@ async function deleteAdminRepository(prevState, formData) {
   return data;
 }
 
+async function getAllAdminsRepository() {
+  const data = await getAllReportsQuery();
+  return data;
+}
+
 async function getReportsRepository() {
-  const data = await getReportsQuery();
+  const data = await getAllReportsQuery();
   return data;
 }
 
@@ -53,4 +58,5 @@ export {
   deleteModeratorRepsitory,
   getSuspentionStatisticsRepository,
   getAllReportsRepository,
+  getAllAdminsRepository,
 };

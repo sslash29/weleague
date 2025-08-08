@@ -3,6 +3,7 @@ import {
   createModeratorRepsitory,
   deleteAdminRepository,
   deleteModeratorRepsitory,
+  getAllAdminsRepository,
   getAllReportsRepository,
   getReportsRepository,
   getSuspentionStatisticsRepository,
@@ -25,6 +26,11 @@ async function createAdmin(prevState, formData) {
 
 async function deleteAdmin(prevState, formData) {
   const data = await deleteAdminRepository(prevState, formData);
+  return data;
+}
+
+async function getAllAdmins() {
+  const data = getAllAdminsRepository();
   return data;
 }
 
@@ -65,6 +71,7 @@ async function getAllReports() {
 export {
   createAdmin,
   deleteAdmin,
+  getAllAdmins,
   getReports,
   createModerator,
   deleteModerator,

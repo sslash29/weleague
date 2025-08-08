@@ -1,25 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --violet-light: #f0eafa;
-  --violet-light-hover: #e9dff8;
-  --violet-light-active: #d1bef0;
-  --violet-normal: #692cce;
-  --violet-normal-hover: #5f28b9;
-  --violet-normal-active: #5423a5;
-  --violet-dark: #4f219b;
-  --violet-dark-hover: #3f1a7c;
-  --violet-dark-active: #2f145d;
-  --violet-darker: #250f48;
-
-  --red-light: #fde8e9;
-  --red-light-hover: #fcddde;
-  --red-light-active: #f9b9ba;
-  --red-normal: #eb1c22;
-  --red-normal-hover: #d4191f;
-  --red-normal-active: #bc161b;
-  --red-dark: #b0151a;
-  --red-dark-hover: #8d1114;
-  --red-dark-active: #6a0d0f;
-  --red-darker: #520a0c;
+  --color-violet-light: #f0eafa;
+  --color-violet-light-hover: #e9dff8;
+  --color-violet-light-active: #d1bef0;
+  --color-violet-normal: #692cce;
+  --color-violet-normal-hover: #5f28b9;
+  --color-violet-normal-active: #5423a5;
+  --color-violet-dark: #4f219b;
+  --color-violet-dark-hover: #3f1a7c;
+  --color-violet-dark-active: #2f145d;
+  --color-violet-darker: #250f48;
+  --color-red-light: #fde8e9;
+  --color-red-light-hover: #fcddde;
+  --color-red-light-active: #f9b9ba;
+  --color-red-normal: #eb1c22;
+  --color-red-normal-hover: #d4191f;
+  --color-red-normal-active: #bc161b;
+  --color-red-dark: #b0151a;
+  --color-red-dark-hover: #8d1114;
+  --color-red-dark-active: #6a0d0f;
+  --color-red-darker: #520a0c;
 }
