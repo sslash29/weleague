@@ -15,7 +15,7 @@ async function page() {
     <div>
       <RootAdminProvider>
         <div className="flex flex-col gap-10">
-          <RootAdminOptions />
+          <RootAdminOptions admin="root-admin" />
           <RootAdminOptionDisplayer
             admins={admins}
             moderators={moderators}

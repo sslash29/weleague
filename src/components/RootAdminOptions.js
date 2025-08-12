@@ -2,7 +2,7 @@
 
 import { useRootAdmin } from "@/context/rootAdminContext";
 
-function RootAdminOptions() {
+function RootAdminOptions({ admin }) {
   const { active, setActive } = useRootAdmin();
 
   const options = [
@@ -10,7 +10,9 @@ function RootAdminOptions() {
       id: "view-suspension-statistics",
       label: "View Suspension Statistics",
     },
-    { id: "manage-admins", label: "Manage Admins" },
+    ...(admin !== "root-admin"
+      ? [{ id: "manage-admins", label: "Manage Admins" }]
+      : []),
     { id: "manage-moderators", label: "Manage Moderators" },
     { id: "view-reports", label: "View Reports" },
   ];
