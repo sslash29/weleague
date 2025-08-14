@@ -7,7 +7,7 @@ async function addAdminQuery(prevState, formData) {
   const password = formData.get("password");
   const phoneNumber = formData.get("phoneNumber");
 
-  const { data, error } = await supabase.from("admin").insert({
+  const { _, error } = await supabase.from("admin").insert({
     username,
     password,
     phone_number: phoneNumber,
@@ -28,10 +28,7 @@ async function addAdminQuery(prevState, formData) {
 
 async function deleteAdminQuery(prevState, formData) {
   const adminId = formData.get("adminId");
-  const { data, error } = await supabase
-    .from("admin")
-    .delete()
-    .eq("id", adminId);
+  const { _, error } = await supabase.from("admin").delete().eq("id", adminId);
 
   if (error) {
     return {
@@ -78,7 +75,7 @@ async function addModeratorQuery(prevState, formData) {
   const username = formData.get("username");
   const password = formData.get("password");
   const phoneNumber = formData.get("phoneNumber");
-  const { data, error } = await supabase.from("moderator").insert({
+  const { _, error } = await supabase.from("moderator").insert({
     username,
     password,
     phone_number: phoneNumber,
@@ -98,7 +95,7 @@ async function addModeratorQuery(prevState, formData) {
 
 async function deleteModeratorQuery(prevState, formData) {
   const moderatorId = formData.get("moderatorId");
-  const { data, error } = await supabase
+  const { _, error } = await supabase
     .from("moderator")
     .delete()
     .eq("id", moderatorId);
@@ -168,6 +165,37 @@ async function getAllModeratorsQuery() {
   return data;
 }
 
+async function getStudentsQuery() {
+  const { data, error } = await supabase.from("student").select("*");
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return data;
+}
+
+async function deleteStudentQuery(prevState, formData) {
+  const studentId = formData.get("studentId");
+
+  const { _, error } = supabase.from("student").delete().eq("id", studentId);
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Student deleted successfully",
+  };
+}
+
 export {
   addAdminQuery,
   deleteAdminQuery,
@@ -179,4 +207,6 @@ export {
   getAllReportsQuery,
   getAllAdminsQuery,
   getAllModeratorsQuery,
+  getStudentsQuery,
+  deleteStudentQuery,
 };

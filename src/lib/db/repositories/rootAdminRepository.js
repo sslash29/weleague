@@ -58,6 +58,15 @@ async function getAllReportsRepository() {
   return data;
 }
 
+async function getStudentsRepository() {
+  const data = await getStudentsQuery();
+  return data;
+}
+
+async function deleteStudentRepository(prevState, formData) {
+  const data = await deleteStudentQuery(prevState, formData);
+  return data;
+}
 export {
   createAdminRepository,
   deleteAdminRepository,
@@ -68,4 +77,6 @@ export {
   getAllReportsRepository,
   getAllAdminsRepository,
   getAllModeratorsRepository,
+  getStudentsRepository,
+  deleteStudentRepository,
 };
