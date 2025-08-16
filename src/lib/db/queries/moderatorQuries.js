@@ -114,10 +114,10 @@ async function addTeamQuery(prevState, formData) {
 
   // Get a public URL for the uploaded image
   const {
-    data: { publicUrl: playerImgUrl },
+    data: { publicUrl: teamCrestImgUrl },
     error: publicUrlError,
   } = supabase.storage
-    .from("player_images")
+    .from("team_crest_images")
     .getPublicUrl(uploadData?.path || filePath);
 
   if (publicUrlError) {
@@ -129,7 +129,7 @@ async function addTeamQuery(prevState, formData) {
 
   const { error } = await supabase.from("team").insert({
     name: teamName,
-    team_img: teamCrestImg,
+    team_img: teamCrestImgUrl,
   });
 
   if (error) {
