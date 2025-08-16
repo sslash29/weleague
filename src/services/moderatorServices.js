@@ -3,6 +3,7 @@
 import {
   createPlayerRepository,
   createTeamRepository,
+  deletePlayerRepository,
 } from "@/lib/db/repositories/moderatorRepositories";
 
 const { getAllPlayersQuery } = require("@/lib/db/queries/moderatorQuries");
@@ -22,4 +23,9 @@ async function createTeam(prevState, formData) {
   return data;
 }
 
-export { getAllPlayers, createPlayer, createTeam };
+async function deletePlayer(prevState, formData) {
+  const data = await deletePlayerRepository(prevState, formData);
+  return data;
+}
+
+export { getAllPlayers, createPlayer, createTeam, deletePlayer };

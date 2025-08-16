@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/globalContext";
 import Notifcation from "./Notifcation";
+import BackButton from "./BackButton";
 
 function CreateUserForm({
   inputs,
@@ -40,7 +41,7 @@ function CreateUserForm({
   };
 
   return (
-    <form action={formAction} className="flex flex-col gap-4 relative">
+    <form action={formAction} className="flex flex-col gap-4 relative ">
       {inputs?.map((input) => (
         <div key={input.name} className="flex flex-col">
           <input
@@ -80,6 +81,7 @@ function CreateUserForm({
         </p>
       )}
       {notification && <Notifcation errorMsg={notification} />}
+      <BackButton />
     </form>
   );
 }

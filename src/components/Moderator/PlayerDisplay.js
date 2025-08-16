@@ -1,11 +1,20 @@
 "use client";
 
+import { deletePlayer } from "@/services/moderatorServices";
 import Image from "next/image";
+import { startTransition, useRef } from "react";
 
-function PlayerDisplay({ player }) {
+function PlayerDisplay({ player, onDelete }) {
   if (!player) return null;
+  function handleDelete(formData) {
+    onDelete(player);
+    startTransition(async () => {
+      await deletePlayer({}, formData); // pass an empty prevState + formData
+    });
+  }
+
   return (
-    <div className="flex flex-col border p-3 w-[calc(1260px/3)] gap-10 rounded-lg ">
+    <div className="flex flex-col border p-3 w-[calc(1260px/3)] gap-10 rounded-lg h-fit ">
       <div className="flex items-center justify-between w-full">
         <div className="flex gap-1 items-center">
           <Image
@@ -34,9 +43,12 @@ function PlayerDisplay({ player }) {
           <button className="px-4 py-2 text-white rounded-md bg-[#333333] font-semibold hover:bg-violet-normal-hover transition-all cursor-pointer hover:scale-90 ">
             Add Data
           </button>
-          <button className="font-semibold px-4 py-2 text-white rounded-md bg-red-normal hover:bg-red-normal-hover transition-all cursor-pointer hover:scale-90">
-            Delete Player
-          </button>
+          <form action={handleDelete}>
+            <input type="hidden" name="playerId" value={player.id} />
+            <button className="font-semibold px-4 py-2 text-white rounded-md bg-red-normal hover:bg-red-normal-hover transition-all cursor-pointer hover:scale-90">
+              Delete Player
+            </button>
+          </form>
         </div>
       </div>
     </div>

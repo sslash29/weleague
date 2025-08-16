@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { revalidatePath } from "next/cache";
 
 async function addPlayerrQuery(prevState, formData) {
   const fullName = formData.get("fullName");
@@ -74,8 +75,8 @@ async function addPlayerrQuery(prevState, formData) {
 }
 
 async function deletePlayerrQuery(prevState, formData) {
+  console.log(formData);
   const playerId = formData.get("playerId");
-
   const { error } = await supabase.from("player").delete().eq("id", playerId);
 
   if (error) {
@@ -85,6 +86,7 @@ async function deletePlayerrQuery(prevState, formData) {
     };
   }
 
+  revalidatePath("/moderator/manage-players");
   return {
     success: true,
     message: "Player deleted successfully",
@@ -94,6 +96,7 @@ async function deletePlayerrQuery(prevState, formData) {
 async function addTeamQuery(prevState, formData) {
   const teamName = formData.get("teamName");
   const teamCrestImg = formData.get("teamCrestImg");
+  const className = formData.get("class");
 
   const fileExt = teamCrestImg.name?.split(".").pop() || "bin";
   const safeName =
@@ -134,6 +137,7 @@ async function addTeamQuery(prevState, formData) {
   const { error } = await supabase.from("team").insert({
     name: teamName,
     team_img: teamCrestImgUrl,
+    class: className,
   });
 
   if (error) {

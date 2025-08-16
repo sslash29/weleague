@@ -1,16 +1,26 @@
+"use client";
 import Link from "next/link";
 import PlayerDisplay from "./PlayerDisplay";
+import { useOptimistic } from "react";
 
 function ManagePlayers({ players }) {
-  console.log(players);
+  const [optimisticPlayerState, addOptimistic] = useOptimistic(
+    players,
+    (currentState, optimisticValue) => {
+      return currentState.filter((player) => player.id !== optimisticValue.id);
+    }
+  );
   return (
-    <div className="border p-3 mt-5 h-[78vh] flex gap-5 relative ">
+    <div className="border p-3 mt-5 h-[78vh] flex flex-wrap content-start gap-x-5 gap-y-5 relative overflow-y-scroll">
       {players.length === 0 ? (
-        <li>No players found</li>
+        <li className="ml-5">No players found</li>
       ) : (
-        players.map((player) => (
-          <div key={player.id}>
-            <PlayerDisplay player={player} />
+        optimisticPlayerState.map((player) => (
+          <div key={player.id} className="h-fit">
+            <PlayerDisplay
+              player={player}
+              onDelete={(player) => addOptimistic(player)}
+            />
           </div>
         ))
       )}
