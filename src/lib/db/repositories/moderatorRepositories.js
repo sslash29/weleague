@@ -1,8 +1,9 @@
 import {
   addPlayerrQuery,
-  addTeamrQuery,
+  addTeamQuery,
   deletePlayerrQuery,
-  deleteTeamrQuery,
+  deleteTeamQuery,
+  getAllPlayersQuery,
   updatePlayerPointsAllTimeQuery,
   updatePlayerWeeklyDataQuery,
   updatePlayerWeeklyPointsQuery,
@@ -23,12 +24,12 @@ async function deletePlayerRepository(prevState, formData) {
 }
 
 async function createTeamRepository(prevState, formData) {
-  const data = await addTeamrQuery(prevState, formData);
+  const data = await addTeamQuery(prevState, formData);
   return data;
 }
 
 async function deleteTeamRepository(prevState, formData) {
-  const data = await deleteTeamrQuery(prevState, formData);
+  const data = await deleteTeamQuery(prevState, formData);
   return data;
 }
 
@@ -57,6 +58,12 @@ async function updatePlayerDataRepository(prevState, formData) {
   );
   return { playerWeeklyData, playerWeeklyPoints, playerPointAllTime };
 }
+
+async function getAllPlayers() {
+  const data = await getAllPlayersQuery();
+  return data;
+}
+
 export {
   createPlayerRepository,
   deletePlayerRepository,
@@ -65,4 +72,5 @@ export {
   getStudentsRepository,
   deleteStudentRepository,
   updatePlayerDataRepository,
+  getAllPlayers,
 };

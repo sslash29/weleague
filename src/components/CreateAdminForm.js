@@ -32,6 +32,8 @@ function CreateAdminForm() {
         inputs={inputs}
         formAction={createAdminFormAction}
         formState={createAdminState}
+        isRedirect={true}
+        redirect="admin"
       />
     </div>
   );

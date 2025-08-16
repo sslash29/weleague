@@ -4,19 +4,27 @@ import { useFormStatus } from "react-dom";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-function CreateUserForm({ inputs, formAction, formState, submitButtonText }) {
-  const { pending } = useFormStatus();
+function CreateUserForm({
+  inputs,
+  formAction,
+  formState,
+  submitButtonText,
+  isRedirect = false,
+  redirect = "admin",
+}) {
   const router = useRouter();
 
-  useEffect(() => {
-    if (formState?.message) {
-      const timer = setTimeout(() => {
-        router.push("/admin");
-      }, 2500);
+  if (isRedirect === true) {
+    useEffect(() => {
+      if (formState?.message) {
+        const timer = setTimeout(() => {
+          router.push(`/${redirect}`);
+        }, 2500);
 
-      return () => clearTimeout(timer);
-    }
-  }, [formState, router]);
+        return () => clearTimeout(timer);
+      }
+    }, [formState, router]);
+  }
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -33,19 +41,27 @@ function CreateUserForm({ inputs, formAction, formState, submitButtonText }) {
         </div>
       ))}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="p-2 mt-1 text-white bg-black rounded-lg hover:bg-violet-normal-hover disabled:bg-gray-400 transition-all cursor-pointer"
-      >
-        {pending ? "Submitting..." : submitButtonText || "Submit"}
-      </button>
+      <SubmitButton submitButtonText={submitButtonText} />
       {formState?.message && (
         <p className="text-sm text-[#a0a0a0] font-medium">
           {formState.message}
         </p>
       )}
     </form>
+  );
+}
+
+function SubmitButton({ submitButtonText }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="p-2 mt-1 text-white bg-black rounded-lg hover:bg-violet-normal-hover disabled:bg-gray-400 transition-all cursor-pointer"
+    >
+      {pending ? "Submitting..." : submitButtonText || "Submit"}
+    </button>
   );
 }
 

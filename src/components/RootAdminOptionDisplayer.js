@@ -5,7 +5,6 @@ import ManageAdminAndModerator from "./ManageAdminAndModerator";
 import ViewReports from "./ViewReports";
 
 function RootAdminOptionDisplayer({ admins, moderators, reports }) {
-  console.log(admins);
   const { active } = useRootAdmin();
   if (active === "manage-admins")
     return <ManageAdminAndModerator users={admins} />;

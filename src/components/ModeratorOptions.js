@@ -1,19 +1,18 @@
 "use client";
 
-import { useRootAdmin } from "@/context/rootAdminContext";
+import { useModerator } from "@/context/moderatorContext";
 
-function RootAdminOptions({ adminType }) {
-  const { active, setActive } = useRootAdmin();
+function ModeratorOptions() {
+  const { active, setActive } = useModerator();
 
   const options = [
     {
-      id: "view-suspension-statistics",
-      label: "View Suspension Statistics",
+      id: "manage-players",
+      label: "Manage Players",
     },
-    ...(adminType !== "root-admin"
-      ? []
-      : [{ id: "manage-admins", label: "Manage Admins" }]),
-    { id: "manage-moderators", label: "Manage Moderators" },
+
+    { id: "manage-teams", label: "Manage Teams" },
+    { id: "manage-users", label: "Manage Users" },
     { id: "view-reports", label: "View Reports" },
   ];
 
@@ -39,4 +38,4 @@ function RootAdminOptions({ adminType }) {
   );
 }
 
-export default RootAdminOptions;
+export default ModeratorOptions;
