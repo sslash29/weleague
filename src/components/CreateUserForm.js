@@ -3,6 +3,8 @@
 import { useFormStatus } from "react-dom";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useGlobal } from "@/context/globalContext";
+import Notifcation from "./Notifcation";
 
 function CreateUserForm({
   inputs,
@@ -11,24 +13,35 @@ function CreateUserForm({
   submitButtonText,
   isRedirect = false,
   redirect = "admin",
+  isOption = false,
+  options,
 }) {
   const router = useRouter();
+  const { notification, setNotification } = useGlobal();
 
-  if (isRedirect === true) {
-    useEffect(() => {
-      if (formState?.message) {
-        const timer = setTimeout(() => {
-          router.push(`/${redirect}`);
-        }, 2500);
+  // Redirect after success
+  useEffect(() => {
+    if (isRedirect === true && formState?.message) {
+      const timer = setTimeout(() => {
+        router.push(`/${redirect}`);
+      }, 2500);
 
-        return () => clearTimeout(timer);
-      }
-    }, [formState, router]);
-  }
+      return () => clearTimeout(timer);
+    }
+  }, [isRedirect, formState, router, redirect]);
+
+  // Handle image validation (5MB limit)
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.size > 5 * 1024 * 1024) {
+      setNotification("Max image size is 5MB");
+      e.target.value = null; // reset the input
+    }
+  };
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      {inputs.map((input) => (
+    <form action={formAction} className="flex flex-col gap-4 relative">
+      {inputs?.map((input) => (
         <div key={input.name} className="flex flex-col">
           <input
             id={input.name}
@@ -37,9 +50,28 @@ function CreateUserForm({
             placeholder={input.placeholder}
             className="p-2 rounded-lg bg-[#f2f2f2] outline-0"
             required
+            onChange={input.type === "file" ? handleFileChange : undefined}
           />
         </div>
       ))}
+
+      {isOption && Array.isArray(options) && options.length > 0 && (
+        <div className="flex flex-col">
+          <select
+            id="teamId"
+            name="teamId"
+            className="p-2 rounded-lg bg-[#f2f2f2] outline-0"
+            required
+          >
+            <option value="">Select team</option>
+            {options.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <SubmitButton submitButtonText={submitButtonText} />
       {formState?.message && (
@@ -47,6 +79,7 @@ function CreateUserForm({
           {formState.message}
         </p>
       )}
+      {notification && <Notifcation errorMsg={notification} />}
     </form>
   );
 }

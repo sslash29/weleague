@@ -2,6 +2,8 @@ import "./globals.css";
 import localFont from "next/font/local";
 import { Poppins } from "next/font/google";
 import Navbar from "@/components/Navbar";
+import { GlobalProvider, useGlobal } from "@/context/globalContext";
+import Notifcation from "@/components/Notifcation";
 
 // Configure Poppins font
 const poppins = Poppins({
@@ -56,7 +58,7 @@ export default function RootLayout({ children }) {
         className={`${poppins.variable} ${sharpie.variable} flex flex-col p-6 px-12`}
       >
         <Navbar />
-        {children}
+        <GlobalProvider>{children}</GlobalProvider>
       </body>
     </html>
   );

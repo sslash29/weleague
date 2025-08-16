@@ -1,9 +1,11 @@
 import CreatePlayerForm from "@/components/Moderator/CreatePlayerForm";
+import { getAllTeams } from "@/services/services";
 
-function page() {
+async function page() {
+  const teams = await getAllTeams();
   return (
     <div>
-      <CreatePlayerForm />
+      <CreatePlayerForm teams={teams} />
     </div>
   );
 }

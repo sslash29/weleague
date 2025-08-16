@@ -5,6 +5,8 @@ async function addPlayerrQuery(prevState, formData) {
   const playerImg = formData.get("playerImg"); // File
   // UI may send either `position` or `playerType`; prefer `position` if present
   const playerType = formData.get("position") || formData.get("playerType");
+  const className = formData.get("class");
+  const team = formData.get("teamId");
 
   if (!fullName || !playerImg || typeof playerImg === "string") {
     return {
@@ -54,6 +56,8 @@ async function addPlayerrQuery(prevState, formData) {
     full_name: fullName,
     player_image: playerImgUrl,
     position: playerType,
+    class: className,
+    team_id: team,
   });
 
   if (error) {
