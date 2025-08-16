@@ -1,4 +1,4 @@
-import CreateModeratorForm from "@/components/CreateModeratorForm";
+import CreateModeratorForm from "@/components/Admin/CreateModeratorForm";
 import Link from "next/link";
 
 function page() {

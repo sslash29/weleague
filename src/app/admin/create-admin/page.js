@@ -1,4 +1,4 @@
-import CreateAdminForm from "@/components/CreateAdminForm";
+import CreateAdminForm from "@/components/Admin/CreateAdminForm";
 import Link from "next/link";
 
 function page() {

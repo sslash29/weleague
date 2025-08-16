@@ -1,12 +1,12 @@
 "use client";
 
-import { createAdmin } from "@/services/rootAdminService";
+import { createModerator } from "@/services/rootAdminService";
 import { useActionState } from "react";
-import CreateUserForm from "./CreateUserForm";
+import CreateUserForm from "../CreateUserForm";
 
-function CreateAdminForm() {
-  const [createAdminState, createAdminFormAction] = useActionState(
-    createAdmin,
+function CreateModeratorForm() {
+  const [createModeratorState, createModeratorFormAction] = useActionState(
+    createModerator,
     {}
   );
 
@@ -30,13 +30,11 @@ function CreateAdminForm() {
     <div>
       <CreateUserForm
         inputs={inputs}
-        formAction={createAdminFormAction}
-        formState={createAdminState}
-        isRedirect={true}
-        redirect="admin"
+        formAction={createModeratorFormAction}
+        formState={createModeratorState}
       />
     </div>
   );
 }
 
-export default CreateAdminForm;
+export default CreateModeratorForm;

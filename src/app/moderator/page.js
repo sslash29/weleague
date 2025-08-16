@@ -1,5 +1,5 @@
-import ModeratorOptionDisplayer from "@/components/ModeratorOptionDisplayer";
-import ModeratorOptions from "@/components/ModeratorOptions";
+import ModeratorOptionDisplayer from "@/components/Moderator/ModeratorOptionDisplayer";
+import ModeratorOptions from "@/components/Moderator/ModeratorOptions";
 import { ModeratorProvider } from "@/context/moderatorContext";
 import { getAllPlayers } from "@/services/moderatorServices";
 import { getAllTeams } from "@/services/services";

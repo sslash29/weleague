@@ -2,7 +2,7 @@
 
 import { createPlayer, createTeam } from "@/services/moderatorServices";
 import { useActionState } from "react";
-import CreateUserForm from "./CreateUserForm";
+import CreateUserForm from "../CreateUserForm";
 
 function CreateTeamForm() {
   const [createTeamState, createTeamFormAction] = useActionState(

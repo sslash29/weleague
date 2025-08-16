@@ -268,7 +268,6 @@ async function updatePlayerPointsAllTimeQuery(prevState, formData) {
 
 async function getAllPlayersQuery() {
   const { data, error } = await supabase.from("player").select("*");
-
   if (error) {
     return {
       success: false,

@@ -1,5 +1,5 @@
-import RootAdminOptionDisplayer from "@/components/RootAdminOptionDisplayer";
-import RootAdminOptions from "@/components/RootAdminOptions";
+import RootAdminOptionDisplayer from "@/components/Admin/RootAdminOptionDisplayer";
+import RootAdminOptions from "@/components/Admin/RootAdminOptions";
 import { RootAdminProvider, useRootAdmin } from "@/context/rootAdminContext";
 import {
   getAllAdmins,

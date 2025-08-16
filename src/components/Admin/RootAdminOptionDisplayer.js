@@ -2,7 +2,7 @@
 
 import { useRootAdmin } from "@/context/rootAdminContext";
 import ManageAdminAndModerator from "./ManageAdminAndModerator";
-import ViewReports from "./ViewReports";
+import ViewReports from "../ViewReports";
 
 function RootAdminOptionDisplayer({ admins, moderators, reports }) {
   const { active } = useRootAdmin();

@@ -1,4 +1,4 @@
-import CreatePlayerForm from "@/components/CreatePlayerForm";
+import CreatePlayerForm from "@/components/Moderator/CreatePlayerForm";
 
 function page() {
   return (
