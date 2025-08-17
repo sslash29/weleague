@@ -2,15 +2,22 @@
 
 import { deletePlayer } from "@/services/moderatorServices";
 import Image from "next/image";
-import { startTransition, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { startTransition } from "react";
 
 function PlayerDisplay({ player, onDelete }) {
+  const router = useRouter();
+
   if (!player) return null;
   function handleDelete(formData) {
     onDelete(player);
     startTransition(async () => {
-      await deletePlayer({}, formData); // pass an empty prevState + formData
+      await deletePlayer({}, formData);
     });
+  }
+
+  function handleRedirectAddPlayerData() {
+    router.push(`/moderator/add-player-data/${player.id}`);
   }
 
   return (
@@ -40,7 +47,10 @@ function PlayerDisplay({ player, onDelete }) {
       <div className="flex items-center justify-between">
         <p className="text-lg">class: {player.class || "2/2"}</p>
         <div className="flex items-center gap-2">
-          <button className="px-4 py-2 text-white rounded-md bg-[#333333] font-semibold hover:bg-violet-normal-hover transition-all cursor-pointer hover:scale-90 ">
+          <button
+            onClick={() => handleRedirectAddPlayerData()}
+            className="px-4 py-2 text-white rounded-md bg-[#333333] font-semibold hover:bg-violet-normal-hover transition-all cursor-pointer hover:scale-90 "
+          >
             Add Data
           </button>
           <form action={handleDelete}>

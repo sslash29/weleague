@@ -55,7 +55,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         style={{ fontFamily: "var(--font-poppins), sans-serif" }}
-        className={`${poppins.variable} ${sharpie.variable} flex flex-col p-6 px-12`}
+        className={`${poppins.variable} ${sharpie.variable} flex flex-col p-6 px-12 overflow-x-hidden`}
       >
         <Navbar />
         <GlobalProvider>{children}</GlobalProvider>

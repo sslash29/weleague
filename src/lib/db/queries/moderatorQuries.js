@@ -155,7 +155,7 @@ async function addTeamQuery(prevState, formData) {
 
 async function deleteTeamQuery(prevState, formData) {
   const teamId = formData.get("teamId");
-
+  console.log(formData);
   const { error } = await supabase.from("team").delete().eq("id", teamId);
 
   if (error) {
@@ -165,6 +165,7 @@ async function deleteTeamQuery(prevState, formData) {
     };
   }
 
+  revalidatePath("/moderator/manage-teams");
   return {
     success: true,
     message: "Team deleted successfully",
@@ -286,6 +287,30 @@ async function getAllPlayersQuery() {
   return data;
 }
 
+async function addPlayerDataQuery(prevState, formData) {
+  const playerId = formData.get("playerId");
+  const weeklyData = formData.get("weeklyData");
+
+  const { error } = await supabase
+    .from("player")
+    .update({
+      weekly_data: weeklyData,
+    })
+    .eq("id", playerId);
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Player data added successfully",
+  };
+}
+
 export {
   addPlayerrQuery,
   deletePlayerrQuery,
@@ -297,4 +322,5 @@ export {
   updatePlayerWeeklyPointsQuery,
   updatePlayerPointsAllTimeQuery,
   getAllPlayersQuery,
+  addPlayerDataQuery,
 };

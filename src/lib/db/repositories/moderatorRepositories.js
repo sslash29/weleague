@@ -1,4 +1,5 @@
 import {
+  addPlayerDataQuery,
   addPlayerrQuery,
   addTeamQuery,
   deletePlayerrQuery,
@@ -64,6 +65,11 @@ async function getAllPlayers() {
   return data;
 }
 
+async function addPlayerDataRepository(prevState, formData) {
+  const data = await addPlayerDataQuery(prevState, formData);
+  return data;
+}
+
 export {
   createPlayerRepository,
   deletePlayerRepository,
@@ -73,4 +79,5 @@ export {
   deleteStudentRepository,
   updatePlayerDataRepository,
   getAllPlayers,
+  addPlayerDataRepository,
 };

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/globalContext";
 import Notifcation from "./Notifcation";
 import BackButton from "./BackButton";
+import SubmitButton from "./SubmitButton";
 
 function CreateUserForm({
   inputs,
@@ -83,20 +84,6 @@ function CreateUserForm({
       {notification && <Notifcation errorMsg={notification} />}
       <BackButton />
     </form>
-  );
-}
-
-function SubmitButton({ submitButtonText }) {
-  const { pending } = useFormStatus();
-
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="p-2 mt-1 text-white bg-black rounded-lg hover:bg-violet-normal-hover disabled:bg-gray-400 transition-all cursor-pointer"
-    >
-      {pending ? "Submitting..." : submitButtonText || "Submit"}
-    </button>
   );
 }
 
