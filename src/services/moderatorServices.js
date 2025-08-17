@@ -7,6 +7,7 @@ import {
   deleteTeamRepository,
   addPlayerDataRepository,
 } from "@/lib/db/repositories/moderatorRepositories";
+import { redirect } from "next/navigation";
 
 const { getAllPlayersQuery } = require("@/lib/db/queries/moderatorQuries");
 
@@ -107,12 +108,8 @@ async function addPlayerData(prevState, formData) {
   }
 
   // Forward to repository which will call the DB query
-  const data = await addPlayerDataRepository(prevState, formData);
-  return {
-    success: true,
-    message: "Player weekly data submitted successfully",
-    data,
-  };
+  await addPlayerDataRepository(prevState, formData);
+  redirect("/moderator");
 }
 
 export {

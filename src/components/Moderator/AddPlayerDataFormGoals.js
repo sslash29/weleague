@@ -141,9 +141,6 @@ function AddPlayerDataFormGoals({ playerId, setDisplay }) {
           </button>
 
           <SubmitButton />
-          {statusMessage ? (
-            <p className="text-green-600 font-medium mt-2">{statusMessage}</p>
-          ) : null}
         </form>
       </div>
     </div>
