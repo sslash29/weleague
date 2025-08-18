@@ -5,12 +5,15 @@ import {
   getAllAdmins,
   getAllModerators,
   getReports,
+  getSuspentionStatistics,
 } from "@/services/rootAdminService";
+import { getAllTeams, getTeamData } from "@/services/services";
 
 async function page() {
   const admins = await getAllAdmins();
   const moderators = await getAllModerators();
   const reports = await getReports();
+  const teamData = await getAllTeams();
   const adminType = "root-admin";
 
   return (
@@ -22,6 +25,7 @@ async function page() {
             admins={admins}
             moderators={moderators}
             reports={reports}
+            teamData={teamData}
           />
         </div>
       </RootAdminProvider>

@@ -1,4 +1,4 @@
-import AddPlayerDataForm from "@/components/Moderator/AddPlayerDataForm";
+import AddPlayerDataForm from "@/components/Moderator/PlayerData/AddPlayerDataForm";
 
 async function Page({ params }) {
   const { id } = (await params) || {};

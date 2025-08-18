@@ -34,6 +34,7 @@ function CreateAdminForm() {
         formState={createAdminState}
         isRedirect={true}
         redirect="admin"
+        isBack={false}
       />
     </div>
   );

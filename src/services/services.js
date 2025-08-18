@@ -1,9 +1,16 @@
 "use server";
 
-const { getAllTeamsRepository } = require("@/lib/db/repositories/repositories");
+const {
+  getAllTeamsRepository,
+  getTeamDataRepository,
+} = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
   return await getAllTeamsRepository();
 }
 
-export { getAllTeams };
+async function getTeamData(teamId) {
+  return await getTeamDataRepository(teamId);
+}
+
+export { getAllTeams, getTeamData };

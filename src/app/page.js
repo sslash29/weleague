@@ -9,6 +9,9 @@ function page() {
       <Link href="/moderator" className="text-3xl font-bold">
         Go To Moderators
       </Link>
+      <Link href="/user" className="text-3xl font-bold">
+        Go To User
+      </Link>
     </div>
   );
 }

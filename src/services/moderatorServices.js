@@ -112,6 +112,7 @@ async function addPlayerData(prevState, formData) {
   redirect("/moderator");
 }
 
+async function addTeamData(prevState, formData) {}
 export {
   getAllPlayers,
   createPlayer,

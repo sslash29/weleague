@@ -37,7 +37,7 @@ function TeamDisplayer({ team, onDelete }) {
         <p className="text-lg">class: {team.class || "2/2"}</p>
         <div className="flex items-center gap-2">
           <button className="px-4 py-2 text-white rounded-md bg-[#333333] font-semibold hover:bg-violet-normal-hover transition-all cursor-pointer hover:scale-90 ">
-            Add Data
+            View Team
           </button>
           <form action={handleDelete}>
             <input type="hidden" name="teamId" value={team.id} />

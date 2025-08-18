@@ -1,6 +1,5 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/globalContext";
@@ -17,6 +16,8 @@ function CreateUserForm({
   redirect = "admin",
   isOption = false,
   options,
+  optionName = "teamId",
+  isBack = true,
 }) {
   const router = useRouter();
   const { notification, setNotification } = useGlobal();
@@ -41,6 +42,66 @@ function CreateUserForm({
     }
   };
 
+  // Prevent digits in text inputs and prevent letters in tel/number inputs
+  const handleKeyDown = (e, type) => {
+    // allow shortcuts and navigation
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const key = e.key;
+    const isControlKey = [
+      "Backspace",
+      "Tab",
+      "Enter",
+      "Escape",
+      "ArrowLeft",
+      "ArrowRight",
+      "ArrowUp",
+      "ArrowDown",
+      "Home",
+      "End",
+      "Delete",
+    ].includes(key);
+    if (isControlKey) return;
+
+    if (type === "text") {
+      // block digits
+      if (/^\d$/.test(key)) e.preventDefault();
+    } else if (type === "tel" || type === "number") {
+      // block letters
+      if (/^[a-zA-Z]$/.test(key)) e.preventDefault();
+    }
+  };
+
+  const handlePaste = (e, type) => {
+    const paste = (e.clipboardData || window.clipboardData).getData("text");
+    if (!paste) return;
+    if (type === "text") {
+      if (/\d/.test(paste)) {
+        e.preventDefault();
+        setNotification(
+          "Pasted value contains numbers which are not allowed here"
+        );
+      }
+    } else if (type === "tel" || type === "number") {
+      if (/[a-zA-Z]/.test(paste)) {
+        e.preventDefault();
+        setNotification(
+          "Pasted value contains letters which are not allowed here"
+        );
+      }
+    }
+  };
+
+  // Sanitize on input (covers mobile/IMEs where keydown may not catch everything)
+  const handleInput = (e, type) => {
+    if (type === "text") {
+      const cleaned = e.target.value.replace(/\d+/g, "");
+      if (cleaned !== e.target.value) e.target.value = cleaned;
+    } else if (type === "tel" || type === "number") {
+      const cleaned = e.target.value.replace(/[a-zA-Z]+/g, "");
+      if (cleaned !== e.target.value) e.target.value = cleaned;
+    }
+  };
+
   return (
     <form action={formAction} className="flex flex-col gap-4 relative ">
       {inputs?.map((input) => (
@@ -52,6 +113,16 @@ function CreateUserForm({
             placeholder={input.placeholder}
             className="p-2 rounded-lg bg-[#f2f2f2] outline-0"
             required
+            inputMode={
+              input.type === "number"
+                ? "numeric"
+                : input.type === "tel"
+                ? "tel"
+                : "text"
+            }
+            onKeyDown={(e) => handleKeyDown(e, input.type || "text")}
+            onPaste={(e) => handlePaste(e, input.type || "text")}
+            onInput={(e) => handleInput(e, input.type || "text")}
             onChange={input.type === "file" ? handleFileChange : undefined}
           />
         </div>
@@ -60,8 +131,8 @@ function CreateUserForm({
       {isOption && Array.isArray(options) && options.length > 0 && (
         <div className="flex flex-col">
           <select
-            id="teamId"
-            name="teamId"
+            id={optionName}
+            name={optionName}
             className="p-2 rounded-lg bg-[#f2f2f2] outline-0"
             required
           >
@@ -82,7 +153,7 @@ function CreateUserForm({
         </p>
       )}
       {notification && <Notifcation errorMsg={notification} />}
-      <BackButton />
+      {isBack && <BackButton />}
     </form>
   );
 }

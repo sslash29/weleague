@@ -32,6 +32,7 @@ function CreateModeratorForm() {
         inputs={inputs}
         formAction={createModeratorFormAction}
         formState={createModeratorState}
+        isBack={false}
       />
     </div>
   );
