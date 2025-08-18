@@ -1,17 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { updateReportType } from "@/services/services";
 
 function ViewReports({ reports = [] }) {
-  console.log(reports);
-
-  const toggle = (id) => {
-    setOpen((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+  const [isHover, setIsHover] = useState(false);
+  const [reportTypeState, reportTypeFormAction] = useActionState(
+    updateReportType,
+    {}
+  );
 
   if (!reports || reports.length === 0)
     return (
@@ -30,7 +28,10 @@ function ViewReports({ reports = [] }) {
             : null;
 
           return (
-            <div key={id} className="bg-[#f2f2f2]/70 rounded-lg p-4 w-[500px] ">
+            <div
+              key={id}
+              className="bg-[#f2f2f2]/70 rounded-lg p-4 w-[500px] relative"
+            >
               <div className="flex items-center justify-between gap-4 ">
                 <div>
                   <h3 className="text-3xl font-bold">
@@ -64,13 +65,54 @@ function ViewReports({ reports = [] }) {
                   )}
                 </div>
               </div>
-              <div className="w-full flex justify-between items-center ">
+              <div className="w-full flex justify-between items-center  ">
                 <p className="text-xs text-gray-500 mt-1">{created}</p>
-                <img
-                  src="Resolved.svg"
-                  alt="Resolved"
-                  className=" cursor-pointer"
-                />
+                <AnimatePresence>
+                  <div
+                    className="flex flex-col justify-center gap-4 absolute top-[231px] right-0 w-[50px] items-center"
+                    onMouseEnter={() => setIsHover(true)}
+                    onMouseLeave={() => setIsHover(false)}
+                  >
+                    <form action={reportTypeFormAction}>
+                      <input hidden name="reportId" value={r.id} />
+                      <button
+                        type="submit"
+                        name="type"
+                        value="resolved"
+                        className="cursor-pointer"
+                      >
+                        <img src="Resolved.svg" alt="Resolved" />
+                      </button>
+
+                      {/* Show others on hover */}
+                      {isHover && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0 }}
+                          className="flex flex-col justify-center gap-4"
+                        >
+                          <button
+                            type="submit"
+                            name="type"
+                            value="cancelled"
+                            className="cursor-pointer"
+                          >
+                            <img src="Cancel.svg" alt="cancel" />
+                          </button>
+                          <button
+                            type="submit"
+                            name="type"
+                            value="pending"
+                            className="cursor-pointer"
+                          >
+                            <img src="Pending.svg" alt="pending" />
+                          </button>
+                        </motion.div>
+                      )}
+                    </form>
+                  </div>
+                </AnimatePresence>
               </div>
             </div>
           );

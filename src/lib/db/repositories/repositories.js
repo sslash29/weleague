@@ -1,6 +1,10 @@
 "use server";
 
-import { getAllTeamsQuery, getTeamDataQuery } from "../queries/queries";
+import {
+  getAllTeamsQuery,
+  getTeamDataQuery,
+  updateReportTypeQuery,
+} from "../queries/queries";
 
 async function getAllTeamsRepository() {
   return await getAllTeamsQuery();
@@ -10,4 +14,12 @@ async function getTeamDataRepository(teamId) {
   return await getTeamDataQuery(teamId);
 }
 
-export { getAllTeamsRepository, getTeamDataRepository };
+async function updateReportTypeRepository(prevState, formData) {
+  return await updateReportTypeQuery(prevState, formData);
+}
+
+export {
+  getAllTeamsRepository,
+  getTeamDataRepository,
+  updateReportTypeRepository,
+};

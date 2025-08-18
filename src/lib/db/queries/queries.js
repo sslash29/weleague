@@ -22,4 +22,27 @@ async function getTeamDataQuery(teamId) {
   }
   return data;
 }
-export { getAllTeamsQuery, getTeamDataQuery };
+
+async function updateReportTypeQuery(prevState, formData) {
+  const reportId = formData.get("reportId");
+  const reportType = formData.get("type");
+
+  const { error } = await supabase
+    .from("report")
+    .update({ state: reportType })
+    .eq("id", reportId);
+
+  if (error) {
+    console.error("Error updating report type:", error);
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Report type updated successfully",
+  };
+}
+export { getAllTeamsQuery, getTeamDataQuery, updateReportTypeQuery };
