@@ -3,7 +3,6 @@
 import { useState } from "react";
 
 function ViewReports({ reports = [] }) {
-  const [open, setOpen] = useState(() => new Set());
   console.log(reports);
 
   const toggle = (id) => {
@@ -31,50 +30,48 @@ function ViewReports({ reports = [] }) {
             : null;
 
           return (
-            <div
-              key={id}
-              className="bg-white border rounded-lg p-4 max-w-[800px]"
-            >
-              <div className="flex items-start justify-between gap-4">
+            <div key={id} className="bg-[#f2f2f2]/70 rounded-lg p-4 w-[500px] ">
+              <div className="flex items-center justify-between gap-4 ">
                 <div>
-                  <h3 className="text-2xl font-bold">
+                  <h3 className="text-3xl font-bold">
                     {r?.report_type || "Report"}
                   </h3>
-                  {created && (
-                    <p className="text-xs text-gray-500 mt-1">{created}</p>
-                  )}
+                  <span className="opacity-50">{r.report_type}</span>
                 </div>
-                <button
-                  onClick={() => toggle(id)}
-                  className="bg-[#333333] text-white text-sm font-semibold px-3 py-1 rounded-md"
-                >
-                  {open.has(id) ? "Hide" : "View"}
+                <button className="bg-[#4D4D4D] rounded-md text-white font-semibold px-2 py-1">
+                  View
                 </button>
               </div>
-              {open.has(id) && (
-                <div className="mt-4">
-                  <div className="border rounded-md p-3 min-h-[120px] whitespace-pre-wrap text-gray-800">
-                    {r?.report_text || "No description provided."}
-                  </div>
-                  <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-600">
-                    {r?.state && (
-                      <span className="px-2 py-0.5 border rounded-full">
-                        State: {r.state}
-                      </span>
-                    )}
-                    {r?.not_accepted && (
-                      <span className="px-2 py-0.5 border rounded-full">
-                        Not Accepted: {r.not_accepted}
-                      </span>
-                    )}
-                    {r?.student_id && (
-                      <span className="px-2 py-0.5 border rounded-full">
-                        Student: {String(r.student_id).slice(0, 8)}…
-                      </span>
-                    )}
-                  </div>
+              <div className="mt-4">
+                <div className="border rounded-xl p-3 min-h-[120px] whitespace-pre-wrap text-gray-800 text-sm">
+                  {r?.report_text || "No description provided."}
                 </div>
-              )}
+                <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-600">
+                  {r?.state && (
+                    <span className="px-2 py-0.5 border rounded-full">
+                      State: {r.state}
+                    </span>
+                  )}
+                  {r?.not_accepted && (
+                    <span className="px-2 py-0.5 border rounded-full">
+                      Not Accepted: {r.not_accepted}
+                    </span>
+                  )}
+                  {r?.student_id && (
+                    <span className="px-2 py-0.5 border rounded-full">
+                      Student: {String(r.student_id).slice(0, 8)}…
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="w-full flex justify-between items-center ">
+                <p className="text-xs text-gray-500 mt-1">{created}</p>
+                <img
+                  src="Resolved.svg"
+                  alt="Resolved"
+                  className=" cursor-pointer"
+                />
+              </div>
             </div>
           );
         })}
