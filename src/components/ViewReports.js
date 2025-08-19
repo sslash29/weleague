@@ -6,8 +6,8 @@ import { updateReportType } from "@/services/services";
 
 function ViewReports({ reports = [] }) {
   const [hoveredReportId, setHoveredReportId] = useState(null);
-  //* It's Uses for animation purposes
-  const [selectedAnimation, setIsSelectedAnimation] = useState(null);
+  // store selected state per reportId
+  const [selectedStates, setSelectedStates] = useState({});
   const [reportTypeState, reportTypeFormAction] = useActionState(
     updateReportType,
     {}
@@ -37,10 +37,10 @@ function ViewReports({ reports = [] }) {
             ? new Date(r.created_at).toLocaleString()
             : null;
 
-          // Fallback to resolved if state is missing
-          const currentState = r?.state || "resolved";
+          // Use selected state if clicked, else fallback to report state or resolved
+          const currentState = selectedStates[id] || r?.state || "resolved";
 
-          // Rearrange so current state always comes first, others follow
+          // Reorder so chosen one is always first
           const orderedOptions = [
             stateOptions.find((o) => o.value === currentState),
             ...stateOptions.filter((o) => o.value !== currentState),
@@ -70,11 +70,6 @@ function ViewReports({ reports = [] }) {
                   {r?.report_text || "No description provided."}
                 </div>
                 <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-600">
-                  {r?.state && (
-                    <span className="px-2 py-0.5 border rounded-full">
-                      State: {r.state}
-                    </span>
-                  )}
                   {r?.not_accepted && (
                     <span className="px-2 py-0.5 border rounded-full">
                       Not Accepted: {r.not_accepted}
@@ -100,39 +95,56 @@ function ViewReports({ reports = [] }) {
                   <form action={reportTypeFormAction}>
                     <input hidden name="reportId" value={r.id} />
 
-                    {
-                      <button
+                    <AnimatePresence mode="wait">
+                      <motion.button
+                        key={orderedOptions[0].value} // <-- ensures AnimatePresence works
                         type="submit"
                         name="type"
                         value={orderedOptions[0].value}
                         className="cursor-pointer"
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.5 }}
+                        transition={{ duration: 0.2 }}
                       >
                         <img
                           src={orderedOptions[0].icon}
                           alt={orderedOptions[0].value}
                         />
-                      </button>
-                    }
+                      </motion.button>
+                    </AnimatePresence>
 
-                    {/* Show other options on hover */}
+                    {/* Hover: other two options */}
                     <AnimatePresence>
                       {hoveredReportId === r.id && (
                         <motion.div
+                          key="hover-options"
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0 }}
                           className="flex flex-col justify-center gap-4 mt-1"
                         >
                           {orderedOptions.slice(1).map((opt) => (
-                            <button
+                            <motion.button
                               key={opt.value}
                               type="submit"
                               name="type"
                               value={opt.value}
                               className="cursor-pointer"
+                              onClick={() => {
+                                setSelectedStates((prev) => ({
+                                  ...prev,
+                                  [id]: opt.value,
+                                }));
+                                setHoveredReportId(null);
+                              }}
+                              initial={{ opacity: 0, scale: 1 }}
+                              animate={{ opacity: 1, scale: 1.1 }}
+                              exit={{ opacity: 0, scale: 0.9 }}
+                              transition={{ duration: 0.2 }}
                             >
                               <img src={opt.icon} alt={opt.value} />
-                            </button>
+                            </motion.button>
                           ))}
                         </motion.div>
                       )}

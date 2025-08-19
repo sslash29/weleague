@@ -27,6 +27,8 @@ async function updateReportTypeQuery(prevState, formData) {
   const reportId = formData.get("reportId");
   const reportType = formData.get("type");
 
+  console.log(formData);
+
   const { error } = await supabase
     .from("report")
     .update({ state: reportType })
