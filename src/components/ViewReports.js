@@ -5,21 +5,31 @@ import { AnimatePresence, motion } from "motion/react";
 import { updateReportType } from "@/services/services";
 
 function ViewReports({ reports = [] }) {
-  const [isHover, setIsHover] = useState(false);
+  const [hoveredReportId, setHoveredReportId] = useState(null);
+  //* It's Uses for animation purposes
+  const [selectedAnimation, setIsSelectedAnimation] = useState(null);
   const [reportTypeState, reportTypeFormAction] = useActionState(
     updateReportType,
     {}
   );
 
-  if (!reports || reports.length === 0)
+  if (!reports || reports.length === 0) {
     return (
       <div className="w-full h-[700px] border flex items-center justify-center rounded-md">
         <h2 className="text-3xl font-semibold text-gray-700">No reports 🎉</h2>
       </div>
     );
+  }
+
+  // Define all possible states with icon mapping
+  const stateOptions = [
+    { value: "resolved", icon: "ResolvedGreen.svg" },
+    { value: "cancelled", icon: "Cancel.svg" },
+    { value: "pending", icon: "Pending.svg" },
+  ];
 
   return (
-    <div className="w-full h-[700px] border rounded-md p-4 overflow-y-auto">
+    <div className="w-full h-[700px] border rounded-md p-4 overflow-y-auto mt-4">
       <div className="flex flex-col gap-6">
         {reports.map((r, idx) => {
           const id = r?.id ?? idx;
@@ -27,12 +37,22 @@ function ViewReports({ reports = [] }) {
             ? new Date(r.created_at).toLocaleString()
             : null;
 
+          // Fallback to resolved if state is missing
+          const currentState = r?.state || "resolved";
+
+          // Rearrange so current state always comes first, others follow
+          const orderedOptions = [
+            stateOptions.find((o) => o.value === currentState),
+            ...stateOptions.filter((o) => o.value !== currentState),
+          ];
+
           return (
             <div
               key={id}
               className="bg-[#f2f2f2]/70 rounded-lg p-4 w-[500px] relative"
             >
-              <div className="flex items-center justify-between gap-4 ">
+              {/* Header */}
+              <div className="flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-3xl font-bold">
                     {r?.report_type || "Report"}
@@ -43,6 +63,8 @@ function ViewReports({ reports = [] }) {
                   View
                 </button>
               </div>
+
+              {/* Body */}
               <div className="mt-4">
                 <div className="border rounded-xl p-3 min-h-[120px] whitespace-pre-wrap text-gray-800 text-sm">
                   {r?.report_text || "No description provided."}
@@ -65,54 +87,58 @@ function ViewReports({ reports = [] }) {
                   )}
                 </div>
               </div>
-              <div className="w-full flex justify-between items-center  ">
-                <p className="text-xs text-gray-500 mt-1">{created}</p>
-                <AnimatePresence>
-                  <div
-                    className="flex flex-col justify-center gap-4 absolute top-[231px] right-0 w-[50px] items-center"
-                    onMouseEnter={() => setIsHover(true)}
-                    onMouseLeave={() => setIsHover(false)}
-                  >
-                    <form action={reportTypeFormAction}>
-                      <input hidden name="reportId" value={r.id} />
+
+              {/* Footer + Hover actions */}
+              <div className="w-full flex justify-between items-center mt-2">
+                <p className="text-xs text-gray-500">{created}</p>
+
+                <div
+                  className="flex flex-col justify-center gap-4 absolute top-[231px] right-0 w-[50px] items-center"
+                  onMouseEnter={() => setHoveredReportId(r.id)}
+                  onMouseLeave={() => setHoveredReportId(null)}
+                >
+                  <form action={reportTypeFormAction}>
+                    <input hidden name="reportId" value={r.id} />
+
+                    {
                       <button
                         type="submit"
                         name="type"
-                        value="resolved"
+                        value={orderedOptions[0].value}
                         className="cursor-pointer"
                       >
-                        <img src="Resolved.svg" alt="Resolved" />
+                        <img
+                          src={orderedOptions[0].icon}
+                          alt={orderedOptions[0].value}
+                        />
                       </button>
+                    }
 
-                      {/* Show others on hover */}
-                      {isHover && (
+                    {/* Show other options on hover */}
+                    <AnimatePresence>
+                      {hoveredReportId === r.id && (
                         <motion.div
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0 }}
-                          className="flex flex-col justify-center gap-4"
+                          className="flex flex-col justify-center gap-4 mt-1"
                         >
-                          <button
-                            type="submit"
-                            name="type"
-                            value="cancelled"
-                            className="cursor-pointer"
-                          >
-                            <img src="Cancel.svg" alt="cancel" />
-                          </button>
-                          <button
-                            type="submit"
-                            name="type"
-                            value="pending"
-                            className="cursor-pointer"
-                          >
-                            <img src="Pending.svg" alt="pending" />
-                          </button>
+                          {orderedOptions.slice(1).map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="submit"
+                              name="type"
+                              value={opt.value}
+                              className="cursor-pointer"
+                            >
+                              <img src={opt.icon} alt={opt.value} />
+                            </button>
+                          ))}
                         </motion.div>
                       )}
-                    </form>
-                  </div>
-                </AnimatePresence>
+                    </AnimatePresence>
+                  </form>
+                </div>
               </div>
             </div>
           );
