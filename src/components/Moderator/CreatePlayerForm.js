@@ -21,7 +21,7 @@ function CreatePlayerForm({ teams }) {
     },
     {
       name: "class",
-      type: "text",
+      type: "class",
       placeholder: "Class",
     },
     {
@@ -44,6 +44,7 @@ function CreatePlayerForm({ teams }) {
         formState={createPlayerState}
         isOption={true}
         options={options}
+        optionValue="id"
       />
     </div>
   );

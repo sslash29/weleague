@@ -47,4 +47,18 @@ async function updateReportTypeQuery(prevState, formData) {
     message: "Report type updated successfully",
   };
 }
-export { getAllTeamsQuery, getTeamDataQuery, updateReportTypeQuery };
+
+async function getRulePointsQuery() {
+  const { data, error } = await supabase.from("rules").select("*");
+  if (error) {
+    console.error("Error fetching rule points:", error);
+    return [];
+  }
+  return data;
+}
+export {
+  getAllTeamsQuery,
+  getTeamDataQuery,
+  updateReportTypeQuery,
+  getRulePointsQuery,
+};

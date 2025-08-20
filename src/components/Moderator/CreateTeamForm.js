@@ -18,6 +18,7 @@ function CreateTeamForm() {
     {
       name: "class",
       placeholder: "Class",
+      type: "class",
     },
     {
       name: "teamCrestImg",

@@ -18,6 +18,7 @@ function CreateUserForm({
   options,
   optionName = "teamId",
   isBack = true,
+  optionValue = "name",
 }) {
   const router = useRouter();
   const { notification, setNotification } = useGlobal();
@@ -138,7 +139,12 @@ function CreateUserForm({
           >
             <option value="">Select team</option>
             {options.map((option) => (
-              <option key={option.id} value={option.name}>
+              <option
+                key={option.id}
+                value={
+                  optionValue.toLowerCase() === "name" ? option.name : option.id
+                }
+              >
                 {option.name}
               </option>
             ))}

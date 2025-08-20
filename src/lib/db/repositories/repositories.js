@@ -2,6 +2,7 @@
 
 import {
   getAllTeamsQuery,
+  getRulePointsQuery,
   getTeamDataQuery,
   updateReportTypeQuery,
 } from "../queries/queries";
@@ -18,8 +19,13 @@ async function updateReportTypeRepository(prevState, formData) {
   return await updateReportTypeQuery(prevState, formData);
 }
 
+async function getRulePointsRepository() {
+  return await getRulePointsQuery();
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
   updateReportTypeRepository,
+  getRulePointsRepository,
 };

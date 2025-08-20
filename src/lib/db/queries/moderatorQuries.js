@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { toNumber } from "@/utils/toNumber";
 import { revalidatePath } from "next/cache";
 
 async function addPlayerrQuery(prevState, formData) {
@@ -8,6 +9,7 @@ async function addPlayerrQuery(prevState, formData) {
   const playerType = formData.get("position") || formData.get("playerType");
   const className = formData.get("class");
   const team = formData.get("teamId");
+  console.log(team);
 
   if (!fullName || !playerImg || typeof playerImg === "string") {
     return {
@@ -204,13 +206,50 @@ async function deleteStudentQuery(prevState, formData) {
 }
 
 async function updatePlayerWeeklyDataQuery(prevState, formData) {
-  const weeklyData = formData.get("weeklyData");
+  const weeklyData = formData.get("weeklyData"); // stringified JSON
   const playerId = formData.get("playerId");
 
-  const { _, error } = await supabase
+  // Get the existing weekly_data_points for the player
+  const { data: playerData, error: playerError } = await supabase
+    .from("player")
+    .select("weekly_data_points")
+    .eq("id", playerId)
+    .single();
+
+  if (playerError) {
+    return {
+      success: false,
+      message: playerError.message,
+    };
+  }
+
+  // Parse existing data (if null, start with empty array)
+  let existingData = [];
+  if (playerData.weekly_data_points) {
+    try {
+      existingData = JSON.parse(playerData.weekly_data_points);
+    } catch {
+      existingData = [];
+    }
+  }
+
+  // Parse the new weeklyData
+  const parsedWeeklyData = JSON.parse(weeklyData);
+
+  // Add a timestamp (ISO string for consistency)
+  const entryWithDate = {
+    date: new Date().toISOString(), // e.g. "2025-08-20T11:45:30.123Z"
+    data: parsedWeeklyData,
+  };
+
+  // Append the new entry
+  existingData.push(entryWithDate);
+
+  // Save back to Supabase
+  const { error } = await supabase
     .from("player")
     .update({
-      weekly_data: weeklyData,
+      weekly_data_points: JSON.stringify(existingData),
     })
     .eq("id", playerId);
 
@@ -228,13 +267,13 @@ async function updatePlayerWeeklyDataQuery(prevState, formData) {
 }
 
 async function updatePlayerWeeklyPointsQuery(prevState, formData) {
-  const weeklyData = formData.get("weeklyData");
+  const totalPoints = formData.get("totalPoints");
   const playerId = formData.get("playerId");
 
   const { _, error } = await supabase
     .from("player")
     .update({
-      weekly_points: weeklyData,
+      point_this_week: totalPoints,
     })
     .eq("id", playerId);
 
@@ -252,9 +291,21 @@ async function updatePlayerWeeklyPointsQuery(prevState, formData) {
 }
 
 async function updatePlayerPointsAllTimeQuery(prevState, formData) {
-  const pointsOfAllTime = formData.get("pointsOfAllTime");
+  const totalPoints = formData.get("totalPoints");
   const playerId = formData.get("playerId");
+  console.log(playerId);
 
+  //* Get Player Data first
+  const { data: playerData, error: playerError } = await supabase
+    .from("player")
+    .select("points_all_time")
+    .eq("id", playerId)
+    .single();
+
+  const pointsOfAllTime = playerData?.points_all_time
+    ? toNumber(playerData.points_all_time) + toNumber(totalPoints)
+    : toNumber(totalPoints);
+  console.log(pointsOfAllTime, playerData);
   const { _, error } = await supabase
     .from("player")
     .update({
@@ -311,6 +362,27 @@ async function addPlayerDataQuery(prevState, formData) {
   };
 }
 
+async function updateTeamWeeklyPointsQuery() {}
+async function updateTeamPointsThisWeekQuery() {}
+async function updateTeamPointsAllTimeQuery() {}
+async function updateTeamAllTimeData() {}
+async function getTeamPlayers(teamId) {
+  const { data, error } = await supabase
+    .from("player")
+    .select("*")
+    .eq("team_id", teamId);
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    data,
+  };
+}
 export {
   addPlayerrQuery,
   deletePlayerrQuery,

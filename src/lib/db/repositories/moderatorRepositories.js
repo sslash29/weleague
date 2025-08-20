@@ -44,7 +44,13 @@ async function deleteStudentRepository(prevState, formData) {
   return data;
 }
 
-async function updatePlayerDataRepository(prevState, formData) {
+async function getAllPlayers() {
+  const data = await getAllPlayersQuery();
+  return data;
+}
+
+async function addPlayerDataRepository(prevState, formData) {
+  const data = await addPlayerDataQuery(prevState, formData);
   const playerWeeklyData = await updatePlayerWeeklyDataQuery(
     prevState,
     formData
@@ -57,16 +63,6 @@ async function updatePlayerDataRepository(prevState, formData) {
     prevState,
     formData
   );
-  return { playerWeeklyData, playerWeeklyPoints, playerPointAllTime };
-}
-
-async function getAllPlayers() {
-  const data = await getAllPlayersQuery();
-  return data;
-}
-
-async function addPlayerDataRepository(prevState, formData) {
-  const data = await addPlayerDataQuery(prevState, formData);
   return data;
 }
 
@@ -77,7 +73,6 @@ export {
   deleteTeamRepository,
   getStudentsRepository,
   deleteStudentRepository,
-  updatePlayerDataRepository,
   getAllPlayers,
   addPlayerDataRepository,
 };

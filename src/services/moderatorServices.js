@@ -7,8 +7,9 @@ import {
   deleteTeamRepository,
   addPlayerDataRepository,
 } from "@/lib/db/repositories/moderatorRepositories";
+import { getRulePointsRepository } from "@/lib/db/repositories/repositories";
+import { toNumber } from "@/utils/toNumber";
 import { redirect } from "next/navigation";
-
 const { getAllPlayersQuery } = require("@/lib/db/queries/moderatorQuries");
 
 async function getAllPlayers() {
@@ -37,6 +38,8 @@ async function deleteTeam(prevState, formData) {
 }
 
 async function addPlayerData(prevState, formData) {
+  const rulePoints = await getRulePointsRepository();
+  const points = rulePoints[0];
   const playerWeeklyData = {
     goals: {
       ownGoals: 0,
@@ -58,14 +61,8 @@ async function addPlayerData(prevState, formData) {
     redCards: 0,
     yellowCards: 0,
   };
-
-  console.log(formData);
   // Map incoming form values into the nested weekly data structure
   // Expecting formData to contain: freekick, normal, penalty, goalToGoal, ownGoal
-  const toNumber = (v) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  };
 
   const freekick = toNumber(formData.get("freekick"));
   const normal = toNumber(formData.get("normal"));
@@ -97,6 +94,43 @@ async function addPlayerData(prevState, formData) {
   playerWeeklyData.saves.normalSaves = normalSaves;
   playerWeeklyData.saves.penaltySaves = penaltySaves;
 
+  //* Variables for point calculation
+  const normalGoalPoint = points.goal * normal;
+  const freekickGoalPoint = points.freekick_goal * freekick;
+  const penaltyGoalPoint = points.goal * penalty;
+  const goalToGoalPoint = points.goal_to_goal * goalToGoal;
+  const ownGoalPoint = points.goal_conceeded * ownGoal;
+
+  const assistPoint = points.assist * assists;
+
+  const clearancePoint = points.goal_clearance * clearance;
+  const shotBlockPoint = points.shot_block * shotBlock;
+  const interceptionPoint = points.tackle * interception;
+
+  const normalSavePoint = points.save * normalSaves;
+  const penaltySavePoint = points.penalty_save * penaltySaves;
+
+  const yellowCardPoint = points.yellow_card * yellowCards;
+  const redCardPoint = points.red_card * redCards;
+
+  // Calculate total points
+  const totalPoints =
+    normalGoalPoint +
+    freekickGoalPoint +
+    penaltyGoalPoint +
+    goalToGoalPoint +
+    ownGoalPoint +
+    assistPoint +
+    clearancePoint +
+    shotBlockPoint +
+    interceptionPoint +
+    normalSavePoint +
+    penaltySavePoint +
+    yellowCardPoint +
+    redCardPoint;
+
+  formData.set("totalPoints", totalPoints);
+
   // Attach the weeklyData JSON to the formData so repository/query can read it
   const weeklyDataString = JSON.stringify(playerWeeklyData);
 
@@ -112,7 +146,6 @@ async function addPlayerData(prevState, formData) {
   redirect("/moderator");
 }
 
-async function addTeamData(prevState, formData) {}
 export {
   getAllPlayers,
   createPlayer,
