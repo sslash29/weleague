@@ -27,7 +27,7 @@ function ViewTeamData({
           <h2 className="text-5xl font-medium">{teamData.name}</h2>
         </div>
         <div className="flex flex-col items-center text-5xl font-medium w-[180px]">
-          <span>Team</span>
+          <span>Class</span>
           <span>{teamData.class}</span>
         </div>
       </div>
