@@ -20,6 +20,11 @@ function CreatePlayerForm({ teams }) {
       placeholder: "Position",
     },
     {
+      name: "price",
+      placeholder: "Price",
+      type: "price",
+    },
+    {
       name: "class",
       type: "class",
       placeholder: "Class",

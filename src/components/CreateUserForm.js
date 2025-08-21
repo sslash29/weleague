@@ -69,6 +69,17 @@ function CreateUserForm({
     } else if (type === "tel" || type === "number") {
       // block letters
       if (/^[a-zA-Z]$/.test(key)) e.preventDefault();
+    } else if (type === "price") {
+      // allow digits and a single decimal point
+      const isDigit = /^\d$/.test(key);
+      const isDot = key === ".";
+      if (!isDigit && !isDot) {
+        e.preventDefault();
+        return;
+      }
+      if (isDot && e.currentTarget.value.includes(".")) {
+        e.preventDefault();
+      }
     }
   };
 
@@ -89,6 +100,12 @@ function CreateUserForm({
           "Pasted value contains letters which are not allowed here"
         );
       }
+    } else if (type === "price") {
+      // allow only digits with at most one decimal point
+      if (!/^\d*\.?\d*$/.test(paste)) {
+        e.preventDefault();
+        setNotification("Please paste a valid decimal number");
+      }
     }
   };
 
@@ -100,6 +117,14 @@ function CreateUserForm({
     } else if (type === "tel" || type === "number") {
       const cleaned = e.target.value.replace(/[a-zA-Z]+/g, "");
       if (cleaned !== e.target.value) e.target.value = cleaned;
+    } else if (type === "price") {
+      // keep digits and a single dot
+      let value = e.target.value.replace(/[^0-9.]/g, "");
+      const parts = value.split(".");
+      if (parts.length > 2) {
+        value = parts.shift() + "." + parts.join("");
+      }
+      if (value !== e.target.value) e.target.value = value;
     }
   };
 
@@ -119,12 +144,15 @@ function CreateUserForm({
                 ? "numeric"
                 : input.type === "tel"
                 ? "tel"
+                : input.type === "price"
+                ? "decimal"
                 : "text"
             }
             onKeyDown={(e) => handleKeyDown(e, input.type || "text")}
             onPaste={(e) => handlePaste(e, input.type || "text")}
             onInput={(e) => handleInput(e, input.type || "text")}
             onChange={input.type === "file" ? handleFileChange : undefined}
+            pattern={input.type === "price" ? "[0-9]*[.]?[0-9]*" : undefined}
           />
         </div>
       ))}

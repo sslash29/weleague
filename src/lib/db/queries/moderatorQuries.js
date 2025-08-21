@@ -58,7 +58,7 @@ async function addPlayerrQuery(prevState, formData) {
   const playerType = formData.get("position") || formData.get("playerType");
   const className = formData.get("class");
   const team = formData.get("teamId");
-  console.log(team);
+  const price = formData.get("price");
 
   if (!fullName || !playerImg || typeof playerImg === "string") {
     return {
@@ -110,6 +110,7 @@ async function addPlayerrQuery(prevState, formData) {
     position: playerType,
     class: className,
     team_id: team,
+    price: toNumber(price),
   });
 
   if (error) {
@@ -483,10 +484,12 @@ async function updateTeamWeeklyPointsQuery(prevState, formData) {
   const totalPoints = toNumber(formData.get("totalPoints"));
   const currentGameWeek = formData.get("currentGameWeek");
   const playerId = formData.get("playerId");
+  const playerImage = formData.get("playerImage");
+  const playerPosition = formData.get("playerPosition");
 
   const playerName = (
     formData.get("playerName") ||
-    (await getPlayerNameById(playerId)) ||
+    (await getPlayerNameByIdQuery(playerId)) ||
     `Player_${playerId || "unknown"}`
   ).toString();
   const gameWeekKey = `GameWeek${currentGameWeek}`;
@@ -516,6 +519,8 @@ async function updateTeamWeeklyPointsQuery(prevState, formData) {
   base[gameWeekKey].players[playerName] = {
     points: Number(totalPoints) || 0,
     data: parsedWeeklyData,
+    img: playerImage || null,
+    position: playerPosition || null,
   };
 
   // 3) Save back
@@ -609,6 +614,8 @@ async function updateTeamAllTimeDataQuery(prevState, formData) {
   const currentGameWeek = formData.get("currentGameWeek");
   const totalPoints = toNumber(formData.get("totalPoints"));
   const playerName = formData.get("playerName");
+  const playerImage = formData.get("playerImage");
+  const playerPosition = formData.get("playerPosition");
   const gameWeekKey = `GameWeek${currentGameWeek}`;
 
   // Get the existing all_time_data for the team
@@ -635,6 +642,8 @@ async function updateTeamAllTimeDataQuery(prevState, formData) {
   base[gameWeekKey].players[playerName] = {
     points: Number(totalPoints) || 0,
     data: parsedWeeklyData,
+    img: playerImage || null,
+    position: playerPosition || null,
   };
 
   // Save back to Supabase
@@ -678,6 +687,28 @@ async function getPlayerNameByIdQuery(playerId) {
   if (error) return null;
   return data?.full_name || null;
 }
+
+async function getPlayerImgByIdQuery(playerId) {
+  if (!playerId) return null;
+  const { data, error } = await supabase
+    .from("player")
+    .select("player_image")
+    .eq("id", playerId)
+    .single();
+  if (error) return null;
+  return data?.player_image || null;
+}
+
+async function getPlayerPositionByIdQuery(playerId) {
+  if (!playerId) return null;
+  const { data, error } = await supabase
+    .from("player")
+    .select("position")
+    .eq("id", playerId)
+    .single();
+  if (error) return null;
+  return data?.position || null;
+}
 export {
   addPlayerrQuery,
   deletePlayerrQuery,
@@ -696,4 +727,6 @@ export {
   updateTeamPointsAllTimeQuery,
   updateTeamAllTimeDataQuery,
   getPlayerNameByIdQuery,
+  getPlayerImgByIdQuery,
+  getPlayerPositionByIdQuery,
 };

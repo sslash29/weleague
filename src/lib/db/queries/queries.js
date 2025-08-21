@@ -15,7 +15,8 @@ async function getTeamDataQuery(teamId) {
   const { data, error } = await supabase
     .from("team")
     .select("*")
-    .eq("id", teamId);
+    .eq("id", teamId)
+    .single();
   if (error) {
     console.error("Error fetching team data:", error);
     return null;
@@ -95,10 +96,24 @@ async function getAllGameWeeksQuery() {
   return data;
 }
 
+async function getTeamPlayersQuery(teamId) {
+  const { data, error } = await supabase
+    .from("player")
+    .select("*")
+    .eq("team_id", teamId);
+
+  if (error) {
+    console.error("Error fetching team players:", error);
+    return [];
+  }
+  return data;
+}
+
 export {
   getAllTeamsQuery,
   getTeamDataQuery,
   updateReportTypeQuery,
+  getTeamPlayersQuery,
   getRulePointsQuery,
   getPlayerTeamQuery,
   getCurrentGameweekQuery,

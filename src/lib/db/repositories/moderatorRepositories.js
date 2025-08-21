@@ -6,7 +6,9 @@ import {
   deletePlayerrQuery,
   deleteTeamQuery,
   getAllPlayersQuery,
+  getPlayerImgByIdQuery,
   getPlayerNameByIdQuery,
+  getPlayerPositionByIdQuery,
   getTeamPlayersQuery,
   updatePlayerPointsAllTimeQuery,
   updatePlayerWeeklyDataQuery,
@@ -74,6 +76,12 @@ async function updateTeamDataRepository(prevState, formData) {
   formData.set("currentGameWeek", currentGameweekNumber);
   const playerName = await getPlayerNameByIdQuery(formData.get("playerId"));
   formData.set("playerName", playerName);
+  const playerImage = await getPlayerImgByIdQuery(formData.get("playerId"));
+  formData.set("playerImage", playerImage);
+  const playerPosition = await getPlayerPositionByIdQuery(
+    formData.get("playerId")
+  );
+  formData.set("playerPosition", playerPosition);
   const weeklyPoints = await updateTeamWeeklyPointsQuery(prevState, formData);
   const pointsThisWeek = await updateTeamPointsThisWeekQuery(
     prevState,
