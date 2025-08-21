@@ -6,6 +6,8 @@ import {
   deletePlayerRepository,
   deleteTeamRepository,
   addPlayerDataRepository,
+  getTeamPlayersRepository,
+  updateTeamDataRepository,
 } from "@/lib/db/repositories/moderatorRepositories";
 import { getRulePointsRepository } from "@/lib/db/repositories/repositories";
 import { toNumber } from "@/utils/toNumber";
@@ -40,6 +42,7 @@ async function deleteTeam(prevState, formData) {
 async function addPlayerData(prevState, formData) {
   const rulePoints = await getRulePointsRepository();
   const points = rulePoints[0];
+  const teamId = formData.get("teamId");
   const playerWeeklyData = {
     goals: {
       ownGoals: 0,
@@ -143,6 +146,9 @@ async function addPlayerData(prevState, formData) {
 
   // Forward to repository which will call the DB query
   await addPlayerDataRepository(prevState, formData);
+  formData.set("teamId", teamId);
+  await updateTeamDataRepository(prevState, formData);
+
   redirect("/moderator");
 }
 

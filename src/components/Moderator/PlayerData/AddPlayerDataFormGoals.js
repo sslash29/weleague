@@ -4,7 +4,7 @@ import { startTransition, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import SubmitButton from "../../SubmitButton";
 
-function AddPlayerDataFormGoals({ playerId, setDisplay }) {
+function AddPlayerDataFormGoals({ playerId, setDisplay, teamId }) {
   const id = playerId;
 
   // ✅ Hooks must be at the top
@@ -34,6 +34,7 @@ function AddPlayerDataFormGoals({ playerId, setDisplay }) {
 
     const formData = new FormData();
     formData.append("playerId", id);
+    formData.append("teamId", teamId);
 
     // Convert empty values to "0"
     Object.entries(formValues).forEach(([key, value]) => {
@@ -43,10 +44,10 @@ function AddPlayerDataFormGoals({ playerId, setDisplay }) {
 
     // Merge any existing query params from earlier "Add More" steps so the
     // final submission includes fields appended to the URL by previous steps.
-    // Skip playerId because we already set it above.
+    // Skip playerId and teamId because we already set them above.
     const currentParams = new URLSearchParams(window.location.search);
     for (const [key, value] of currentParams.entries()) {
-      if (key === "playerId") continue;
+      if (key === "playerId" || key === "teamId") continue;
       if (!formData.has(key)) {
         formData.append(key, value);
       }
@@ -66,6 +67,7 @@ function AddPlayerDataFormGoals({ playerId, setDisplay }) {
 
     // Keep playerId as a single value
     currentParams.set("playerId", id);
+    currentParams.set("teamId", teamId);
 
     // Append new values so we don't overwrite earlier sections
     Object.entries(formValues).forEach(([key, value]) => {

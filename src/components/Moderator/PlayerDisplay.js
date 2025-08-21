@@ -17,7 +17,7 @@ function PlayerDisplay({ player, onDelete }) {
   }
 
   function handleRedirectAddPlayerData() {
-    router.push(`/moderator/add-player-data/${player.id}`);
+    router.push(`/moderator/add-player-data/${player.id}/${player.team_id}`);
   }
 
   return (

@@ -1,3 +1,4 @@
+import { Crushed } from "next/font/google";
 import {
   addPlayerDataQuery,
   addPlayerrQuery,
@@ -5,10 +6,17 @@ import {
   deletePlayerrQuery,
   deleteTeamQuery,
   getAllPlayersQuery,
+  getPlayerNameByIdQuery,
+  getTeamPlayersQuery,
   updatePlayerPointsAllTimeQuery,
   updatePlayerWeeklyDataQuery,
   updatePlayerWeeklyPointsQuery,
+  updateTeamAllTimeDataQuery,
+  updateTeamPointsAllTimeQuery,
+  updateTeamPointsThisWeekQuery,
+  updateTeamWeeklyPointsQuery,
 } from "../queries/moderatorQuries";
+import { getCurrentGameweekQuery } from "../queries/queries";
 import {
   deleteStudentQuery,
   getStudentsQuery,
@@ -50,20 +58,37 @@ async function getAllPlayers() {
 }
 
 async function addPlayerDataRepository(prevState, formData) {
+  const currentGameweek = await getCurrentGameweekQuery();
+  const currentGameweekNumber = currentGameweek.gameweek_number;
+  formData.set("currentGameWeek", currentGameweekNumber);
   const data = await addPlayerDataQuery(prevState, formData);
-  const playerWeeklyData = await updatePlayerWeeklyDataQuery(
-    prevState,
-    formData
-  );
-  const playerWeeklyPoints = await updatePlayerWeeklyPointsQuery(
-    prevState,
-    formData
-  );
-  const playerPointAllTime = await updatePlayerPointsAllTimeQuery(
-    prevState,
-    formData
-  );
+  await updatePlayerWeeklyDataQuery(prevState, formData);
+  await updatePlayerWeeklyPointsQuery(prevState, formData);
+  await updatePlayerPointsAllTimeQuery(prevState, formData);
   return data;
+}
+
+async function updateTeamDataRepository(prevState, formData) {
+  const currentGameweek = await getCurrentGameweekQuery();
+  const currentGameweekNumber = currentGameweek.gameweek_number;
+  formData.set("currentGameWeek", currentGameweekNumber);
+  const playerName = await getPlayerNameByIdQuery(formData.get("playerId"));
+  formData.set("playerName", playerName);
+  const weeklyPoints = await updateTeamWeeklyPointsQuery(prevState, formData);
+  const pointsThisWeek = await updateTeamPointsThisWeekQuery(
+    prevState,
+    formData
+  );
+  const pointsAllTime = await updateTeamPointsAllTimeQuery(prevState, formData);
+  const updateAllTimeData = await updateTeamAllTimeDataQuery(
+    prevState,
+    formData
+  );
+  return { weeklyPoints, pointsThisWeek, pointsAllTime, updateAllTimeData };
+}
+
+async function getTeamPlayersRepository(teamId) {
+  return await getTeamPlayersQuery(teamId);
 }
 
 export {
@@ -75,4 +100,6 @@ export {
   deleteStudentRepository,
   getAllPlayers,
   addPlayerDataRepository,
+  updateTeamDataRepository,
+  getTeamPlayersRepository,
 };

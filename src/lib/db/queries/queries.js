@@ -56,9 +56,51 @@ async function getRulePointsQuery() {
   }
   return data;
 }
+
+async function getPlayerTeamQuery(playerId) {
+  const { data, error } = await supabase
+    .from("player")
+    .select("team_id")
+    .eq("id", playerId);
+
+  if (error) {
+    console.error("Error fetching player team:", error);
+    return null;
+  }
+  return data;
+}
+
+async function getCurrentGameweekQuery() {
+  const { data, error } = await supabase
+    .from("gameweek")
+    .select("*")
+    .order("id", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching latest gameweek:", error);
+    return null;
+  }
+  return data;
+}
+
+async function getAllGameWeeksQuery() {
+  const { data, error } = await supabase.from("gameweek").select("*");
+
+  if (error) {
+    console.error("Error fetching all gameweeks:", error);
+    return [];
+  }
+  return data;
+}
+
 export {
   getAllTeamsQuery,
   getTeamDataQuery,
   updateReportTypeQuery,
   getRulePointsQuery,
+  getPlayerTeamQuery,
+  getCurrentGameweekQuery,
+  getAllGameWeeksQuery,
 };

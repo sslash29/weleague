@@ -5,11 +5,15 @@ import AddPlayerDataFormSaves from "./AddPlayerFormSaves";
 import AddPlayerDataFormTackles from "./AddPlayerDataFormTackles";
 import AddPlayerDataFormAdditonal from "./AddPlayerDataFormAdditional";
 
-function AddPlayerDataForm({ playerId }) {
+function AddPlayerDataForm({ playerId, teamId }) {
   const [display, setDisplay] = useState("goals");
   if (display === "goals")
     return (
-      <AddPlayerDataFormGoals playerId={playerId} setDisplay={setDisplay} />
+      <AddPlayerDataFormGoals
+        playerId={playerId}
+        setDisplay={setDisplay}
+        teamId={teamId}
+      />
     );
   if (display === "saves")
     return (
