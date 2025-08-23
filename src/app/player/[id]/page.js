@@ -7,7 +7,7 @@ async function Page({ params }) {
   const teamId = await getPlayerTeam(id);
   const teamData = await getTeamData(teamId[0].team_id);
   return (
-    <div>
+    <div className="w-full h-dvh flex items-center justify-center ">
       <ViewPlayer playerData={playerData} teamData={teamData} />
     </div>
   );

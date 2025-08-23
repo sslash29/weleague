@@ -127,14 +127,48 @@ async function addPlayerrQuery(prevState, formData) {
 }
 
 async function deletePlayerrQuery(prevState, formData) {
-  console.log(formData);
   const playerId = formData.get("playerId");
-  const { error } = await supabase.from("player").delete().eq("id", playerId);
 
-  if (error) {
+  //* Get the image URL from the player table
+  const { data: player, error: imgUrlError } = await supabase
+    .from("player")
+    .select("player_image")
+    .eq("id", playerId)
+    .single();
+
+  if (imgUrlError) {
     return {
       success: false,
-      message: error.message,
+      message: imgUrlError.message,
+    };
+  }
+
+  // Extract file name from URL
+  const imgUrl = player?.player_image;
+  const fileName = imgUrl.split("/").pop(); // 👉 "1755787002957-Screenshot__67_.png"
+
+  //* Delete the image from storage
+  const { error: deleteError } = await supabase.storage
+    .from("player_images") // bucket name
+    .remove([fileName]); // array of file paths
+
+  if (deleteError) {
+    return {
+      success: false,
+      message: deleteError.message,
+    };
+  }
+
+  //* Delete the player from DB
+  const { error: playerDeleteError } = await supabase
+    .from("player")
+    .delete()
+    .eq("id", playerId);
+
+  if (playerDeleteError) {
+    return {
+      success: false,
+      message: playerDeleteError.message,
     };
   }
 

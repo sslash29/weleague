@@ -22,7 +22,7 @@ function ViewPlayer({ playerData, teamData }) {
 
   if (!latestStats) return <p>No stats available</p>;
   return (
-    <div className="w-[700px] h-full p-2">
+    <div className="w-[700px] h-fit p-2 py-6 bg-[#f5f3f3]">
       {/* The Navbar */}
       <div className="flex items-end justify-between bg-[#EBEBEB] rounded-xl p-4">
         <div className="flex items-center gap-2">
