@@ -21,7 +21,7 @@ function PlayerDisplay({ player, onDelete }) {
   }
 
   return (
-    <div className="flex flex-col border p-3 w-[calc(1260px/3)] gap-10 rounded-lg h-fit ">
+    <div className="flex flex-col border p-3 w-[calc(1200px/3)] gap-10 rounded-lg h-fit ">
       <div className="flex items-center justify-between w-full">
         <div className="flex gap-1 items-center">
           <Image

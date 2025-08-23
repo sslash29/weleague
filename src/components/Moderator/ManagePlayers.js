@@ -11,7 +11,7 @@ function ManagePlayers({ players }) {
     }
   );
   return (
-    <div className="border p-3 mt-5 h-[78vh] flex flex-wrap content-start gap-x-5 gap-y-5 relative overflow-y-scroll">
+    <div className="border p-3 mt-5 h-[78vh] flex flex-wrap content-start gap-x-5 gap-y-5 relative overflow-y-scroll pl-6">
       {players.length === 0 ? (
         <li className="ml-5">No players found</li>
       ) : (

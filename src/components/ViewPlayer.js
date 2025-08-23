@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useMemo } from "react";
 import ViewStats from "./ViewStats";
+import PlayerChart from "./PlayerChart";
 
 function ViewPlayer({ playerData, teamData }) {
   const latestStats = useMemo(() => {
@@ -51,58 +52,81 @@ function ViewPlayer({ playerData, teamData }) {
           />
         </div>
       </div>
-
-      <div className="flex flex-col gap-4 mt-4">
-        <div className="flex flex-col gap-2">
-          <ViewStats
-            titleName="Goals"
-            items={[
-              {
-                label: "Freekick Goals",
-                value: latestStats.goals.freekickGoals,
-              },
-              { label: "Normal Goals", value: latestStats.goals.normalGoals },
-              { label: "Goal To Goal", value: latestStats.goals.GoalToGoal },
-              { label: "Penalty Goals", value: latestStats.goals.penaltyGoals },
-            ]}
-          />
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 mt-4">
+          <div className="flex flex-col gap-2">
+            <ViewStats
+              titleName="Goals"
+              items={[
+                {
+                  label: "Freekick Goals",
+                  value: latestStats.goals.freekickGoals,
+                },
+                { label: "Normal Goals", value: latestStats.goals.normalGoals },
+                { label: "Goal To Goal", value: latestStats.goals.GoalToGoal },
+                {
+                  label: "Penalty Goals",
+                  value: latestStats.goals.penaltyGoals,
+                },
+              ]}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <ViewStats
+              titleName="Tackles"
+              items={[
+                {
+                  label: "Clearance",
+                  value: latestStats.tackles.clearance,
+                },
+                {
+                  label: "Shot Block",
+                  value: latestStats.tackles.shotBlock,
+                },
+                {
+                  label: "Interception",
+                  value: latestStats.tackles.interception,
+                },
+              ]}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <ViewStats
+              titleName="Saves"
+              items={[
+                { label: "Normal Saves", value: latestStats.saves.normalSaves },
+                {
+                  label: "Penalty Saves",
+                  value: latestStats.saves.penaltySaves,
+                },
+              ]}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <ViewStats
+              titleName="Assists"
+              items={[
+                {
+                  label: "Total Assists",
+                  value: latestStats.assists,
+                },
+              ]}
+            />
+          </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <ViewStats
-            titleName="Tackles"
-            items={[
-              {
-                label: "Clearance",
-                value: latestStats.tackles.clearance,
-              },
-              {
-                label: "Shot Block",
-                value: latestStats.tackles.shotBlock,
-              },
-              {
-                label: "Interception",
-                value: latestStats.tackles.interception,
-              },
-            ]}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <ViewStats
-            titleName="Saves"
-            items={[
-              { label: "Normal Saves", value: latestStats.saves.normalSaves },
-              { label: "Penalty Saves", value: latestStats.saves.penaltySaves },
-            ]}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <ViewStats
-            titleName="Assists"
-            items={[
-              {
-                label: "Total Assists",
-                value: latestStats.assists,
-              },
+        <div>
+          <PlayerChart
+            data={[
+              latestStats.goals.freekickGoals +
+                latestStats.goals.normalGoals +
+                latestStats.goals.GoalToGoal +
+                latestStats.goals.penaltyGoals, // Shooting
+              latestStats.tackles.clearance +
+                latestStats.tackles.shotBlock +
+                latestStats.tackles.interception, // Defending
+              latestStats.saves.normalSaves + latestStats.saves.penaltySaves, // Saving
+              latestStats.assists, // Playmaking
+              latestStats.goals.freekickGoals + latestStats.goals.GoalToGoal, // Long Shots
             ]}
           />
         </div>
