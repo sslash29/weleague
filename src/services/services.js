@@ -6,6 +6,7 @@ const {
   updateReportTypeRepository,
   getPlayerTeamRepository,
   getTeamPlayersRepository,
+  getPlayerDataRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -28,4 +29,15 @@ async function getTeamPlayers(teamdId) {
   return await getTeamPlayersRepository(teamdId);
 }
 
-export { getAllTeams, getTeamData, updateReportType, getPlayerTeam };
+async function getPlayerData(playerId) {
+  return await getPlayerDataRepository(playerId);
+}
+
+export {
+  getAllTeams,
+  getTeamData,
+  updateReportType,
+  getPlayerTeam,
+  getTeamPlayers,
+  getPlayerData,
+};

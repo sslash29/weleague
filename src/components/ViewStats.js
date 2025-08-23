@@ -1,10 +1,10 @@
 "use client";
 
-function ViewTeamStats({ titleName, items = [] }) {
+function ViewStats({ titleName, items = [] }) {
   return (
     <div>
       {titleName && <h3 className="text-3xl">{titleName}</h3>}
-      <div className="translate-x-2">
+      <div className="translate-x-2 flex flex-col gap-1.5 ">
         {items.map(({ label, value }, idx) => (
           <div
             key={idx}
@@ -19,4 +19,4 @@ function ViewTeamStats({ titleName, items = [] }) {
   );
 }
 
-export default ViewTeamStats;
+export default ViewStats;

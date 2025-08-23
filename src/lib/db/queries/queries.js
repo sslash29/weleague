@@ -109,6 +109,20 @@ async function getTeamPlayersQuery(teamId) {
   return data;
 }
 
+async function getPlayerDataQuery(playerId) {
+  const { data, error } = await supabase
+    .from("player")
+    .select("*")
+    .eq("id", playerId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching player data:", error);
+    return null;
+  }
+  return data;
+}
+
 export {
   getAllTeamsQuery,
   getTeamDataQuery,
@@ -118,4 +132,5 @@ export {
   getPlayerTeamQuery,
   getCurrentGameweekQuery,
   getAllGameWeeksQuery,
+  getPlayerDataQuery,
 };

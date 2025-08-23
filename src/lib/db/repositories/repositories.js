@@ -2,6 +2,7 @@
 
 import {
   getAllTeamsQuery,
+  getPlayerDataQuery,
   getPlayerTeamQuery,
   getRulePointsQuery,
   getTeamDataQuery,
@@ -33,6 +34,10 @@ async function getTeamPlayersRepository(teamId) {
   return await getTeamPlayersQuery(teamId);
 }
 
+async function getPlayerDataRepository(playerId) {
+  return await getPlayerDataQuery(playerId);
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -40,4 +45,5 @@ export {
   getRulePointsRepository,
   getPlayerTeamRepository,
   getTeamPlayersRepository,
+  getPlayerDataRepository,
 };

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import ViewTeamStats from "./ViewTeamStats";
+import ViewStats from "./ViewStats";
 
 function ViewTeamData({
   teamData,
@@ -33,7 +33,7 @@ function ViewTeamData({
       </div>
       <div className="flex flex-col gap-7">
         <div className="flex items-start justify-between">
-          <ViewTeamStats
+          <ViewStats
             titleName="Goals"
             items={[
               { label: "Freekick", value: freekickGoals },
@@ -57,7 +57,7 @@ function ViewTeamData({
           </div>
         </div>
         <div className="flex items-start justify-between">
-          <ViewTeamStats
+          <ViewStats
             titleName="Tackles"
             items={[
               { label: "Clearance", value: totalTackles.clearance },
@@ -79,7 +79,7 @@ function ViewTeamData({
           </div>
         </div>
         <div className="flex items-start justify-between">
-          <ViewTeamStats
+          <ViewStats
             titleName="Saves"
             items={[
               { label: "Normal", value: totalSaves.normal },
@@ -100,7 +100,7 @@ function ViewTeamData({
           </div>
         </div>
         <div className="flex items-start justify-between">
-          <ViewTeamStats
+          <ViewStats
             titleName="Assists"
             items={[{ label: "Total", value: totalAssists }]}
           />
