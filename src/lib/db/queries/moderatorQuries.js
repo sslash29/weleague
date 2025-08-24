@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/utils/supabase/client";
 import { toNumber } from "@/utils/toNumber";
 import { revalidatePath } from "next/cache";
 

@@ -1,6 +1,6 @@
 "use server";
 
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/utils/supabase/client";
 
 async function addAdminQuery(prevState, formData) {
   const username = formData.get("username");

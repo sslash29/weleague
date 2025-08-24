@@ -1,6 +1,6 @@
 "use server";
 
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/utils/supabase/client";
 
 async function createReportQuery(prevState, formData) {
   const userFullName = formData.get("fullName");
