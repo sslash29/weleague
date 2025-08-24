@@ -1,22 +1,77 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import Logo from "./Logo";
+import { AnimatePresence, motion } from "motion/react";
 
 function Navbar() {
-  let isLoggedIn = true;
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [openDropdown, setOpenDropdown] = useState(false);
+
   return (
     <div className="flex items-center justify-between">
       <Logo />
       <div className="flex justify-between items-center w-fit gap-3">
         {isLoggedIn ? (
           <>
-            <div className="flex items-center gap-1 cursor-pointer">
+            {/* Top Ranking Dropdown */}
+            <div
+              className="flex items-center gap-1 cursor-pointer relative"
+              onMouseEnter={() => setOpenDropdown(true)}
+              onMouseLeave={() => setOpenDropdown(false)}
+              onClick={() => setOpenDropdown((prev) => !prev)}
+            >
               <h4>Top Ranking</h4>
-              <img src="/smallArrow.svg" alt="smallArrow" />
+              <motion.img
+                src="/smallArrow.svg"
+                alt="smallArrow"
+                animate={{ rotate: openDropdown ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+                className="w-4 h-4"
+              />
+              <AnimatePresence>
+                {openDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.25 }}
+                    className="flex flex-col gap-5 absolute top-7 left-0 bg-black text-white shadow-md px-4 z-10 rounded-lg text-xl w-[200px] py-5"
+                  >
+                    <Link
+                      href="/rankings/goal-ranking"
+                      className="w-fit hover:bg-[#d9d9d9]/50 p-2 rounded-md"
+                    >
+                      Goal Ranking
+                    </Link>
+                    <Link
+                      href="/rankings/assist-ranking"
+                      className="w-fit hover:bg-[#d9d9d9]/50 p-2 rounded-md"
+                    >
+                      Assist Ranking
+                    </Link>
+                    <Link
+                      href="/rankings/point-ranking"
+                      className="w-fit hover:bg-[#d9d9d9]/50 p-2 rounded-md"
+                    >
+                      Point Ranking
+                    </Link>
+                    <Link
+                      href="/rankings/save-ranking"
+                      className="w-fit hover:bg-[#d9d9d9]/50 p-2 rounded-md"
+                    >
+                      Save Ranking
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
+
+            {/* Other Nav Items */}
             <div className="flex items-center gap-1 cursor-pointer">
               <h4>Voting</h4>
-              <img src="/smallArrow.svg" alt="smallArrow" />
+              <img src="/smallArrow.svg" alt="smallArrow" className="w-4 h-4" />
             </div>
             <h4>Report A Problem</h4>
           </>

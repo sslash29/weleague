@@ -1,4 +1,4 @@
-import TeamRankings from "@/components/TeamRankings";
+import TeamRankings from "@/components/Ranking/TeamRankings";
 import { getAllTeams } from "@/services/services";
 
 async function page() {

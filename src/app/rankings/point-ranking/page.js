@@ -1,11 +1,11 @@
-import PlayerRankings from "@/components/Ranking/PlayerRankings";
+import TopPointsRanking from "@/components/Ranking/TopPointsRanking";
 import { getAllPlayers } from "@/services/moderatorServices";
 
 async function page() {
   const players = await getAllPlayers();
   return (
     <div>
-      <PlayerRankings playerData={players} />
+      <TopPointsRanking playerData={players} />
     </div>
   );
 }

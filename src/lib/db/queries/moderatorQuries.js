@@ -477,7 +477,11 @@ async function updatePlayerPointsAllTimeQuery(prevState, formData) {
 }
 
 async function getAllPlayersQuery() {
-  const { data, error } = await supabase.from("player").select("*");
+  const { data, error } = await supabase.from("player").select(`
+      *,
+      team:team_id ( name )
+    `);
+
   if (error) {
     return {
       success: false,
@@ -485,6 +489,7 @@ async function getAllPlayersQuery() {
     };
   }
 
+  // each player now has player.team.name
   return data;
 }
 
