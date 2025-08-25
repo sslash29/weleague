@@ -13,8 +13,12 @@ async function createStudentQuery(prevState, formData) {
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    phone,
-    name: displayName,
+    options: {
+      data: {
+        full_name: displayName ?? undefined,
+        phone_number: phone ?? undefined,
+      },
+    },
   });
   if (error) {
     throw new Error(error.message || "Sign up failed");
@@ -25,4 +29,13 @@ async function createStudentQuery(prevState, formData) {
   };
 }
 
-export { createStudentQuery };
+async function getUserQuery() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    throw new Error(error.message || "Failed to retrieve user");
+  }
+  return data;
+}
+
+export { createStudentQuery, getUserQuery };
