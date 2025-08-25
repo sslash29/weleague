@@ -1,3 +1,4 @@
+import { LogOut } from "@/components/LogOut";
 import { getUser } from "@/services/server/services";
 import Link from "next/link";
 
@@ -20,6 +21,10 @@ async function page() {
       <Link href="/auth/sign-up" className="text-3xl font-bold">
         Sign Up
       </Link>
+      <Link href="/auth/log-in" className="text-3xl font-bold">
+        Log in
+      </Link>
+      <LogOut />
     </div>
   );
 }

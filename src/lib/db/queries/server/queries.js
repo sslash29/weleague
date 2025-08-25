@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 async function createStudentQuery(prevState, formData) {
   const supabase = await createClient();
@@ -16,7 +17,7 @@ async function createStudentQuery(prevState, formData) {
     options: {
       data: {
         full_name: displayName ?? undefined,
-        phone_number: phone ?? undefined,
+        phone_number: phone || "",
       },
     },
   });
@@ -29,13 +30,47 @@ async function createStudentQuery(prevState, formData) {
   };
 }
 
+async function logInQuery(prevState, formData) {
+  const supabase = await createClient();
+  const email = formData.get("email");
+  const password = formData.get("password");
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    return { success: false, message: "Invalid credentials" };
+  }
+
+  // login succeeded
+  if (data?.user) {
+    redirect("/"); // ✅ correct usage
+  }
+
+  return { success: false, message: "Unexpected login error" };
+}
+
 async function getUserQuery() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   if (error) {
-    throw new Error(error.message || "Failed to retrieve user");
+    return {
+      success: false,
+      message: "your not logged in ",
+    };
   }
   return data;
 }
 
-export { createStudentQuery, getUserQuery };
+async function signOutQuery() {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    throw new Error(error.message || "Log out failed");
+  }
+  return { success: true, message: "logged out sucessfully" };
+}
+
+export { createStudentQuery, getUserQuery, logInQuery, signOutQuery };

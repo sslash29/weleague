@@ -3,10 +3,16 @@
 import {
   createStudentRepository,
   getUserRepository,
+  logInRepository,
+  signOutRepository,
 } from "@/lib/db/repositories/server/repositories";
 
 async function createStudent(prevState, formData) {
   return await createStudentRepository(prevState, formData);
+}
+
+async function logIn(prevState, formData) {
+  return await logInRepository(prevState, formData);
 }
 
 async function getUser() {
@@ -14,4 +20,8 @@ async function getUser() {
   console.dir(user, { depth: 6 });
 }
 
-export { createStudent, getUser };
+async function signOut() {
+  return await signOutRepository();
+}
+
+export { createStudent, getUser, logIn, signOut };

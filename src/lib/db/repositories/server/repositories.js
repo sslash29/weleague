@@ -3,14 +3,29 @@
 import {
   createStudentQuery,
   getUserQuery,
+  logInQuery,
+  signOutQuery,
 } from "@/lib/db/queries/server/queries";
 
 async function createStudentRepository(prevState, formData) {
   return await createStudentQuery(prevState, formData);
 }
 
+async function logInRepository(prevState, formData) {
+  return await logInQuery(prevState, formData);
+}
+
 async function getUserRepository() {
   return await getUserQuery();
 }
 
-export { createStudentRepository, getUserRepository };
+async function signOutRepository() {
+  return await signOutQuery();
+}
+
+export {
+  createStudentRepository,
+  getUserRepository,
+  logInRepository,
+  signOutRepository,
+};
