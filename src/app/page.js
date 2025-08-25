@@ -15,6 +15,9 @@ function page() {
       <Link href="/rankings" className="text-3xl font-bold">
         Go To Rankings
       </Link>
+      <Link href="/auth/sign-up" className="text-3xl font-bold">
+        Sign Up
+      </Link>
     </div>
   );
 }

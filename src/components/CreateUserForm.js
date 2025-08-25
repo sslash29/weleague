@@ -66,8 +66,48 @@ function CreateUserForm({
     if (type === "text") {
       // block digits
       if (/^\d$/.test(key)) e.preventDefault();
-    } else if (type === "tel" || type === "number") {
-      // block letters
+    } else if (type === "tel") {
+      // E.164: + followed by 8–15 digits, first digit 1-9
+      const input = e.currentTarget;
+      const value = input.value;
+      const selStart = input.selectionStart ?? value.length;
+      const selEnd = input.selectionEnd ?? value.length;
+      const selectionLength = Math.max(0, selEnd - selStart);
+
+      const isDigit = /^\d$/.test(key);
+      const isPlus = key === "+";
+
+      // allow '+' only at the start and only once (or when replacing a selection starting at 0)
+      if (isPlus) {
+        const alreadyHasPlus = value.includes("+");
+        const plusAtStart = selStart === 0; // typing at start
+        if (alreadyHasPlus || !plusAtStart) {
+          e.preventDefault();
+          return;
+        }
+        return; // allow
+      }
+
+      // prevent leading zero right after '+' (first significant digit must be 1-9)
+      if (isDigit && value === "+" && key === "0") {
+        e.preventDefault();
+        return;
+      }
+
+      // allow only digits otherwise
+      if (!isDigit) {
+        e.preventDefault();
+        return;
+      }
+
+      // enforce max of 15 digits total (excluding the '+')
+      const currentDigits = value.replace(/\D/g, "");
+      const willExceed = currentDigits.length >= 15 && selectionLength === 0;
+      if (willExceed) {
+        e.preventDefault();
+      }
+    } else if (type === "number") {
+      // block letters for numeric fields
       if (/^[a-zA-Z]$/.test(key)) e.preventDefault();
     } else if (type === "price") {
       // allow digits and a single decimal point
@@ -93,7 +133,22 @@ function CreateUserForm({
           "Pasted value contains numbers which are not allowed here"
         );
       }
-    } else if (type === "tel" || type === "number") {
+    } else if (type === "tel") {
+      // Validate resulting value against E.164 when pasting
+      const input = e.currentTarget;
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? input.value.length;
+      const next =
+        input.value.slice(0, start) +
+        paste.replace(/\s+/g, "") +
+        input.value.slice(end);
+      if (!/^\+[1-9]\d{7,14}$/.test(next)) {
+        e.preventDefault();
+        setNotification(
+          "Phone number must be in E.164 format, e.g. +123456789"
+        );
+      }
+    } else if (type === "number") {
       if (/[a-zA-Z]/.test(paste)) {
         e.preventDefault();
         setNotification(
@@ -114,7 +169,25 @@ function CreateUserForm({
     if (type === "text") {
       const cleaned = e.target.value.replace(/\d+/g, "");
       if (cleaned !== e.target.value) e.target.value = cleaned;
-    } else if (type === "tel" || type === "number") {
+    } else if (type === "tel") {
+      // Keep only digits and a single leading '+' and cap to 15 digits
+      let value = e.target.value.replace(/[^\d+]/g, "");
+      if (value.startsWith("+")) {
+        // remove any additional '+'
+        value = "+" + value.slice(1).replace(/[+]/g, "");
+      } else {
+        // remove all '+' if not at start
+        value = value.replace(/[+]/g, "");
+      }
+
+      // limit to 15 digits (excluding '+')
+      const digits = value.replace(/\D/g, "");
+      if (digits.length > 15) {
+        const trimmed = digits.slice(0, 15);
+        value = value.startsWith("+") ? "+" + trimmed : trimmed;
+      }
+      if (value !== e.target.value) e.target.value = value;
+    } else if (type === "number") {
       const cleaned = e.target.value.replace(/[a-zA-Z]+/g, "");
       if (cleaned !== e.target.value) e.target.value = cleaned;
     } else if (type === "price") {
@@ -152,7 +225,21 @@ function CreateUserForm({
             onPaste={(e) => handlePaste(e, input.type || "text")}
             onInput={(e) => handleInput(e, input.type || "text")}
             onChange={input.type === "file" ? handleFileChange : undefined}
-            pattern={input.type === "price" ? "[0-9]*[.]?[0-9]*" : undefined}
+            pattern={
+              input.type === "price"
+                ? "[0-9]*[.]?[0-9]*"
+                : input.type === "tel"
+                ? "^\\+[1-9]\\d{7,14}$"
+                : undefined
+            }
+            title={
+              input.type === "tel"
+                ? "E.164 format: + followed by 8–15 digits, e.g. +123456789"
+                : undefined
+            }
+            maxLength={input.type === "tel" ? 16 : undefined}
+            minLength={input.type === "tel" ? 9 : undefined}
+            autoComplete={input.type === "tel" ? "tel" : undefined}
           />
         </div>
       ))}
