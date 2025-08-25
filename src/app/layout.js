@@ -13,6 +13,23 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
+// Configure InstrumentSans variable fonts (normal and italic)
+const instrumentSans = localFont({
+  src: [
+    {
+      path: "../../public/fonts/InstrumentSans-VariableFont_wdth,wght.ttf",
+      style: "normal",
+      weight: "100 900",
+    },
+    {
+      path: "../../public/fonts/InstrumentSans-Italic-VariableFont_wdth,wght.ttf",
+      style: "italic",
+      weight: "100 900",
+    },
+  ],
+  variable: "--font-instrument-sans",
+});
+
 // Configure Sharpie fonts
 const sharpie = localFont({
   src: [
@@ -55,7 +72,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         style={{ fontFamily: "var(--font-poppins), sans-serif" }}
-        className={`${poppins.variable} ${sharpie.variable} flex flex-col p-6 px-12 overflow-x-hidden`}
+        className={`${poppins.variable} ${instrumentSans.variable} ${sharpie.variable} flex flex-col p-6 px-12 overflow-x-hidden`}
       >
         <Navbar />
         <GlobalProvider>{children}</GlobalProvider>

@@ -128,7 +128,14 @@ function TopGoalRanking({ playerData }) {
               <p className="text-xl text-center">{player.goals}</p>
               <p className="text-xl text-center">{player.team.name}</p>
               <p className="text-xl text-center">{player.age}</p>
-              <p className="text-4xl text-center">{index + 1}</p>
+              <p
+                className="text-4xl text-center"
+                style={{
+                  fontFamily: "var(--font-instrument-sans), sans-serif",
+                }}
+              >
+                {index + 1}
+              </p>
             </div>
           );
         })}

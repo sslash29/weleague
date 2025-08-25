@@ -162,7 +162,14 @@ function PlayerRankings({ playerData }) {
               <p className="text-xl text-center">{tackles}</p>
 
               {/* Index */}
-              <p className="text-3xl text-center">{index + 1}</p>
+              <p
+                className="text-3xl text-center"
+                style={{
+                  fontFamily: "var(--font-instrument-sans), sans-serif",
+                }}
+              >
+                {index + 1}
+              </p>
             </div>
           );
         })}
