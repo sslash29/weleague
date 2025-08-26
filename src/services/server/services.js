@@ -16,8 +16,8 @@ async function logIn(prevState, formData) {
 }
 
 async function getUser() {
-  const user = await getUserRepository();
-  console.dir(user, { depth: 6 });
+  const { user } = await getUserRepository();
+  return user ? { ...user } : null;
 }
 
 async function signOut() {

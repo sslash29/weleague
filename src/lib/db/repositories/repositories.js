@@ -2,6 +2,9 @@
 
 import {
   getAllTeamsQuery,
+  getBestAssistVideoQuery,
+  getBestGoalVideoQuery,
+  getBestTackleVideoQuery,
   getPlayerDataQuery,
   getPlayerTeamQuery,
   getRulePointsQuery,
@@ -38,6 +41,20 @@ async function getPlayerDataRepository(playerId) {
   return await getPlayerDataQuery(playerId);
 }
 
+async function getBestAwardsRepository() {
+  const [bestGoal, bestAssist, bestTackle] = await Promise.all([
+    getBestGoalVideoQuery(),
+    getBestAssistVideoQuery(),
+    getBestTackleVideoQuery(),
+  ]);
+
+  return {
+    bestGoal,
+    bestAssist,
+    bestTackle,
+  };
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -46,4 +63,5 @@ export {
   getPlayerTeamRepository,
   getTeamPlayersRepository,
   getPlayerDataRepository,
+  getBestAwardsRepository,
 };

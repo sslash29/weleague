@@ -8,6 +8,9 @@ import {
   addPlayerDataRepository,
   getTeamPlayersRepository,
   updateTeamDataRepository,
+  addBestGoalVideoRepository,
+  addBestAssistVideoRepository,
+  addBestTackleVideoRepository,
 } from "@/lib/db/repositories/moderatorRepositories";
 import { getRulePointsRepository } from "@/lib/db/repositories/repositories";
 import { toNumber } from "@/utils/toNumber";
@@ -152,6 +155,16 @@ async function addPlayerData(prevState, formData) {
   redirect("/moderator");
 }
 
+async function addBestAward(prevState, formData) {
+  const awardType = formData.get("awardType");
+  if (awardType === "bestGoal")
+    return await addBestGoalVideoRepository(prevState, formData);
+  if (awardType === "bestAssist")
+    return await addBestAssistVideoRepository(prevState, formData);
+  if (awardType === "bestTackle")
+    return await addBestTackleVideoRepository(prevState, formData);
+}
+
 export {
   getAllPlayers,
   createPlayer,
@@ -159,4 +172,5 @@ export {
   deletePlayer,
   deleteTeam,
   addPlayerData,
+  addBestAward,
 };

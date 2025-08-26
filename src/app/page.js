@@ -25,6 +25,12 @@ async function page() {
         Log in
       </Link>
       <LogOut />
+      <Link href="/moderator/add-best" className="text-3xl font-bold">
+        Add Best
+      </Link>
+      <Link href="/voting/best-goal" className="text-3xl font-bold">
+        Best Goal Voting
+      </Link>
     </div>
   );
 }

@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
 import { AnimatePresence, motion } from "motion/react";
 
-function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+function Navbar({ user }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(false);
+
+  useEffect(() => {
+    if (user) setIsLoggedIn(true);
+  }, [user]);
 
   return (
     <div className="flex items-center justify-between">
@@ -91,12 +95,16 @@ function Navbar() {
         </div>
       ) : (
         <div className="flex items-center gap-2">
-          <button className="p-3 py-2 border rounded-md hover:bg-violet-normal-hover hover:text-white transition-all cursor-pointer">
-            Log In
-          </button>
-          <button className="p-3 py-2 border rounded-md hover:bg-violet-normal-hover hover:text-white transition-all cursor-pointer">
-            Sign Up
-          </button>
+          <Link href="/auth/log-in">
+            <button className="p-3 py-2 border rounded-md hover:bg-violet-normal-hover hover:text-white transition-all cursor-pointer">
+              Log In
+            </button>
+          </Link>
+          <Link href="/auth/sign-up">
+            <button className="p-3 py-2 border rounded-md hover:bg-violet-normal-hover hover:text-white transition-all cursor-pointer">
+              Sign Up
+            </button>
+          </Link>
         </div>
       )}
     </div>

@@ -123,6 +123,78 @@ async function getPlayerDataQuery(playerId) {
   return data;
 }
 
+async function getBestGoalVideoQuery() {
+  const { data, error } = await supabase
+    .from("best_award")
+    .select(
+      `
+      *,
+      player:player_id (
+        full_name,
+        player_image,
+        team:team_id (
+          name
+        )
+      )
+    `
+    )
+    .eq("award_type", "bestGoal");
+
+  if (error) {
+    console.error("Error fetching best goal videos:", error);
+    return [];
+  }
+  return data;
+}
+
+async function getBestAssistVideoQuery() {
+  const { data, error } = await supabase
+    .from("best_award")
+    .select(
+      `
+      *,
+      player:player_id (
+        full_name,
+        player_image,
+        team:team_id (
+          name
+        )
+      )
+    `
+    )
+    .eq("award_type", "bestAssist");
+
+  if (error) {
+    console.error("Error fetching best assist videos:", error);
+    return [];
+  }
+  return data;
+}
+
+async function getBestTackleVideoQuery() {
+  const { data, error } = await supabase
+    .from("best_award")
+    .select(
+      `
+      *,
+      player:player_id (
+        full_name,
+        player_image,
+        team:team_id (
+          name
+        )
+      )
+    `
+    )
+    .eq("award_type", "bestTackle");
+
+  if (error) {
+    console.error("Error fetching best tackle videos:", error);
+    return [];
+  }
+  return data;
+}
+
 export {
   getAllTeamsQuery,
   getTeamDataQuery,
@@ -133,4 +205,7 @@ export {
   getCurrentGameweekQuery,
   getAllGameWeeksQuery,
   getPlayerDataQuery,
+  getBestTackleVideoQuery,
+  getBestAssistVideoQuery,
+  getBestGoalVideoQuery,
 };

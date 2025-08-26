@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import { GlobalProvider, useGlobal } from "@/context/globalContext";
 import Notifcation from "@/components/Notifcation";
+import { getUser } from "@/services/server/services";
 
 // Configure Poppins font
 const poppins = Poppins({
@@ -67,14 +68,15 @@ export const metadata = {
   description: "Created By A team in We School madinat nasr",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const user = await getUser();
   return (
     <html lang="en">
       <body
         style={{ fontFamily: "var(--font-poppins), sans-serif" }}
         className={`${poppins.variable} ${instrumentSans.variable} ${sharpie.variable} flex flex-col p-6 px-12 overflow-x-hidden`}
       >
-        <Navbar />
+        <Navbar user={user} />
         <GlobalProvider>{children}</GlobalProvider>
       </body>
     </html>

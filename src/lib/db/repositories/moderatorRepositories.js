@@ -1,5 +1,8 @@
 import { Crushed } from "next/font/google";
 import {
+  addBestAssistVideoQuery,
+  addBestGoalVideoQuery,
+  addBestTackleVideoQuery,
   addPlayerDataQuery,
   addPlayerrQuery,
   addTeamQuery,
@@ -99,6 +102,18 @@ async function getTeamPlayersRepository(teamId) {
   return await getTeamPlayersQuery(teamId);
 }
 
+async function addBestGoalVideoRepository(prevState, formData) {
+  return await addBestGoalVideoQuery(prevState, formData);
+}
+
+async function addBestAssistVideoRepository(prevState, formData) {
+  return await addBestAssistVideoQuery(prevState, formData);
+}
+
+async function addBestTackleVideoRepository(prevState, formData) {
+  return await addBestTackleVideoQuery(prevState, formData);
+}
+
 export {
   createPlayerRepository,
   deletePlayerRepository,
@@ -110,4 +125,7 @@ export {
   addPlayerDataRepository,
   updateTeamDataRepository,
   getTeamPlayersRepository,
+  addBestGoalVideoRepository,
+  addBestAssistVideoRepository,
+  addBestTackleVideoRepository,
 };

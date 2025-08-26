@@ -748,6 +748,178 @@ async function getPlayerPositionByIdQuery(playerId) {
   if (error) return null;
   return data?.position || null;
 }
+
+async function addBestGoalVideoQuery(prevState, formData) {
+  const video = formData.get("video");
+  const playerId = formData.get("playerId");
+  const awardType = formData.get("awardType");
+  const fileExt = video.name?.split(".").pop() || "bin";
+  const safeName = video.name?.replace(/[^a-zA-Z0-9_.-]/g, "_") || "upload";
+  const filePath = `${Date.now()}-${safeName}`;
+  const arrayBuffer = await video.arrayBuffer();
+  const { data: uploadData, error: videoError } = await supabase.storage
+    .from("best_goal")
+    .upload(filePath, arrayBuffer, {
+      contentType: video.type || `video/${fileExt}`,
+      upsert: false,
+    });
+
+  if (videoError) {
+    return {
+      success: false,
+      message: videoError.message,
+    };
+  }
+
+  // Get a public URL for the uploaded video
+  const {
+    data: { publicUrl: videoUrl },
+    error: videoUrlError,
+  } = supabase.storage
+    .from("best_goal")
+    .getPublicUrl(uploadData?.path || filePath);
+
+  if (videoUrlError) {
+    return {
+      success: false,
+      message: videoUrlError.message,
+    };
+  }
+
+  // Insert the player record
+  const { error } = await supabase.from("best_award").insert({
+    video_url: videoUrl,
+    player_id: playerId,
+    award_type: awardType,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Video added successfully",
+  };
+}
+
+async function addBestAssistVideoQuery(prevState, formData) {
+  const video = formData.get("video");
+  const playerId = formData.get("playerId");
+  const awardType = formData.get("awardType");
+  const fileExt = video.name?.split(".").pop() || "bin";
+  const safeName = video.name?.replace(/[^a-zA-Z0-9_.-]/g, "_") || "upload";
+  const filePath = `${Date.now()}-${safeName}`;
+  const arrayBuffer = await video.arrayBuffer();
+  const { data: uploadData, error: videoError } = await supabase.storage
+    .from("best_assist")
+    .upload(filePath, arrayBuffer, {
+      contentType: video.type || `video/${fileExt}`,
+      upsert: false,
+    });
+
+  if (videoError) {
+    return {
+      success: false,
+      message: videoError.message,
+    };
+  }
+
+  // Get a public URL for the uploaded video
+  const {
+    data: { publicUrl: videoUrl },
+    error: videoUrlError,
+  } = supabase.storage
+    .from("best_assist")
+    .getPublicUrl(uploadData?.path || filePath);
+
+  if (videoUrlError) {
+    return {
+      success: false,
+      message: videoUrlError.message,
+    };
+  }
+
+  // Insert the player record
+  const { error } = await supabase.from("best_award").insert({
+    video_url: videoUrl,
+    player_id: playerId,
+    award_type: awardType,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Video added successfully",
+  };
+}
+
+async function addBestTackleVideoQuery(prevState, formData) {
+  const video = formData.get("video");
+  const playerId = formData.get("playerId");
+  const awardType = formData.get("awardType");
+  const fileExt = video.name?.split(".").pop() || "bin";
+  const safeName = video.name?.replace(/[^a-zA-Z0-9_.-]/g, "_") || "upload";
+  const filePath = `${Date.now()}-${safeName}`;
+  const arrayBuffer = await video.arrayBuffer();
+  const { data: uploadData, error: videoError } = await supabase.storage
+    .from("best_tackle")
+    .upload(filePath, arrayBuffer, {
+      contentType: video.type || `video/${fileExt}`,
+      upsert: false,
+    });
+
+  if (videoError) {
+    return {
+      success: false,
+      message: videoError.message,
+    };
+  }
+
+  // Get a public URL for the uploaded video
+  const {
+    data: { publicUrl: videoUrl },
+    error: videoUrlError,
+  } = supabase.storage
+    .from("best_tackle")
+    .getPublicUrl(uploadData?.path || filePath);
+
+  if (videoUrlError) {
+    return {
+      success: false,
+      message: videoUrlError.message,
+    };
+  }
+
+  // Insert the player record
+  const { error } = await supabase.from("best_award").insert({
+    video_url: videoUrl,
+    player_id: playerId,
+    award_type: awardType,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Video added successfully",
+  };
+}
+
 export {
   addPlayerrQuery,
   deletePlayerrQuery,
@@ -768,4 +940,7 @@ export {
   getPlayerNameByIdQuery,
   getPlayerImgByIdQuery,
   getPlayerPositionByIdQuery,
+  addBestGoalVideoQuery,
+  addBestAssistVideoQuery,
+  addBestTackleVideoQuery,
 };
