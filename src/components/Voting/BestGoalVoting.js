@@ -6,15 +6,17 @@ function BestGoalVoting({ bestGoal }) {
   console.log(bestGoal);
   return (
     <div className="relative w-full border h-[80vh] rounded-lg translate-y-15 flex flex-col">
-      <div className="grid grid-cols-5 bg-[#F2F2F2] rounded-lg mb-3 px-4 pr-12 py-3 items-center">
+      <div className="grid grid-cols-5 bg-[#F2F2F2] rounded-lg mb-3 px-4  py-3 items-center">
         <h2 className="text-4xl font-bold">Player</h2>
         <span className="text-2xl text-center">Player Team</span>
         <span className="text-2xl text-center">No. Votes</span>
-        <h2 className="text-4xl font-bold text-end col-span-2">No.</h2>
+        <span className="text-2xl text-center "></span>
+
+        <h2 className="text-4xl font-bold text-center w-[400px]">No.</h2>
       </div>
 
       {/* Rows */}
-      <div className="flex-1 flex flex-col gap-8 px-4 pr-12 overflow-y-auto">
+      <div className="flex-1 flex flex-col gap-8 px-4 overflow-y-auto">
         {bestGoal.map((award, index) => {
           return (
             <div
@@ -48,7 +50,7 @@ function BestGoalVoting({ bestGoal }) {
               {/* Number of Votes */}
               <p className="text-xl text-center">{award.no_of_votes || 0}</p>
 
-              <div className="w-full flex items-center justify-end">
+              <div className="w-full flex items-center justify-center">
                 {/* Vote Button */}
                 <button className="flex items-center gap-2 bg-violet-normal hover:bg-violet-normal-hover text-white px-10 py-1 rounded-lg transition-colors w-fit">
                   <Image
@@ -64,7 +66,7 @@ function BestGoalVoting({ bestGoal }) {
 
               {/* Index */}
               <p
-                className="text-3xl text-end"
+                className="text-4xl text-center w-[400px]"
                 style={{
                   fontFamily: "var(--font-instrument-sans), sans-serif",
                 }}
