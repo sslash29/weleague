@@ -5,8 +5,7 @@ import Image from "next/image";
 import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 
-function BestGoalVoting({ bestGoal, goalVote }) {
-  console.log(goalVote);
+function BestAssistVoting({ bestAssist }) {
   const [voteState, voteFormAction] = useActionState(addVote, {});
   useEffect(() => {
     if (voteState) {
@@ -26,7 +25,7 @@ function BestGoalVoting({ bestGoal, goalVote }) {
 
       {/* Rows */}
       <div className="flex-1 flex flex-col gap-8 px-4 overflow-y-auto">
-        {bestGoal.map((award, index) => {
+        {bestAssist.map((award, index) => {
           return (
             <div
               key={award.id}
@@ -62,23 +61,7 @@ function BestGoalVoting({ bestGoal, goalVote }) {
               <div className="w-full flex items-center justify-center">
                 {/* Vote Button */}
                 <form action={voteFormAction}>
-                  <input
-                    type="hidden"
-                    name="awardId"
-                    value={award.id}
-                    readOnly
-                  />
-                  <input
-                    type="hidden"
-                    name="prevVote"
-                    value={goalVote[0]?.id}
-                  />
-                  <input
-                    type="hidden"
-                    name="prevAwardId"
-                    value={goalVote[0]?.award_id}
-                  />
-                  <VoteButton awardId={award.id} goalVote={goalVote} />
+                  <VoteButton awardId={award.id} />
                 </form>
               </div>
 
@@ -99,18 +82,14 @@ function BestGoalVoting({ bestGoal, goalVote }) {
   );
 }
 
-function VoteButton({ awardId, goalVote }) {
+function VoteButton({ awardId }) {
   const { pending } = useFormStatus();
-
-  // Check if the user has already voted on this award
-  const hasVoted = goalVote?.some((vote) => vote.award_id === awardId);
-  const isDisabled = pending || hasVoted;
-
-  console.log(hasVoted);
+  console.log(pending);
   return (
     <>
+      <input type="hidden" name="awardId" value={awardId} readOnly />
       <button
-        disabled={isDisabled}
+        disabled={pending}
         className="flex items-center gap-2 bg-violet-normal hover:bg-violet-normal-hover text-white px-10 py-1 rounded-lg transition-colors w-fit disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Image
@@ -121,11 +100,11 @@ function VoteButton({ awardId, goalVote }) {
           className="w-2 h-[14px]"
         />
         <span className="text-md font-semibold">
-          {hasVoted ? "Voted" : pending ? "Voting..." : "Vote"}
+          {pending ? "Voting..." : "Vote"}
         </span>
       </button>
     </>
   );
 }
 
-export default BestGoalVoting;
+export default BestAssistVoting;

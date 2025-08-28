@@ -3,6 +3,7 @@
 import { supabase } from "@/utils/supabase/client";
 import { createClient } from "@/utils/supabase/server";
 import { sql } from "@supabase/supabase-js";
+import { formatDynamicAPIAccesses } from "next/dist/server/app-render/dynamic-rendering";
 async function getAllTeamsQuery() {
   const { data, error } = await supabase.from("team").select("*");
   if (error) {
@@ -199,6 +200,9 @@ async function getBestTackleVideoQuery() {
 async function addVoteQuery(prevState, formData) {
   const awardId = formData.get("awardId");
   const studentId = formData.get("studentId");
+  const prevVote = formData.get("prevVote");
+  const prevAwardId = formData.get("prevAwardId");
+  console.log(formData);
   if (!awardId) {
     return {
       success: false,
@@ -211,6 +215,35 @@ async function addVoteQuery(prevState, formData) {
     .select("no_of_votes")
     .eq("id", awardId);
 
+  if (prevVote.length > 1) {
+    const { error } = await supabase
+      .from("best_award")
+      .update({
+        no_of_votes: data[0].no_of_votes === 0 ? 0 : data[0].no_of_votes - 1,
+      })
+      .eq("id", prevAwardId);
+
+    const { data: updateData, error: bestAwardVoteNumberError } = await supabase
+      .from("best_award")
+      .update({ no_of_votes: data[0].no_of_votes + 1 })
+      .eq("id", awardId)
+      .select();
+
+    const { error: deleteVoteError } = await supabase
+      .from("votes_assignment")
+      .delete()
+      .eq("id", prevVote);
+    const { _, error: votingAssignmentError } = await supabase
+      .from("votes_assignment")
+      .insert({
+        student_id: studentId,
+        award_id: awardId,
+      });
+    return {
+      success: true,
+      message: "Vote updated successfully",
+    };
+  }
   // ✅ Increment no_of_vote
   const { data: updateData, error: bestAwardVoteNumberError } = await supabase
     .from("best_award")
@@ -219,6 +252,8 @@ async function addVoteQuery(prevState, formData) {
     .select();
 
   if (bestAwardVoteNumberError) {
+    throw new Error(bestAwardVoteNumberError);
+
     return {
       success: false,
       message: bestAwardVoteNumberError.message,
@@ -233,6 +268,7 @@ async function addVoteQuery(prevState, formData) {
     });
 
   if (votingAssignmentError) {
+    throw new Error(JSON.stringify(votingAssignmentError));
     return {
       success: false,
       message: votingAssignmentError.message,
@@ -244,6 +280,22 @@ async function addVoteQuery(prevState, formData) {
     message: "Vote added successfully",
     updatedAward: updateData,
   };
+}
+
+async function getVoteQuery(student_id) {
+  const { data, error } = await supabase
+    .from("votes_assignment")
+    .select("*, best_award:best_award(award_type, id)")
+    .eq("student_id", student_id);
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return data;
 }
 
 export {
@@ -260,4 +312,5 @@ export {
   getBestAssistVideoQuery,
   getBestGoalVideoQuery,
   addVoteQuery,
+  getVoteQuery,
 };

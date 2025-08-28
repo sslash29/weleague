@@ -9,6 +9,7 @@ const {
   getPlayerDataRepository,
   getBestAwardsRepository,
   addVoteRepository,
+  getVoteRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -42,7 +43,23 @@ async function getBestAwards() {
 async function addVote(prevState, formData) {
   return await addVoteRepository(prevState, formData);
 }
-
+async function getVote(student_id = "aa20eca5-773e-444d-9391-489739ce3a9d") {
+  const data = await getVoteRepository(student_id);
+  const bestGoals = data.filter(
+    (item) => item.best_award?.award_type === "bestGoal"
+  );
+  const bestAssists = data.filter(
+    (item) => item.best_award?.award_type === "bestAssist"
+  );
+  const bestTackles = data.filter(
+    (item) => item.best_award?.award_type === "bestTackle"
+  );
+  return {
+    bestGoals,
+    bestAssists,
+    bestTackles,
+  };
+}
 export {
   getAllTeams,
   getTeamData,
@@ -52,4 +69,5 @@ export {
   getPlayerData,
   getBestAwards,
   addVote,
+  getVote,
 };

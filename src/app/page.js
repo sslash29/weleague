@@ -31,6 +31,10 @@ async function page() {
       <Link href="/voting/best-goal" className="text-3xl font-bold">
         Best Goal Voting
       </Link>
+
+      <Link href="/voting/best-assist" className="text-3xl font-bold">
+        Best Assist Voting
+      </Link>
     </div>
   );
 }

@@ -12,8 +12,11 @@ import {
   getRulePointsQuery,
   getTeamDataQuery,
   getTeamPlayersQuery,
+  getVoteQuery,
   updateReportTypeQuery,
 } from "../queries/queries";
+import { getVote } from "@/services/services";
+import { getUserQuery } from "../queries/server/queries";
 
 async function getAllTeamsRepository() {
   return await getAllTeamsQuery();
@@ -58,11 +61,13 @@ async function getBestAwardsRepository() {
 }
 
 async function addVoteRepository(prevState, formData) {
-  const data = await getUser();
-  formData.set("studentId", data.id);
+  const data = await getUserQuery();
+  formData.set("studentId", data.user.id);
   return await addVoteQuery(prevState, formData);
 }
-
+async function getVoteRepository(student_id) {
+  return await getVoteQuery(student_id);
+}
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -73,4 +78,5 @@ export {
   getPlayerDataRepository,
   getBestAwardsRepository,
   addVoteRepository,
+  getVoteRepository,
 };
