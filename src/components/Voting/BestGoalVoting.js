@@ -1,9 +1,17 @@
 "use client";
 
+import { addVote } from "@/services/services";
 import Image from "next/image";
+import { useActionState, useEffect } from "react";
+import { useFormStatus } from "react-dom";
 
 function BestGoalVoting({ bestGoal }) {
-  console.log(bestGoal);
+  const [voteState, voteFormAction] = useActionState(addVote, {});
+  useEffect(() => {
+    if (voteState) {
+      console.log(voteState.message);
+    }
+  }, [voteState]);
   return (
     <div className="relative w-full border h-[80vh] rounded-lg translate-y-15 flex flex-col">
       <div className="grid grid-cols-5 bg-[#F2F2F2] rounded-lg mb-3 px-4  py-3 items-center">
@@ -52,16 +60,9 @@ function BestGoalVoting({ bestGoal }) {
 
               <div className="w-full flex items-center justify-center">
                 {/* Vote Button */}
-                <button className="flex items-center gap-2 bg-violet-normal hover:bg-violet-normal-hover text-white px-10 py-1 rounded-lg transition-colors w-fit">
-                  <Image
-                    src="/VoteArrow.svg"
-                    alt="Vote"
-                    width={8}
-                    height={14}
-                    className="w-2 h-[14px]"
-                  />
-                  <span className="text-md font-semibold">Vote</span>
-                </button>
+                <form action={voteFormAction}>
+                  <VoteButton awardId={award.id} />
+                </form>
               </div>
 
               {/* Index */}
@@ -78,6 +79,31 @@ function BestGoalVoting({ bestGoal }) {
         })}
       </div>
     </div>
+  );
+}
+
+function VoteButton({ awardId }) {
+  const { pending } = useFormStatus();
+  console.log(pending);
+  return (
+    <>
+      <input type="hidden" name="awardId" value={awardId} readOnly />
+      <button
+        disabled={pending}
+        className="flex items-center gap-2 bg-violet-normal hover:bg-violet-normal-hover text-white px-10 py-1 rounded-lg transition-colors w-fit disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <Image
+          src="/VoteArrow.svg"
+          alt="Vote"
+          width={8}
+          height={14}
+          className="w-2 h-[14px]"
+        />
+        <span className="text-md font-semibold">
+          {pending ? "Voting..." : "Vote"}
+        </span>
+      </button>
+    </>
   );
 }
 

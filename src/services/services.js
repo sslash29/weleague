@@ -8,6 +8,7 @@ const {
   getTeamPlayersRepository,
   getPlayerDataRepository,
   getBestAwardsRepository,
+  addVoteRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -38,6 +39,10 @@ async function getBestAwards() {
   return await getBestAwardsRepository();
 }
 
+async function addVote(prevState, formData) {
+  return await addVoteRepository(prevState, formData);
+}
+
 export {
   getAllTeams,
   getTeamData,
@@ -46,4 +51,5 @@ export {
   getTeamPlayers,
   getPlayerData,
   getBestAwards,
+  addVote,
 };

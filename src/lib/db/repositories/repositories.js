@@ -1,6 +1,8 @@
 "use server";
 
+import { getUser } from "@/services/server/services";
 import {
+  addVoteQuery,
   getAllTeamsQuery,
   getBestAssistVideoQuery,
   getBestGoalVideoQuery,
@@ -55,6 +57,12 @@ async function getBestAwardsRepository() {
   };
 }
 
+async function addVoteRepository(prevState, formData) {
+  const data = await getUser();
+  formData.set("studentId", data.id);
+  return await addVoteQuery(prevState, formData);
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -64,4 +72,5 @@ export {
   getTeamPlayersRepository,
   getPlayerDataRepository,
   getBestAwardsRepository,
+  addVoteRepository,
 };
