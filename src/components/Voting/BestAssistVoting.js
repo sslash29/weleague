@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 
-function BestAssistVoting({ bestAssist }) {
+function BestAssistVoting({ bestAssist, assistVote }) {
+  console.log(assistVote);
   const [voteState, voteFormAction] = useActionState(addVote, {});
   useEffect(() => {
     if (voteState) {
@@ -61,7 +62,23 @@ function BestAssistVoting({ bestAssist }) {
               <div className="w-full flex items-center justify-center">
                 {/* Vote Button */}
                 <form action={voteFormAction}>
-                  <VoteButton awardId={award.id} />
+                  <input
+                    type="hidden"
+                    name="awardId"
+                    value={award.id}
+                    readOnly
+                  />
+                  <input
+                    type="hidden"
+                    name="prevVote"
+                    value={assistVote[0]?.id}
+                  />
+                  <input
+                    type="hidden"
+                    name="prevAwardId"
+                    value={assistVote[0]?.award_id}
+                  />
+                  <VoteButton awardId={award.id} assistVote={assistVote} />
                 </form>
               </div>
 
@@ -82,14 +99,18 @@ function BestAssistVoting({ bestAssist }) {
   );
 }
 
-function VoteButton({ awardId }) {
+function VoteButton({ awardId, assistVote }) {
   const { pending } = useFormStatus();
-  console.log(pending);
+  
+  // Check if the user has already voted on this award
+  const hasVoted = assistVote?.some((vote) => vote.award_id === awardId);
+  const isDisabled = pending || hasVoted;
+
+  console.log(hasVoted);
   return (
     <>
-      <input type="hidden" name="awardId" value={awardId} readOnly />
       <button
-        disabled={pending}
+        disabled={isDisabled}
         className="flex items-center gap-2 bg-violet-normal hover:bg-violet-normal-hover text-white px-10 py-1 rounded-lg transition-colors w-fit disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Image
@@ -100,7 +121,7 @@ function VoteButton({ awardId }) {
           className="w-2 h-[14px]"
         />
         <span className="text-md font-semibold">
-          {pending ? "Voting..." : "Vote"}
+          {hasVoted ? "Voted" : pending ? "Voting..." : "Vote"}
         </span>
       </button>
     </>
