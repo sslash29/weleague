@@ -3,11 +3,12 @@
 import { toNumber } from "@/utils/toNumber";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 function PlayerRankings({ playerData }) {
   const router = useRouter();
-
+  // Each row will manage its own hover state locally
   function extractStats(weeklyDataPoints) {
     if (!weeklyDataPoints)
       return { goals: 0, assists: 0, tackles: 0, saves: 0 };
@@ -123,59 +124,92 @@ function PlayerRankings({ playerData }) {
       </div>
 
       {/* Rows */}
-      <div className="flex-1 flex flex-col gap-8 px-4 overflow-y-auto">
-        {sortedPlayers.map((player, index) => {
-          const { goals, assists, tackles } = player._stats || {
-            goals: 0,
-            assists: 0,
-            tackles: 0,
-          };
-
-          return (
-            <div
-              key={player.id}
-              className="grid grid-cols-5 items-center w-full"
-            >
-              {/* Player column */}
-              <div
-                className="flex items-center gap-3 cursor-pointer"
-                onClick={() => handlePlayerClick(player)}
-              >
-                <Image
-                  src={player.player_image || "/football-svgrepo-com.svg"}
-                  alt="Player Image"
-                  width={80}
-                  height={80}
-                  className="w-[80px] h-[80px] rounded-full"
-                />
-                <h3 className="text-3xl font-semibold">{player.full_name}</h3>{" "}
-                {/* ✅ fixed */}
-              </div>
-
-              {/* Goals */}
-              <p className="text-xl text-center">{goals}</p>
-
-              {/* Assists */}
-              <p className="text-xl text-center">{assists}</p>
-
-              {/* Tackles */}
-              <p className="text-xl text-center">{tackles}</p>
-
-              {/* Index */}
-              <p
-                className="text-3xl text-center"
-                style={{
-                  fontFamily: "var(--font-instrument-sans), sans-serif",
-                }}
-              >
-                {index + 1}
-              </p>
-            </div>
-          );
-        })}
+      <div className="flex-1 flex flex-col gap-5 px-4 overflow-y-auto">
+        {sortedPlayers.map((player, index) => (
+          <PlayerRow
+            key={player.id}
+            player={player}
+            index={index}
+            onClick={() => handlePlayerClick(player)}
+          />
+        ))}
       </div>
     </div>
   );
 }
 
 export default PlayerRankings;
+
+function PlayerRow({ player, index, onClick }) {
+  const [isHover, setIsHover] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    function handleMove(e) {
+      setPos({ x: e.clientX, y: e.clientY });
+    }
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
+
+  const { goals, assists, tackles } = player._stats || {
+    goals: 0,
+    assists: 0,
+    tackles: 0,
+  };
+
+  return (
+    <div
+      className="grid grid-cols-5 items-center w-full relative min-h-[150px]"
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+    >
+      {/* Player column */}
+      <div className="flex items-center gap-3 cursor-pointer" onClick={onClick}>
+        <AnimatePresence>
+          {isHover && (
+            <motion.div
+              className="absolute p-4 rounded-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, x: pos.x - 217, y: pos.y - 301 }}
+              exit={{ opacity: 0 }}
+              // style={{ top: pos.y - 301, left: pos.x - 217 }}
+            >
+              <Image
+                src="/image.png"
+                alt="Player Image"
+                width={217}
+                height={301}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <Image
+          src={player.player_image || "/football-svgrepo-com.svg"}
+          alt="Player Image"
+          width={80}
+          height={80}
+          className="w-[80px] h-[80px] rounded-full"
+        />
+        <h3 className="text-3xl font-semibold">{player.full_name}</h3>
+      </div>
+
+      {/* Goals */}
+      <p className="text-xl text-center">{goals}</p>
+
+      {/* Assists */}
+      <p className="text-xl text-center">{assists}</p>
+
+      {/* Tackles */}
+      <p className="text-xl text-center">{tackles}</p>
+
+      {/* Index */}
+      <p
+        className="text-3xl text-center"
+        style={{ fontFamily: "var(--font-instrument-sans), sans-serif" }}
+      >
+        {index + 1}
+      </p>
+    </div>
+  );
+}

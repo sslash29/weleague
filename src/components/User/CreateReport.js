@@ -23,7 +23,7 @@ function CreateReport() {
     },
     {
       name: "problemDescription",
-      type: "textarea",
+      type: "text",
       placeholder: "Explain",
     },
   ];
@@ -48,9 +48,15 @@ function CreateReport() {
         inputs={inputs}
         formAction={createReportFormAction}
         formState={createReportState}
-        isOption={true}
-        options={options}
-        optionName="problemType"
+        selectOptions={[
+          {
+            name: "problemType",
+            label: "Problem Type",
+            options: options,
+            valueKey: "id",
+            displayKey: "name",
+          },
+        ]}
       />
     </div>
   );

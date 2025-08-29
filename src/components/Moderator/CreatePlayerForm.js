@@ -47,9 +47,15 @@ function CreatePlayerForm({ teams }) {
         inputs={inputs}
         formAction={createPlayerFormAction}
         formState={createPlayerState}
-        isOption={true}
-        options={options}
-        optionValue="id"
+        selectOptions={[
+          {
+            name: "teamId",
+            label: "Team",
+            options: options,
+            valueKey: "id",
+            displayKey: "name",
+          },
+        ]}
       />
     </div>
   );
