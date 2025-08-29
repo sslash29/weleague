@@ -12,6 +12,27 @@ import {
 } from "framer-motion";
 function PlayerRankings({ playerData }) {
   const router = useRouter();
+  const [isHover, setIsHover] = useState(false);
+  const isSetCurPos = useRef(true);
+
+  // Motion values (no React re-renders)
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  // Smooth spring animation for natural movement
+  const smoothX = useSpring(x, { stiffness: 300, damping: 30 });
+  const smoothY = useSpring(y, { stiffness: 300, damping: 30 });
+
+  useEffect(() => {
+    function handleMove(e) {
+      if (isSetCurPos.current) {
+        x.set(e.clientX - 217);
+        y.set(e.clientY - 301);
+      }
+    }
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, [x, y]);
   // Each row will manage its own hover state locally
   function extractStats(weeklyDataPoints) {
     if (!weeklyDataPoints)
@@ -135,52 +156,10 @@ function PlayerRankings({ playerData }) {
             player={player}
             index={index}
             onClick={() => handlePlayerClick(player)}
+            setIsHover={setIsHover}
           />
         ))}
-      </div>
-    </div>
-  );
-}
 
-export default PlayerRankings;
-
-function PlayerRow({ player, index, onClick }) {
-  const [isHover, setIsHover] = useState(false);
-  const isSetCurPos = useRef(true);
-
-  // Motion values (no React re-renders)
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  // Smooth spring animation for natural movement
-  const smoothX = useSpring(x, { stiffness: 300, damping: 30 });
-  const smoothY = useSpring(y, { stiffness: 300, damping: 30 });
-
-  useEffect(() => {
-    function handleMove(e) {
-      if (isSetCurPos.current) {
-        x.set(e.clientX - 217);
-        y.set(e.clientY - 301);
-      }
-    }
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, [x, y]);
-
-  const { goals, assists, tackles } = player._stats || {
-    goals: 0,
-    assists: 0,
-    tackles: 0,
-  };
-
-  return (
-    <div
-      className="grid grid-cols-5 items-center w-full relative min-h-[150px]"
-      onMouseEnter={() => setIsHover(true)}
-      onMouseLeave={() => setIsHover(false)}
-    >
-      {/* Player column */}
-      <div className="flex items-center gap-3 cursor-pointer" onClick={onClick}>
         <AnimatePresence>
           {isHover && (
             <motion.div
@@ -201,7 +180,27 @@ function PlayerRow({ player, index, onClick }) {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+    </div>
+  );
+}
 
+export default PlayerRankings;
+
+function PlayerRow({ player, index, onClick, setIsHover }) {
+  const { goals, assists, tackles } = player._stats || {
+    goals: 0,
+    assists: 0,
+    tackles: 0,
+  };
+
+  return (
+    <div
+      className="grid grid-cols-5 items-center w-full relative min-h-[150px]"
+      onMouseEnter={() => setIsHover(true)}
+    >
+      {/* Player column */}
+      <div className="flex items-center gap-3 cursor-pointer" onClick={onClick}>
         <Image
           src={player.player_image || "/football-svgrepo-com.svg"}
           alt="Player Image"
