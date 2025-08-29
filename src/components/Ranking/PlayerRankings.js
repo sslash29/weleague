@@ -3,9 +3,13 @@
 import { toNumber } from "@/utils/toNumber";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useSpring,
+} from "framer-motion";
 function PlayerRankings({ playerData }) {
   const router = useRouter();
   // Each row will manage its own hover state locally
@@ -142,15 +146,26 @@ export default PlayerRankings;
 
 function PlayerRow({ player, index, onClick }) {
   const [isHover, setIsHover] = useState(false);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const isSetCurPos = useRef(true);
+
+  // Motion values (no React re-renders)
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  // Smooth spring animation for natural movement
+  const smoothX = useSpring(x, { stiffness: 300, damping: 30 });
+  const smoothY = useSpring(y, { stiffness: 300, damping: 30 });
 
   useEffect(() => {
     function handleMove(e) {
-      setPos({ x: e.clientX, y: e.clientY });
+      if (isSetCurPos.current) {
+        x.set(e.clientX - 217);
+        y.set(e.clientY - 301);
+      }
     }
     window.addEventListener("mousemove", handleMove);
     return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
+  }, [x, y]);
 
   const { goals, assists, tackles } = player._stats || {
     goals: 0,
@@ -171,9 +186,11 @@ function PlayerRow({ player, index, onClick }) {
             <motion.div
               className="absolute p-4 rounded-lg"
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1, x: pos.x - 217, y: pos.y - 301 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              // style={{ top: pos.y - 301, left: pos.x - 217 }}
+              style={{ x: smoothX, y: smoothY }}
+              onMouseEnter={() => (isSetCurPos.current = false)}
+              onMouseLeave={() => (isSetCurPos.current = true)}
             >
               <Image
                 src="/image.png"
@@ -184,6 +201,7 @@ function PlayerRow({ player, index, onClick }) {
             </motion.div>
           )}
         </AnimatePresence>
+
         <Image
           src={player.player_image || "/football-svgrepo-com.svg"}
           alt="Player Image"
