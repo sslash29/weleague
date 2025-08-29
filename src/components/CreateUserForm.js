@@ -34,18 +34,19 @@ function CreateUserForm({
   // Handle file validation
   const handleFileChange = (e, typeofFile) => {
     const file = e.target.files[0];
+    console.log(file);
     if (!file) return;
-
     // ✅ Only apply 5MB limit to images
-    if (typeofFile?.startsWith("image/") && file.size > 5 * 1024 * 1024) {
+    if (file.type.startsWith("image/") && file.size > 5 * 1024 * 1024) {
       setNotification("Max image size is 5MB");
       e.target.value = null; // reset the input
     }
-
-    // ✅ For videos, no size check (or you can add a bigger limit, e.g. 100MB)
-    if (typeofFile?.startsWith("video/") && file.size > 100 * 1024 * 1024) {
-      setNotification("Max video size is 100MB");
-      e.target.value = null;
+    if (typeofFile?.startsWith("video/")) {
+      // ✅ For videos, no size check (or you can add a bigger limit, e.g. 100MB)
+      if (file.size > 100 * 1024 * 1024) {
+        setNotification("Max video size is 100MB");
+        e.target.value = null;
+      }
     }
   };
 
