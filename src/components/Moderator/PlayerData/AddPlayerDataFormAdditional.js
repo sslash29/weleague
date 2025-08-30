@@ -16,14 +16,19 @@ function AddPlayerDataFormAdditonal({ playerId, setDisplay }) {
     assists: "",
     redCards: "",
     yellowCards: "",
+    coolImg: null, // store File object
   });
 
   function handleChange(e) {
-    const { name, value } = e.target;
+    const { name, value, files, type } = e.target;
 
-    // Only allow numbers (or empty string for typing/deleting)
-    if (/^\d*$/.test(value)) {
-      setFormValues((prev) => ({ ...prev, [name]: value }));
+    if (type === "file") {
+      setFormValues((prev) => ({ ...prev, [name]: files[0] || null }));
+    } else {
+      // Only allow numbers
+      if (/^\d*$/.test(value)) {
+        setFormValues((prev) => ({ ...prev, [name]: value }));
+      }
     }
   }
 
@@ -33,19 +38,19 @@ function AddPlayerDataFormAdditonal({ playerId, setDisplay }) {
     const formData = new FormData();
     formData.append("playerId", id);
 
-    // Convert empty values to "0"
     Object.entries(formValues).forEach(([key, value]) => {
-      const finalValue = value === "" ? "0" : value;
-      formData.append(key, finalValue);
+      if (value instanceof File) {
+        formData.append(key, value); // append file
+      } else {
+        const finalValue = value === "" ? "0" : value;
+        formData.append(key, finalValue);
+      }
     });
 
-    // Merge any existing query params from earlier "Add More" steps so the
-    // final submission includes fields appended to the URL by previous steps.
-    // Skip playerId because we already set it above.
+    // Merge existing query params except playerId
     const currentParams = new URLSearchParams(window.location.search);
     for (const [key, value] of currentParams.entries()) {
       if (key === "playerId") continue;
-      // don't overwrite fields from the current form; only append missing ones
       if (!formData.has(key)) {
         formData.append(key, value);
       }
@@ -66,11 +71,12 @@ function AddPlayerDataFormAdditonal({ playerId, setDisplay }) {
     // Keep playerId as a single value
     currentParams.set("playerId", id);
 
-    // Build a FormData-like set and append each field so we don't overwrite existing values
+    // Append numeric/text fields (skip file since it can’t go in URL)
     Object.entries(formValues).forEach(([key, value]) => {
-      const finalValue = value === "" ? "0" : value;
-      // append so multiple parts can be preserved on the URL instead of replacing
-      currentParams.append(key, finalValue);
+      if (!(value instanceof File)) {
+        const finalValue = value === "" ? "0" : value;
+        currentParams.append(key, finalValue);
+      }
     });
 
     // Push updated URL
@@ -114,6 +120,12 @@ function AddPlayerDataFormAdditonal({ playerId, setDisplay }) {
               onChange={handleChange}
               inputMode="numeric"
             />
+            <input
+              className="p-2 rounded-lg bg-[#f2f2f2] outline-0 w-[200px]"
+              name="coolImg"
+              onChange={handleChange}
+              type="file"
+            />
           </div>
 
           <button
@@ -130,6 +142,9 @@ function AddPlayerDataFormAdditonal({ playerId, setDisplay }) {
           </button>
 
           <SubmitButton />
+          {statusMessage && (
+            <p className="text-green-600 font-medium mt-2">{statusMessage}</p>
+          )}
         </form>
       </div>
     </div>

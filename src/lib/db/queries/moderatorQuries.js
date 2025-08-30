@@ -920,6 +920,63 @@ async function addBestTackleVideoQuery(prevState, formData) {
   };
 }
 
+async function addCoolImgQuery(prevState, formData) {
+  const coolImg = formData.get("coolImg");
+  const playerId = formData.get("playerId");
+  const fileExt = coolImg.name?.split(".").pop() || "bin";
+  const safeName = coolImg.name?.replace(/[^a-zA-Z0-9_.-]/g, "_") || "upload";
+  const filePath = `${Date.now()}-${safeName}`;
+  const arrayBuffer = await coolImg.arrayBuffer();
+  const { data: uploadData, error: imgError } = await supabase.storage
+    .from("cool_image")
+    .upload(filePath, arrayBuffer, {
+      contentType: coolImg.type || `image/${fileExt}`,
+      upsert: false,
+    });
+
+  if (imgError) {
+    return {
+      success: false,
+      message: imgError.message,
+    };
+  }
+
+  // Get a public URL for the uploaded video
+  const {
+    data: { publicUrl: imgUrl },
+    error: imgUrlError,
+  } = supabase.storage
+    .from("cool_image")
+    .getPublicUrl(uploadData?.path || filePath);
+
+  if (imgUrlError) {
+    return {
+      success: false,
+      message: imgUrlError.message,
+    };
+  }
+
+  // Insert the player record
+  const { error } = await supabase
+    .from("player")
+    .update({
+      cool_img: imgUrl,
+    })
+    .eq("id", playerId);
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Video added successfully",
+  };
+}
+
 export {
   addPlayerrQuery,
   deletePlayerrQuery,
@@ -943,4 +1000,5 @@ export {
   addBestGoalVideoQuery,
   addBestAssistVideoQuery,
   addBestTackleVideoQuery,
+  addCoolImgQuery,
 };

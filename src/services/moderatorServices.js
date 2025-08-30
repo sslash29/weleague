@@ -11,6 +11,7 @@ import {
   addBestGoalVideoRepository,
   addBestAssistVideoRepository,
   addBestTackleVideoRepository,
+  addCoolImgRepository,
 } from "@/lib/db/repositories/moderatorRepositories";
 import { getRulePointsRepository } from "@/lib/db/repositories/repositories";
 import { toNumber } from "@/utils/toNumber";
@@ -44,8 +45,10 @@ async function deleteTeam(prevState, formData) {
 
 async function addPlayerData(prevState, formData) {
   const rulePoints = await getRulePointsRepository();
+  console.log(formData);
   const points = rulePoints[0];
   const teamId = formData.get("teamId");
+  const coolImg = formData.get("coolImg") || "";
   const playerWeeklyData = {
     goals: {
       ownGoals: 0,
@@ -148,6 +151,7 @@ async function addPlayerData(prevState, formData) {
   }
 
   // Forward to repository which will call the DB query
+  formData.append("coolImg", coolImg);
   await addPlayerDataRepository(prevState, formData);
   formData.set("teamId", teamId);
   await updateTeamDataRepository(prevState, formData);

@@ -4,36 +4,48 @@ import { toNumber } from "@/utils/toNumber";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useSpring,
-} from "framer-motion";
+import { AnimatePresence, motion, useMotionValue } from "framer-motion";
+
 function PlayerRankings({ playerData }) {
   const router = useRouter();
   const [isHover, setIsHover] = useState(false);
-  const isSetCurPos = useRef(true);
+  const [hoveredImage, setHoveredImage] = useState(null); // track which image to show
 
   // Motion values (no React re-renders)
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  // Smooth spring animation for natural movement
-  const smoothX = useSpring(x, { stiffness: 300, damping: 30 });
-  const smoothY = useSpring(y, { stiffness: 300, damping: 30 });
+  // Target positions for cursor, used by lerp loop
+  const targetX = useRef(0);
+  const targetY = useRef(0);
 
+  // Capture mouse and update targets only
   useEffect(() => {
     function handleMove(e) {
-      if (isSetCurPos.current) {
-        x.set(e.clientX - 217);
-        y.set(e.clientY - 301);
-      }
+      targetX.current = e.clientX - 217;
+      targetY.current = e.clientY - 301;
     }
     window.addEventListener("mousemove", handleMove);
     return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
+
+  // LERP animation loop for easing toward target
+  useEffect(() => {
+    let rafId;
+    const lerpFactor = 0.18; // 0..1, higher = faster follow
+
+    const tick = () => {
+      const cx = x.get();
+      const cy = y.get();
+      x.set(cx + (targetX.current - cx) * lerpFactor);
+      y.set(cy + (targetY.current - cy) * lerpFactor);
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
   }, [x, y]);
-  // Each row will manage its own hover state locally
+
+  // Extract stats helper
   function extractStats(weeklyDataPoints) {
     if (!weeklyDataPoints)
       return { goals: 0, assists: 0, tackles: 0, saves: 0 };
@@ -49,7 +61,6 @@ function PlayerRankings({ playerData }) {
       return { goals: 0, assists: 0, tackles: 0, saves: 0 };
     }
 
-    // Normalize to an array of weeks
     const weeks = Array.isArray(parsed)
       ? parsed
       : parsed && typeof parsed === "object"
@@ -66,8 +77,7 @@ function PlayerRankings({ playerData }) {
         )
           return;
 
-        // Find a data object regardless of shape
-        let data = undefined;
+        let data;
         if (week && typeof week === "object") {
           if (week.data) {
             data = week.data;
@@ -80,21 +90,18 @@ function PlayerRankings({ playerData }) {
           }
         }
 
-        if (!data || typeof data !== "object") return; // skip invalid structures
+        if (!data || typeof data !== "object") return;
 
-        // Goals (sum all except ownGoals)
         const goals = Object.entries(data.goals || {}).reduce(
           (sum, [key, val]) => (key !== "ownGoals" ? sum + toNumber(val) : sum),
           0
         );
 
-        // Tackles (sum all values)
         const tackles = Object.values(data.tackles || {}).reduce(
           (sum, val) => sum + toNumber(val),
           0
         );
 
-        // Saves (sum all values)
         const saves = Object.values(data.saves || {}).reduce(
           (sum, val) => sum + toNumber(val),
           0
@@ -105,7 +112,6 @@ function PlayerRankings({ playerData }) {
         total.tackles += tackles;
         total.saves += saves;
       } catch (err) {
-        // Skip malformed week entry
         console.warn("Skipping malformed weekly entry:", err);
       }
     });
@@ -133,7 +139,7 @@ function PlayerRankings({ playerData }) {
         (aStats.goals || 0) + (aStats.assists || 0) + (aStats.tackles || 0);
       const bTotal =
         (bStats.goals || 0) + (bStats.assists || 0) + (bStats.tackles || 0);
-      return bTotal - aTotal; //* descending by combined metric
+      return bTotal - aTotal;
     });
     return arr;
   }, [playersWithStats]);
@@ -148,7 +154,6 @@ function PlayerRankings({ playerData }) {
         <h2 className="text-4xl font-bold text-center">No.</h2>
       </div>
 
-      {/* Rows */}
       <div className="flex-1 flex flex-col gap-5 px-4 overflow-y-auto">
         {sortedPlayers.map((player, index) => (
           <PlayerRow
@@ -157,25 +162,27 @@ function PlayerRankings({ playerData }) {
             index={index}
             onClick={() => handlePlayerClick(player)}
             setIsHover={setIsHover}
+            setHoveredImage={setHoveredImage}
           />
         ))}
 
-        <AnimatePresence>
-          {isHover && (
+        <AnimatePresence mode="wait">
+          {isHover && hoveredImage && (
             <motion.div
-              className="absolute p-4 rounded-lg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{ x: smoothX, y: smoothY }}
-              onMouseEnter={() => (isSetCurPos.current = false)}
-              onMouseLeave={() => (isSetCurPos.current = true)}
+              key={hoveredImage} // important for transition
+              className="absolute p-4 rounded-lg pointer-events-none"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3 }}
+              style={{ x, y }}
             >
               <Image
-                src="/image.png"
-                alt="Player Image"
+                src={hoveredImage}
+                alt="Player Cool Image"
                 width={217}
                 height={301}
+                className="rounded-xl shadow-lg w-[217px] h-[301px]"
               />
             </motion.div>
           )}
@@ -187,7 +194,7 @@ function PlayerRankings({ playerData }) {
 
 export default PlayerRankings;
 
-function PlayerRow({ player, index, onClick, setIsHover }) {
+function PlayerRow({ player, index, onClick, setIsHover, setHoveredImage }) {
   const { goals, assists, tackles } = player._stats || {
     goals: 0,
     assists: 0,
@@ -197,7 +204,16 @@ function PlayerRow({ player, index, onClick, setIsHover }) {
   return (
     <div
       className="grid grid-cols-5 items-center w-full relative min-h-[150px]"
-      onMouseEnter={() => setIsHover(true)}
+      onMouseEnter={() => {
+        if (player.cool_img) {
+          setIsHover(true);
+          setHoveredImage(player.cool_img);
+        }
+      }}
+      onMouseLeave={() => {
+        setIsHover(false);
+        setHoveredImage(null);
+      }}
     >
       {/* Player column */}
       <div className="flex items-center gap-3 cursor-pointer" onClick={onClick}>

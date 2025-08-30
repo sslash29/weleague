@@ -13,6 +13,11 @@ const nextConfig = {
       new URL(
         "https://wulkwxswuyndpypbxhfm.supabase.co/storage/v1/object/public/team_crest_images/**"
       ),
+      {
+        protocol: "https",
+        hostname: "wulkwxswuyndpypbxhfm.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
     ],
   },
 };

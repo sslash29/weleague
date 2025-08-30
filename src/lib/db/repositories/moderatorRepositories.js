@@ -3,6 +3,7 @@ import {
   addBestAssistVideoQuery,
   addBestGoalVideoQuery,
   addBestTackleVideoQuery,
+  addCoolImgQuery,
   addPlayerDataQuery,
   addPlayerrQuery,
   addTeamQuery,
@@ -66,6 +67,7 @@ async function addPlayerDataRepository(prevState, formData) {
   const currentGameweek = await getCurrentGameweekQuery();
   const currentGameweekNumber = currentGameweek.gameweek_number;
   formData.set("currentGameWeek", currentGameweekNumber);
+  await addCoolImgQuery(prevState, formData);
   const data = await addPlayerDataQuery(prevState, formData);
   await updatePlayerWeeklyDataQuery(prevState, formData);
   await updatePlayerWeeklyPointsQuery(prevState, formData);
@@ -114,6 +116,10 @@ async function addBestTackleVideoRepository(prevState, formData) {
   return await addBestTackleVideoQuery(prevState, formData);
 }
 
+async function addCoolImgRepository(prevState, formData) {
+  return await addCoolImgQuery(prevState, formData);
+}
+
 export {
   createPlayerRepository,
   deletePlayerRepository,
@@ -128,4 +134,5 @@ export {
   addBestGoalVideoRepository,
   addBestAssistVideoRepository,
   addBestTackleVideoRepository,
+  addCoolImgRepository,
 };
