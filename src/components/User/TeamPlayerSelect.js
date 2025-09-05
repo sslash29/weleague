@@ -1,12 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
-function TeamPlayerSelect({ players = [] }) {
+function TeamPlayerSelect({
+  players = [],
+  selectedPlayerId,
+  setSelectedPlayerId,
+}) {
   const [search, setSearch] = useState("");
 
-  // Filter players directly (React 19 handles re-render perf)
+  const containerRef = useRef(null);
+
+  // Close selection when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
+        setSelectedPlayerId(null); // reset selection
+      }
+    }
+    window.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      window.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Filter players directly
   const filteredPlayers = players.filter(
     (p) =>
       p?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -21,7 +43,10 @@ function TeamPlayerSelect({ players = [] }) {
   };
 
   return (
-    <div className="relative border h-[80vh] rounded-lg  flex flex-col w-[570px]">
+    <div
+      ref={containerRef}
+      className="relative border h-[80vh] rounded-lg flex flex-col w-[570px]"
+    >
       {/* Header */}
       <div className="grid grid-cols-4 bg-[#F2F2F2] rounded-lg mb-3 px-2 pr-0 py-3 items-center">
         <h2 className="text-3xl font-bold mr-10">Players</h2>
@@ -53,42 +78,62 @@ function TeamPlayerSelect({ players = [] }) {
       {/* Rows */}
       <div className="flex-1 flex flex-col gap-8 px-2 pr-0 overflow-y-auto">
         {filteredPlayers.length > 0 ? (
-          filteredPlayers.map((player, index) => (
-            <div
-              key={player.id || index}
-              className="grid grid-cols-4 items-center w-full"
-            >
-              {/* Player column */}
-              <div className="flex items-center gap-2 cursor-pointer">
-                <Image
-                  src={
-                    typeof player.player_image === "string"
-                      ? player.player_image
-                      : "/football-svgrepo-com.svg"
-                  }
-                  alt="Player Image"
-                  width={40}
-                  height={40}
-                  className="w-[40px] h-[40px] rounded-full"
-                />
-                <h3 className="text-xl font-semibold">
-                  {truncateName(player.full_name)}
-                </h3>
-              </div>
+          filteredPlayers.map((player, index) => {
+            const id = player.id || index;
+            const isSelected = selectedPlayerId === id;
 
-              <p className="text-lg text-center">
-                {player.team?.name || "No Team"}
-              </p>
-              <p className="text-lg text-center">{player.position}</p>
-              <p className="text-lg text-center font-bold">{player.price}</p>
-            </div>
-          ))
+            return (
+              <div
+                key={id}
+                onClick={() => setSelectedPlayerId(id)}
+                className={`grid grid-cols-4 items-center w-full transition-all duration-300 cursor-pointer
+                  ${isSelected ? "scale-105 bg-[#f9f9f9]" : ""}
+                  ${
+                    selectedPlayerId && !isSelected
+                      ? "opacity-40"
+                      : "opacity-100"
+                  }
+                `}
+              >
+                {/* Player column */}
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={
+                      typeof player.player_image === "string"
+                        ? player.player_image
+                        : "/football-svgrepo-com.svg"
+                    }
+                    alt="Player Image"
+                    width={40}
+                    height={40}
+                    className="w-[40px] h-[40px] rounded-full"
+                  />
+                  <h3 className="text-xl font-semibold">
+                    {truncateName(player.full_name)}
+                  </h3>
+                </div>
+
+                <p className="text-lg text-center">
+                  {player.team?.name || "No Team"}
+                </p>
+                <p className="text-lg text-center">{player.position}</p>
+                <p className="text-lg text-center font-bold">{player.price}</p>
+              </div>
+            );
+          })
         ) : (
           <p className="text-center text-gray-500 mt-10 text-lg">
             No players found
           </p>
         )}
       </div>
+
+      {/* Message when a player is selected */}
+      {selectedPlayerId !== null && (
+        <div className="text-center py-4 text-xl font-semibold text-violet-normal">
+          Select position of player
+        </div>
+      )}
     </div>
   );
 }
