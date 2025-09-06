@@ -28,4 +28,55 @@ async function createReportQuery(prevState, formData) {
   };
 }
 
-export { createReportQuery };
+async function addPlayerToAssignmentQuery(playerId, studentId) {
+  const { data, error } = await supabase.from("players_assignment").insert({
+    player_id: playerId,
+    student_id: studentId,
+  });
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  return { success: true, data };
+}
+
+async function addPlayerToStudentTeamQuery(prevState, formData) {
+  const team = formData.get("team"); // this is now a JSON string
+  const studentId = formData.get("studentId");
+
+  const { data, error } = await supabase
+    .from("student")
+    .update({
+      team, // if `team` column is jsonb, Supabase will accept JSON.parse(team)
+    })
+    .eq("auth_user_id", studentId);
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  return { success: true, data };
+}
+
+async function getStudentTeamQuery(studentId) {
+  const { data, error } = await supabase
+    .from("student")
+    .select("team")
+    .eq("auth_user_id", studentId);
+
+  if (error)
+    return {
+      success: false,
+      message: error.message,
+    };
+  console.log(data);
+  return data;
+}
+
+export {
+  createReportQuery,
+  addPlayerToAssignmentQuery,
+  addPlayerToStudentTeamQuery,
+  getStudentTeamQuery,
+};

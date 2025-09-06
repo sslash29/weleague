@@ -3,32 +3,24 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
-function TeamPlayerSelect({
-  players = [],
-  selectedPlayerId,
-  setSelectedPlayerId,
-}) {
+function TeamPlayerSelect({ players = [], selectedPlayer, setSelectedPlayer }) {
   const [search, setSearch] = useState("");
-
   const containerRef = useRef(null);
 
-  // Close selection when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target)
+        !containerRef.current.contains(event.target) &&
+        event.target.id !== "playerSelect" // 👈 ignore clicks on #playerSelect
       ) {
-        setSelectedPlayerId(null); // reset selection
+        setSelectedPlayer(null);
       }
     }
     window.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      window.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+    return () => window.removeEventListener("mousedown", handleClickOutside);
+  }, [setSelectedPlayer]);
 
-  // Filter players directly
   const filteredPlayers = players.filter(
     (p) =>
       p?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -36,11 +28,8 @@ function TeamPlayerSelect({
       p?.position?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Helper to truncate names
-  const truncateName = (name, maxLength = 10) => {
-    if (!name) return "";
-    return name.length > maxLength ? name.slice(0, maxLength) + "..." : name;
-  };
+  const truncateName = (name, maxLength = 10) =>
+    name?.length > maxLength ? name.slice(0, maxLength) + "..." : name;
 
   return (
     <div
@@ -80,22 +69,19 @@ function TeamPlayerSelect({
         {filteredPlayers.length > 0 ? (
           filteredPlayers.map((player, index) => {
             const id = player.id || index;
-            const isSelected = selectedPlayerId === id;
+            const isSelected = selectedPlayer?.id === id;
 
             return (
               <div
                 key={id}
-                onClick={() => setSelectedPlayerId(id)}
+                onClick={() => player && setSelectedPlayer(player)}
                 className={`grid grid-cols-4 items-center w-full transition-all duration-300 cursor-pointer
                   ${isSelected ? "scale-105 bg-[#f9f9f9]" : ""}
                   ${
-                    selectedPlayerId && !isSelected
-                      ? "opacity-40"
-                      : "opacity-100"
+                    selectedPlayer && !isSelected ? "opacity-40" : "opacity-100"
                   }
                 `}
               >
-                {/* Player column */}
                 <div className="flex items-center gap-2">
                   <Image
                     src={
@@ -117,7 +103,9 @@ function TeamPlayerSelect({
                   {player.team?.name || "No Team"}
                 </p>
                 <p className="text-lg text-center">{player.position}</p>
-                <p className="text-lg text-center font-bold">{player.price}</p>
+                <p className="text-lg text-center font-bold">
+                  ${player.price}M
+                </p>
               </div>
             );
           })
@@ -128,8 +116,8 @@ function TeamPlayerSelect({
         )}
       </div>
 
-      {/* Message when a player is selected */}
-      {selectedPlayerId !== null && (
+      {/* Message */}
+      {selectedPlayer && (
         <div className="text-center py-4 text-xl font-semibold text-violet-normal">
           Select position of player
         </div>
