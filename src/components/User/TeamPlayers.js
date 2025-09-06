@@ -2,9 +2,14 @@
 
 import Player from "./Player";
 
+// ✅ helper function to get player by position
+function findPlayerByPosition(players, position) {
+  return Object.values(players).find((p) => p.positionOnField === position);
+}
+
 function TeamPlayers({ selectedPlayer, studentId, team }) {
   const selectedPos = selectedPlayer?.position?.toLowerCase();
-  console.log(team, studentId);
+
   return (
     <div
       className="flex-1 h-[80vh] rounded-lg border relative"
@@ -23,6 +28,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           label="goalkeeper"
           selectedPlayer={selectedPlayer}
           studentId={studentId}
+          playerData={findPlayerByPosition(team.mainPlayers, 1)}
         />
       </div>
 
@@ -35,14 +41,16 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           label="defender"
           selectedPlayer={selectedPlayer}
           studentId={studentId}
+          playerData={findPlayerByPosition(team.mainPlayers, 2)}
         />
         <Player
           type="main"
           positionOnField={3}
-          studentId={studentId}
           isActive={selectedPos === "defender"}
           label="defender"
           selectedPlayer={selectedPlayer}
+          studentId={studentId}
+          playerData={findPlayerByPosition(team.mainPlayers, 3)}
         />
       </div>
 
@@ -51,26 +59,29 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
         <Player
           type="main"
           positionOnField={4}
-          studentId={studentId}
           isActive={selectedPos === "midfield"}
           label="midfield"
           selectedPlayer={selectedPlayer}
+          studentId={studentId}
+          playerData={findPlayerByPosition(team.mainPlayers, 4)}
         />
         <Player
           type="main"
           positionOnField={5}
-          studentId={studentId}
           isActive={selectedPos === "midfield"}
           label="midfield"
           selectedPlayer={selectedPlayer}
+          studentId={studentId}
+          playerData={findPlayerByPosition(team.mainPlayers, 5)}
         />
         <Player
           type="main"
           positionOnField={6}
-          studentId={studentId}
           isActive={selectedPos === "midfield"}
           label="midfield"
           selectedPlayer={selectedPlayer}
+          studentId={studentId}
+          playerData={findPlayerByPosition(team.mainPlayers, 6)}
         />
       </div>
 
@@ -83,6 +94,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           label="attacker"
           selectedPlayer={selectedPlayer}
           studentId={studentId}
+          playerData={findPlayerByPosition(team.mainPlayers, 7)}
         />
         <Player
           type="main"
@@ -91,6 +103,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           label="attacker"
           selectedPlayer={selectedPlayer}
           studentId={studentId}
+          playerData={findPlayerByPosition(team.mainPlayers, 8)}
         />
       </div>
 
@@ -101,34 +114,38 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           <Player
             type="bench"
             positionOnField={9}
-            studentId={studentId}
             isActive={selectedPos === "attacker"}
             label="attacker"
             selectedPlayer={selectedPlayer}
+            studentId={studentId}
+            playerData={findPlayerByPosition(team.benchPlayers, 9)}
           />
           <Player
             type="bench"
             positionOnField={10}
-            studentId={studentId}
             isActive={selectedPos === "midfield"}
             label="midfield"
             selectedPlayer={selectedPlayer}
+            studentId={studentId}
+            playerData={findPlayerByPosition(team.benchPlayers, 10)}
           />
           <Player
             type="bench"
             positionOnField={11}
-            studentId={studentId}
             isActive={selectedPos === "defender"}
             label="defender"
             selectedPlayer={selectedPlayer}
+            studentId={studentId}
+            playerData={findPlayerByPosition(team.benchPlayers, 11)}
           />
           <Player
             type="bench"
             positionOnField={12}
-            studentId={studentId}
             isActive={selectedPos === "goalkeeper"}
             label="goalkeeper"
             selectedPlayer={selectedPlayer}
+            studentId={studentId}
+            playerData={findPlayerByPosition(team.benchPlayers, 12)}
           />
         </div>
       </div>

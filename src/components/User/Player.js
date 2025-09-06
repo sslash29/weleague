@@ -12,19 +12,23 @@ function Player({
   studentId,
   type,
   positionOnField,
+  playerData, // ✅ extra data passed in from team
 }) {
   const [playerState, setPlayersFormAction] = useActionState(
     addPlayerToTeam,
     {}
   );
+
   function handleClick() {
     if (!selectedPlayer) return;
+
     const formData = new FormData();
     formData.append("studentId", studentId);
     formData.append("playerId", selectedPlayer?.id);
     formData.append("type", type);
     formData.append("selectedPlayer", JSON.stringify(selectedPlayer));
     formData.append("positionOnField", positionOnField);
+
     startTransition(async () => {
       await setPlayersFormAction(formData);
     });
@@ -44,12 +48,12 @@ function Player({
     >
       <Image
         id="playerSelect"
-        src="/player.png"
-        alt="Player"
+        src={playerData?.player_img || "/player.png"} // ✅ real or placeholder
+        alt={playerData?.name || "Player"}
         width={100}
         height={100}
       />
-      {label && <span className="text-md mr-2.5">{label}</span>}
+      <span className="text-md mr-2.5">{playerData?.name || label}</span>
     </motion.div>
   );
 }
