@@ -7,7 +7,7 @@ function findPlayerByPosition(players, position) {
   return Object.values(players).find((p) => p.positionOnField === position);
 }
 
-function TeamPlayers({ selectedPlayer, studentId, team }) {
+function TeamPlayers({ selectedPlayer, studentId, team, onAddPlayer }) {
   const selectedPos = selectedPlayer?.position?.toLowerCase();
 
   return (
@@ -29,6 +29,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 1)}
+          onAddPlayer={onAddPlayer}
         />
       </div>
 
@@ -42,6 +43,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 2)}
+          onAddPlayer={onAddPlayer}
         />
         <Player
           type="main"
@@ -51,6 +53,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 3)}
+          onAddPlayer={onAddPlayer}
         />
       </div>
 
@@ -64,6 +67,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 4)}
+          onAddPlayer={onAddPlayer}
         />
         <Player
           type="main"
@@ -73,6 +77,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 5)}
+          onAddPlayer={onAddPlayer}
         />
         <Player
           type="main"
@@ -82,6 +87,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 6)}
+          onAddPlayer={onAddPlayer}
         />
       </div>
 
@@ -95,6 +101,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 7)}
+          onAddPlayer={onAddPlayer}
         />
         <Player
           type="main"
@@ -104,6 +111,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 8)}
+          onAddPlayer={onAddPlayer}
         />
       </div>
 
@@ -119,6 +127,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
             selectedPlayer={selectedPlayer}
             studentId={studentId}
             playerData={findPlayerByPosition(team.benchPlayers, 9)}
+            onAddPlayer={onAddPlayer}
           />
           <Player
             type="bench"
@@ -128,6 +137,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
             selectedPlayer={selectedPlayer}
             studentId={studentId}
             playerData={findPlayerByPosition(team.benchPlayers, 10)}
+            onAddPlayer={onAddPlayer}
           />
           <Player
             type="bench"
@@ -137,6 +147,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
             selectedPlayer={selectedPlayer}
             studentId={studentId}
             playerData={findPlayerByPosition(team.benchPlayers, 11)}
+            onAddPlayer={onAddPlayer}
           />
           <Player
             type="bench"
@@ -146,6 +157,7 @@ function TeamPlayers({ selectedPlayer, studentId, team }) {
             selectedPlayer={selectedPlayer}
             studentId={studentId}
             playerData={findPlayerByPosition(team.benchPlayers, 12)}
+            onAddPlayer={onAddPlayer}
           />
         </div>
       </div>

@@ -50,7 +50,8 @@ async function addPlayerToStudentTeamQuery(prevState, formData) {
     .update({
       team, // if `team` column is jsonb, Supabase will accept JSON.parse(team)
     })
-    .eq("auth_user_id", studentId);
+    .eq("auth_user_id", studentId)
+    .select();
 
   if (error) {
     return { success: false, message: error.message };

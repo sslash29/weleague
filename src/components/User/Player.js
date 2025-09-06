@@ -12,7 +12,8 @@ function Player({
   studentId,
   type,
   positionOnField,
-  playerData, // ✅ extra data passed in from team
+  playerData,
+  onAddPlayer,
 }) {
   const [playerState, setPlayersFormAction] = useActionState(
     addPlayerToTeam,
@@ -30,6 +31,8 @@ function Player({
     formData.append("positionOnField", positionOnField);
 
     startTransition(async () => {
+      // Fix: Pass parameters in the correct order matching useOptimistic reducer
+      onAddPlayer(selectedPlayer, positionOnField, type);
       await setPlayersFormAction(formData);
     });
   }
@@ -48,7 +51,7 @@ function Player({
     >
       <Image
         id="playerSelect"
-        src={playerData?.player_img || "/player.png"} // ✅ real or placeholder
+        src={playerData?.player_img || "/player.png"}
         alt={playerData?.name || "Player"}
         width={100}
         height={100}
