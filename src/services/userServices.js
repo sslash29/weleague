@@ -56,7 +56,7 @@ async function addPlayerToTeam(formData) {
     formData
   );
   ("team");
-  console.dir(savedTeam);
+  savedTeam;
   return savedTeam;
 }
 

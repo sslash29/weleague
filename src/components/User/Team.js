@@ -57,7 +57,7 @@ function Team({ players, studentId, team }) {
           table: "student",
         },
         (payload) => {
-          console.log("Student table updated:", payload);
+          "Student table updated:", payload;
           setTeamState((prev) => ({
             ...prev,
             ...payload.new, // other student info if you need it

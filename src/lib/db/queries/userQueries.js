@@ -31,6 +31,8 @@ async function createReportQuery(prevState, formData) {
 
 async function addPlayerToAssignmentQuery(playerId, studentId) {
   const supabase = await createClient();
+  console.log("player");
+  console.log(studentId, playerId);
   const { data, error } = await supabase.from("players_assignemnt").insert({
     player_id: playerId,
     student_id: studentId,

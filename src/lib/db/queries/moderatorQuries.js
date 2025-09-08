@@ -483,13 +483,13 @@ async function updatePlayerPointsAllTimeQuery(prevState, formData) {
 
 async function getAllPlayersQuery() {
   const supabase = await createClient();
-  console.dir("getting all players query");
+  ("getting all players query");
 
   const { data, error } = await supabase.from("player").select(`
       *,
       team:team_id ( name )
     `);
-  console.log(data);
+  data;
   if (error) {
     return {
       success: false,
