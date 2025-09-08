@@ -1,10 +1,13 @@
 "use client";
-
 import Player from "./Player";
 
-// ✅ helper function to get player by position
-function findPlayerByPosition(players, position) {
-  return Object.values(players).find((p) => p.positionOnField === position);
+// ✅ Updated helper function to work with arrays
+function findPlayerByPosition(playersArray, position) {
+  if (!Array.isArray(playersArray)) {
+    ("a nullable value is returned");
+    return null;
+  }
+  return playersArray.find((p) => p.positionOnField === position);
 }
 
 function TeamPlayers({ selectedPlayer, studentId, team, onAddPlayer }) {

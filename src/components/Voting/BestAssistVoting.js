@@ -6,11 +6,11 @@ import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 
 function BestAssistVoting({ bestAssist, assistVote }) {
-  console.log(assistVote);
+  assistVote;
   const [voteState, voteFormAction] = useActionState(addVote, {});
   useEffect(() => {
     if (voteState) {
-      console.log(voteState.message);
+      voteState.message;
     }
   }, [voteState]);
   return (
@@ -101,12 +101,12 @@ function BestAssistVoting({ bestAssist, assistVote }) {
 
 function VoteButton({ awardId, assistVote }) {
   const { pending } = useFormStatus();
-  
+
   // Check if the user has already voted on this award
   const hasVoted = assistVote?.some((vote) => vote.award_id === awardId);
   const isDisabled = pending || hasVoted;
 
-  console.log(hasVoted);
+  hasVoted;
   return (
     <>
       <button

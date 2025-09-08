@@ -5,7 +5,6 @@ import Image from "next/image";
 import { startTransition } from "react";
 
 function TeamDisplayer({ team, onDelete }) {
-  console.log(team);
   function handleDelete(formData) {
     onDelete(team);
     startTransition(async () => {

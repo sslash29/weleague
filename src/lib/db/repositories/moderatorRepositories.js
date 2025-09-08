@@ -120,6 +120,10 @@ async function addCoolImgRepository(prevState, formData) {
   return await addCoolImgQuery(prevState, formData);
 }
 
+async function getAllPlayerRepository() {
+  return await getAllPlayersQuery();
+}
+
 export {
   createPlayerRepository,
   deletePlayerRepository,
@@ -135,4 +139,5 @@ export {
   addBestAssistVideoRepository,
   addBestTackleVideoRepository,
   addCoolImgRepository,
+  getAllPlayerRepository,
 };

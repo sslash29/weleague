@@ -1,5 +1,4 @@
 "use server";
-
 import {
   addPlayerToTeamRepository,
   createReportRepository,
@@ -10,48 +9,55 @@ async function createReport(prevState, formData) {
   return await createReportRepository(prevState, formData);
 }
 
-async function addPlayerToTeam(prevState, formData) {
+async function addPlayerToTeam(formData) {
   const studentId = formData.get("studentId");
-  const selectedPlayer = JSON.parse(formData.get("selectedPlayer")); // ✅ valid JSON
+  const selectedPlayer = JSON.parse(formData.get("selectedPlayer"));
   const type = formData.get("type");
-  const positionOnField = formData.get("positionOnField"); // ✅ comes from form
+  const positionOnField = Number(formData.get("positionOnField"));
+
   const { mainPlayers, benchPlayers } = await getStudentTeamRepository(
     studentId
   );
-  console.log("userServices");
-  console.log(mainPlayers);
+
+  const newPlayer = {
+    id: selectedPlayer.id,
+    name: selectedPlayer.full_name,
+    player_img: selectedPlayer.player_image,
+    positionOnField,
+  };
+
+  let updatedMainPlayers = Array.isArray(mainPlayers) ? [...mainPlayers] : [];
+  let updatedBenchPlayers = Array.isArray(benchPlayers)
+    ? [...benchPlayers]
+    : [];
+
+  if (type === "main") {
+    updatedMainPlayers = updatedMainPlayers.filter(
+      (p) => p.positionOnField !== positionOnField
+    );
+    updatedMainPlayers.push(newPlayer);
+  } else if (type === "bench") {
+    updatedBenchPlayers = updatedBenchPlayers.filter(
+      (p) => p.positionOnField !== positionOnField
+    );
+    updatedBenchPlayers.push(newPlayer);
+  }
 
   const team = {
     teamName: formData.get("teamName") || "",
-    mainPlayers: {
-      ...mainPlayers,
-      ...(type === "main"
-        ? {
-            [selectedPlayer.id]: {
-              name: selectedPlayer.full_name,
-              player_img: selectedPlayer.player_image,
-              positionOnField: Number(positionOnField), // ✅ add it here
-            },
-          }
-        : {}),
-    },
-    benchPlayers: {
-      ...benchPlayers,
-      ...(type === "bench"
-        ? {
-            [selectedPlayer.id]: {
-              name: selectedPlayer.name,
-              player_img: selectedPlayer.player_img,
-              positionOnField: Number(positionOnField), // ✅ add it here
-            },
-          }
-        : {}),
-    },
+    mainPlayers: updatedMainPlayers,
+    benchPlayers: updatedBenchPlayers,
   };
 
-  formData.set("team", JSON.stringify(team)); // ✅ store as JSON string
+  formData.set("team", JSON.stringify(team));
 
-  return await addPlayerToTeamRepository(prevState, formData);
+  // save in DB
+  const { assignment, team: savedTeam } = await addPlayerToTeamRepository(
+    formData
+  );
+  ("team");
+  console.dir(savedTeam);
+  return savedTeam;
 }
 
 async function getStudentTeam(studentId) {

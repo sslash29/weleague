@@ -34,7 +34,6 @@ function CreateUserForm({
   // Handle file validation
   const handleFileChange = (e, typeofFile) => {
     const file = e.target.files[0];
-    console.log(file);
     if (!file) return;
     // ✅ Only apply 5MB limit to images
     if (file.type.startsWith("image/") && file.size > 5 * 1024 * 1024) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, startTransition } from "react";
 import Image from "next/image";
 
 function TeamPlayerSelect({ players = [], selectedPlayer, setSelectedPlayer }) {
@@ -14,7 +14,9 @@ function TeamPlayerSelect({ players = [], selectedPlayer, setSelectedPlayer }) {
         !containerRef.current.contains(event.target) &&
         event.target.id !== "playerSelect" // 👈 ignore clicks on #playerSelect
       ) {
-        setSelectedPlayer(null);
+        startTransition(() => {
+          setSelectedPlayer(null);
+        });
       }
     }
     window.addEventListener("mousedown", handleClickOutside);
@@ -74,7 +76,12 @@ function TeamPlayerSelect({ players = [], selectedPlayer, setSelectedPlayer }) {
             return (
               <div
                 key={id}
-                onClick={() => player && setSelectedPlayer(player)}
+                onClick={() =>
+                  player &&
+                  startTransition(() => {
+                    setSelectedPlayer(player);
+                  })
+                }
                 className={`grid grid-cols-4 items-center w-full transition-all duration-300 cursor-pointer
                   ${isSelected ? "scale-105 bg-[#f9f9f9]" : ""}
                   ${

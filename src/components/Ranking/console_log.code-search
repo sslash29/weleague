@@ -1,0 +1,40 @@
+# Query: console.log
+
+17 results - 10 files
+
+src/app/user/team/page.js:
+  10:   console.log("page data");
+
+src/components/ViewPlayer.js:
+  21:   console.log(latestStats);
+
+src/components/Ranking/TopGoalRanking.js:
+  105:           console.log(player);
+
+src/components/User/TeamPlayers.js:
+  7:     console.log("a nullable value is returned");
+
+src/components/Voting/BestAssistVoting.js:
+    9:   console.log(assistVote);
+   13:       console.log(voteState.message);
+  109:   console.log(hasVoted);
+
+src/components/Voting/BestGoalVoting.js:
+    9:   console.log(goalVote);
+   13:       console.log(voteState.message);
+  109:   console.log(hasVoted);
+
+src/lib/db/queries/moderatorQuries.js:
+  486:   console.log("getting all players query");
+  492:   console.log(data);
+
+src/lib/db/queries/queries.js:
+   33:   console.log(formData);
+  216:   console.log(formData);
+
+src/lib/db/repositories/userRepositories.js:
+  24:   console.log("🗄️ Raw student team data:", studentTeam);
+  37:   console.log("🏗️ Processed team data:", result);
+
+src/services/userServices.js:
+  58:   console.log("team");

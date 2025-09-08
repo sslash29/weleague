@@ -18,7 +18,7 @@ function ViewPlayer({ playerData, teamData }) {
       return null;
     }
   }, [playerData.weekly_data_points]);
-  console.log(latestStats);
+  latestStats;
 
   if (!latestStats) return <p>No stats available</p>;
   return (

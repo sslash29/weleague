@@ -1,5 +1,4 @@
 "use server";
-
 import {
   addPlayerToAssignmentQuery,
   addPlayerToStudentTeamQuery,
@@ -11,27 +10,29 @@ async function createReportRepository(prevState, formData) {
   return await createReportQuery(prevState, formData);
 }
 
-async function addPlayerToTeamRepository(prevState, formData) {
+async function addPlayerToTeamRepository(formData) {
   const studentId = formData.get("studentId");
   const playerId = formData.get("playerId");
   const assignment = await addPlayerToAssignmentQuery(playerId, studentId);
-  const team = await addPlayerToStudentTeamQuery(prevState, formData);
+  const team = await addPlayerToStudentTeamQuery(formData);
   return { assignment, team };
 }
 
 async function getStudentTeamRepository(studentId) {
   const studentTeam = await getStudentTeamQuery(studentId);
 
-  // Parse team if it exists
+  // Parse team if it exists and ensure arrays
   const team = studentTeam[0]?.team
     ? JSON.parse(studentTeam[0].team)
-    : { teamName: "", mainPlayers: {}, benchPlayers: {} };
+    : { teamName: "", mainPlayers: [], benchPlayers: [] };
 
-  return {
+  const result = {
     teamName: team.teamName || "",
-    mainPlayers: team.mainPlayers || {},
-    benchPlayers: team.benchPlayers || {},
+    mainPlayers: Array.isArray(team.mainPlayers) ? team.mainPlayers : [],
+    benchPlayers: Array.isArray(team.benchPlayers) ? team.benchPlayers : [],
   };
+
+  return result;
 }
 
 export {

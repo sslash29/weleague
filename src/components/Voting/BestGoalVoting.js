@@ -6,11 +6,11 @@ import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 
 function BestGoalVoting({ bestGoal, goalVote }) {
-  console.log(goalVote);
+  goalVote;
   const [voteState, voteFormAction] = useActionState(addVote, {});
   useEffect(() => {
     if (voteState) {
-      console.log(voteState.message);
+      voteState.message;
     }
   }, [voteState]);
   return (
@@ -106,7 +106,7 @@ function VoteButton({ awardId, goalVote }) {
   const hasVoted = goalVote?.some((vote) => vote.award_id === awardId);
   const isDisabled = pending || hasVoted;
 
-  console.log(hasVoted);
+  hasVoted;
   return (
     <>
       <button

@@ -6,20 +6,18 @@ import {
   deletePlayerRepository,
   deleteTeamRepository,
   addPlayerDataRepository,
-  getTeamPlayersRepository,
   updateTeamDataRepository,
   addBestGoalVideoRepository,
   addBestAssistVideoRepository,
   addBestTackleVideoRepository,
-  addCoolImgRepository,
+  getAllPlayerRepository,
 } from "@/lib/db/repositories/moderatorRepositories";
 import { getRulePointsRepository } from "@/lib/db/repositories/repositories";
 import { toNumber } from "@/utils/toNumber";
 import { redirect } from "next/navigation";
-const { getAllPlayersQuery } = require("@/lib/db/queries/moderatorQuries");
 
 async function getAllPlayers() {
-  const data = await getAllPlayersQuery();
+  const data = await getAllPlayerRepository();
   return data;
 }
 
@@ -45,7 +43,6 @@ async function deleteTeam(prevState, formData) {
 
 async function addPlayerData(prevState, formData) {
   const rulePoints = await getRulePointsRepository();
-  console.log(formData);
   const points = rulePoints[0];
   const teamId = formData.get("teamId");
   const coolImg = formData.get("coolImg") || "";

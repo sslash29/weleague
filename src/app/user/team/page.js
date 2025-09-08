@@ -7,11 +7,7 @@ async function page() {
   const players = await getAllPlayers();
   const student = await getUser();
   const team = await getStudentTeam(student.id);
-  return (
-    <div>
-      <Team players={players} studentId={student.id} team={team} />
-    </div>
-  );
+  return <Team players={players} studentId={student.id} team={team} />;
 }
 
 export default page;

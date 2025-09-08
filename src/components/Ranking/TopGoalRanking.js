@@ -7,7 +7,6 @@ import { useMemo } from "react";
 
 function TopGoalRanking({ playerData }) {
   const router = useRouter();
-  console.log(playerData);
 
   // ✅ Extract goals only
   function extractGoals(weeklyDataPoints) {
@@ -103,7 +102,7 @@ function TopGoalRanking({ playerData }) {
       {/* Rows */}
       <div className="flex-1 flex flex-col gap-8 px-4 overflow-y-auto">
         {sortedPlayers.map((player, index) => {
-          console.log(player);
+          player;
           return (
             <div
               key={player.id}

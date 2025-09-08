@@ -6,7 +6,6 @@ async function page() {
   const { bestGoal } = await getBestAwards();
   const user = await getUser();
   const { bestGoals: goalVote } = await getVote(user.id);
-  console.log(goalVote);
 
   return (
     <div>
