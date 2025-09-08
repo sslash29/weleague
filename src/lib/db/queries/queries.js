@@ -1,10 +1,8 @@
 "use server";
 
-import { supabase } from "@/utils/supabase/client";
 import { createClient } from "@/utils/supabase/server";
-import { sql } from "@supabase/supabase-js";
-import { formatDynamicAPIAccesses } from "next/dist/server/app-render/dynamic-rendering";
 async function getAllTeamsQuery() {
+  const supabase = await createClient();
   const { data, error } = await supabase.from("team").select("*");
   if (error) {
     console.error("Error fetching teams:", error);
@@ -14,6 +12,7 @@ async function getAllTeamsQuery() {
 }
 
 async function getTeamDataQuery(teamId) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("team")
     .select("*")
@@ -27,10 +26,11 @@ async function getTeamDataQuery(teamId) {
 }
 
 async function updateReportTypeQuery(prevState, formData) {
+  const supabase = await createClient();
   const reportId = formData.get("reportId");
   const reportType = formData.get("type");
 
-  console.log(formData);
+  formData;
 
   const { error } = await supabase
     .from("report")
@@ -52,6 +52,7 @@ async function updateReportTypeQuery(prevState, formData) {
 }
 
 async function getRulePointsQuery() {
+  const supabase = await createClient();
   const { data, error } = await supabase.from("rules").select("*");
   if (error) {
     console.error("Error fetching rule points:", error);
@@ -61,6 +62,7 @@ async function getRulePointsQuery() {
 }
 
 async function getPlayerTeamQuery(playerId) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("player")
     .select("team_id")
@@ -74,6 +76,7 @@ async function getPlayerTeamQuery(playerId) {
 }
 
 async function getCurrentGameweekQuery() {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("gameweek")
     .select("*")
@@ -89,6 +92,7 @@ async function getCurrentGameweekQuery() {
 }
 
 async function getAllGameWeeksQuery() {
+  const supabase = await createClient();
   const { data, error } = await supabase.from("gameweek").select("*");
 
   if (error) {
@@ -99,6 +103,7 @@ async function getAllGameWeeksQuery() {
 }
 
 async function getTeamPlayersQuery(teamId) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("player")
     .select("*")
@@ -112,6 +117,7 @@ async function getTeamPlayersQuery(teamId) {
 }
 
 async function getPlayerDataQuery(playerId) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("player")
     .select("*")
@@ -126,6 +132,7 @@ async function getPlayerDataQuery(playerId) {
 }
 
 async function getBestGoalVideoQuery() {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("best_award")
     .select(
@@ -150,6 +157,7 @@ async function getBestGoalVideoQuery() {
 }
 
 async function getBestAssistVideoQuery() {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("best_award")
     .select(
@@ -174,6 +182,7 @@ async function getBestAssistVideoQuery() {
 }
 
 async function getBestTackleVideoQuery() {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("best_award")
     .select(
@@ -198,11 +207,13 @@ async function getBestTackleVideoQuery() {
 }
 
 async function addVoteQuery(prevState, formData) {
+  const supabase = await createClient();
+  const userFullName = formData.get("fullName");
   const awardId = formData.get("awardId");
   const studentId = formData.get("studentId");
   const prevVote = formData.get("prevVote");
   const prevAwardId = formData.get("prevAwardId");
-  console.log(formData);
+  formData;
   if (!awardId) {
     return {
       success: false,
@@ -283,6 +294,8 @@ async function addVoteQuery(prevState, formData) {
 }
 
 async function getVoteQuery(student_id) {
+  const supabase = await createClient();
+  const userFullName = formData.get("fullName");
   const { data, error } = await supabase
     .from("votes_assignment")
     .select("*, best_award:best_award(award_type, id)")

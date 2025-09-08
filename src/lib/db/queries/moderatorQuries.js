@@ -1,10 +1,7 @@
-import { supabase } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 import { toNumber } from "@/utils/toNumber";
 import { revalidatePath } from "next/cache";
 
-// --- Helpers for team data shape management ---
-// Normalize stored JSON (string) to an object keyed by GameWeekX.
-// We previously stored arrays like [{ GameWeek3: {...} }]; convert that to an object.
 function normalizeGameweekStore(raw) {
   if (!raw) return {};
   let parsed;
@@ -52,6 +49,7 @@ function ensureGameweek(obj, gameWeekKey) {
 }
 
 async function addPlayerrQuery(prevState, formData) {
+  const supabase = await createClient();
   const fullName = formData.get("fullName");
   const playerImg = formData.get("playerImg"); // File
   // UI may send either `position` or `playerType`; prefer `position` if present
@@ -127,6 +125,7 @@ async function addPlayerrQuery(prevState, formData) {
 }
 
 async function deletePlayerrQuery(prevState, formData) {
+  const supabase = await createClient();
   const playerId = formData.get("playerId");
 
   //* Get the image URL from the player table
@@ -180,6 +179,7 @@ async function deletePlayerrQuery(prevState, formData) {
 }
 
 async function addTeamQuery(prevState, formData) {
+  const supabase = await createClient();
   const teamName = formData.get("teamName");
   const teamCrestImg = formData.get("teamCrestImg");
   const className = formData.get("class");
@@ -240,8 +240,8 @@ async function addTeamQuery(prevState, formData) {
 }
 
 async function deleteTeamQuery(prevState, formData) {
+  const supabase = await createClient();
   const teamId = formData.get("teamId");
-  console.log(formData);
   const { error } = await supabase.from("team").delete().eq("id", teamId);
 
   if (error) {
@@ -259,6 +259,7 @@ async function deleteTeamQuery(prevState, formData) {
 }
 
 async function getStudentsQuery() {
+  const supabase = await createClient();
   const { data, error } = await supabase.from("student").select("*");
 
   if (error) {
@@ -272,6 +273,7 @@ async function getStudentsQuery() {
 }
 
 async function deleteStudentQuery(prevState, formData) {
+  const supabase = await createClient();
   const studentId = formData.get("studentId");
 
   const { error } = await supabase.from("student").delete().eq("id", studentId);
@@ -290,6 +292,7 @@ async function deleteStudentQuery(prevState, formData) {
 }
 
 async function updatePlayerWeeklyDataQuery(prevState, formData) {
+  const supabase = await createClient();
   const weeklyData = formData.get("weeklyData"); // stringified JSON
   const playerId = formData.get("playerId");
   const currentGameWeek = formData.get("currentGameWeek");
@@ -373,6 +376,7 @@ async function updatePlayerWeeklyDataQuery(prevState, formData) {
 }
 
 async function updatePlayerWeeklyPointsQuery(prevState, formData) {
+  const supabase = await createClient();
   const totalPoints = formData.get("totalPoints");
   const playerId = formData.get("playerId");
 
@@ -397,6 +401,7 @@ async function updatePlayerWeeklyPointsQuery(prevState, formData) {
 }
 
 async function updatePlayerPointsAllTimeQuery(prevState, formData) {
+  const supabase = await createClient();
   const totalPoints = formData.get("totalPoints");
   const playerId = formData.get("playerId");
   const currentGameWeek = formData.get("currentGameWeek");
@@ -477,11 +482,14 @@ async function updatePlayerPointsAllTimeQuery(prevState, formData) {
 }
 
 async function getAllPlayersQuery() {
+  const supabase = await createClient();
+  console.dir("getting all players query");
+
   const { data, error } = await supabase.from("player").select(`
       *,
       team:team_id ( name )
     `);
-
+  console.log(data);
   if (error) {
     return {
       success: false,
@@ -489,11 +497,11 @@ async function getAllPlayersQuery() {
     };
   }
 
-  // each player now has player.team.name
   return data;
 }
 
 async function addPlayerDataQuery(prevState, formData) {
+  const supabase = await createClient();
   const playerId = formData.get("playerId");
   const weeklyData = formData.get("weeklyData");
 
@@ -518,6 +526,7 @@ async function addPlayerDataQuery(prevState, formData) {
 }
 
 async function updateTeamWeeklyPointsQuery(prevState, formData) {
+  const supabase = await createClient();
   const teamId = formData.get("teamId");
   const weeklyData = formData.get("weeklyData"); // stringified player's weekly data
   const totalPoints = toNumber(formData.get("totalPoints"));
@@ -576,6 +585,7 @@ async function updateTeamWeeklyPointsQuery(prevState, formData) {
 }
 
 async function updateTeamPointsThisWeekQuery(prevState, formData) {
+  const supabase = await createClient();
   const teamId = formData.get("teamId");
   const currentGameWeek = formData.get("currentGameWeek");
   const gameWeekKey = `GameWeek${currentGameWeek}`;
@@ -612,6 +622,7 @@ async function updateTeamPointsThisWeekQuery(prevState, formData) {
   return { success: true, message: "Team Updated Successfully" };
 }
 async function updateTeamPointsAllTimeQuery(prevState, formData) {
+  const supabase = await createClient();
   const teamId = formData.get("teamId");
 
   // 1. Read weekly_points and sum all players' points across all gameweeks
@@ -648,6 +659,7 @@ async function updateTeamPointsAllTimeQuery(prevState, formData) {
 }
 
 async function updateTeamAllTimeDataQuery(prevState, formData) {
+  const supabase = await createClient();
   const weeklyData = formData.get("weeklyData"); // stringified JSON
   const teamId = formData.get("teamId");
   const currentGameWeek = formData.get("currentGameWeek");
@@ -699,6 +711,7 @@ async function updateTeamAllTimeDataQuery(prevState, formData) {
 }
 
 async function getTeamPlayersQuery(teamId) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("player")
     .select("*")
@@ -717,6 +730,7 @@ async function getTeamPlayersQuery(teamId) {
 }
 
 async function getPlayerNameByIdQuery(playerId) {
+  const supabase = await createClient();
   if (!playerId) return null;
   const { data, error } = await supabase
     .from("player")
@@ -728,6 +742,7 @@ async function getPlayerNameByIdQuery(playerId) {
 }
 
 async function getPlayerImgByIdQuery(playerId) {
+  const supabase = await createClient();
   if (!playerId) return null;
   const { data, error } = await supabase
     .from("player")
@@ -739,6 +754,7 @@ async function getPlayerImgByIdQuery(playerId) {
 }
 
 async function getPlayerPositionByIdQuery(playerId) {
+  const supabase = await createClient();
   if (!playerId) return null;
   const { data, error } = await supabase
     .from("player")
@@ -750,6 +766,7 @@ async function getPlayerPositionByIdQuery(playerId) {
 }
 
 async function addBestGoalVideoQuery(prevState, formData) {
+  const supabase = await createClient();
   const video = formData.get("video");
   const playerId = formData.get("playerId");
   const awardType = formData.get("awardType");
@@ -807,6 +824,7 @@ async function addBestGoalVideoQuery(prevState, formData) {
 }
 
 async function addBestAssistVideoQuery(prevState, formData) {
+  const supabase = await createClient();
   const video = formData.get("video");
   const playerId = formData.get("playerId");
   const awardType = formData.get("awardType");
@@ -864,6 +882,7 @@ async function addBestAssistVideoQuery(prevState, formData) {
 }
 
 async function addBestTackleVideoQuery(prevState, formData) {
+  const supabase = await createClient();
   const video = formData.get("video");
   const playerId = formData.get("playerId");
   const awardType = formData.get("awardType");
@@ -921,6 +940,7 @@ async function addBestTackleVideoQuery(prevState, formData) {
 }
 
 async function addCoolImgQuery(prevState, formData) {
+  const supabase = await createClient();
   const coolImg = formData.get("coolImg");
   const playerId = formData.get("playerId");
   const fileExt = coolImg.name?.split(".").pop() || "bin";

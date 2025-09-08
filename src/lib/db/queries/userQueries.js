@@ -1,8 +1,9 @@
 "use server";
 
-import { supabase } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 
 async function createReportQuery(prevState, formData) {
+  const supabase = await createClient();
   const userFullName = formData.get("fullName");
   const phoneNumber = formData.get("phoneNumber");
   const problemType = formData.get("problemType");
@@ -29,7 +30,8 @@ async function createReportQuery(prevState, formData) {
 }
 
 async function addPlayerToAssignmentQuery(playerId, studentId) {
-  const { data, error } = await supabase.from("players_assignment").insert({
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("players_assignemnt").insert({
     player_id: playerId,
     student_id: studentId,
   });
@@ -41,7 +43,8 @@ async function addPlayerToAssignmentQuery(playerId, studentId) {
   return { success: true, data };
 }
 
-async function addPlayerToStudentTeamQuery(prevState, formData) {
+async function addPlayerToStudentTeamQuery(formData) {
+  const supabase = await createClient();
   const team = formData.get("team"); // this is now a JSON string
   const studentId = formData.get("studentId");
 
@@ -51,7 +54,7 @@ async function addPlayerToStudentTeamQuery(prevState, formData) {
       team, // if `team` column is jsonb, Supabase will accept JSON.parse(team)
     })
     .eq("auth_user_id", studentId)
-    .select();
+    .select("team");
 
   if (error) {
     return { success: false, message: error.message };
@@ -61,6 +64,7 @@ async function addPlayerToStudentTeamQuery(prevState, formData) {
 }
 
 async function getStudentTeamQuery(studentId) {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("student")
     .select("team")
@@ -71,7 +75,6 @@ async function getStudentTeamQuery(studentId) {
       success: false,
       message: error.message,
     };
-  console.log(data);
   return data;
 }
 
