@@ -3,10 +3,13 @@ import { useEffect, useOptimistic, useState } from "react";
 import TeamPlayers from "./TeamPlayers";
 import TeamPlayerSelect from "./TeamPlayerSelect";
 import { supabase } from "@/utils/supabase/client";
+import Notification from "../Notifcation";
 
 function Team({ players, studentId, team }) {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [teamState, setTeamState] = useState(team);
+  const [errorMsg, setErrorMsg] = useState(null); // State for Notification
+
   const [optimisticTeam, addOptimisticPlayer] = useOptimistic(
     teamState,
     (currentTeam, action) => {
@@ -18,7 +21,7 @@ function Team({ players, studentId, team }) {
         positionOnField: Number(positionOnField),
       };
 
-      if (type.trim("") === "main") {
+      if (type.trim() === "main") {
         return {
           ...currentTeam,
           mainPlayers: [
@@ -30,7 +33,7 @@ function Team({ players, studentId, team }) {
         };
       }
 
-      if (type.trim("") === "bench") {
+      if (type.trim() === "bench") {
         return {
           ...currentTeam,
           benchPlayers: [
@@ -57,11 +60,11 @@ function Team({ players, studentId, team }) {
           table: "student",
         },
         (payload) => {
-          "Student table updated:", payload;
+          console.log("Student table updated:", payload);
           setTeamState((prev) => ({
             ...prev,
-            ...payload.new, // other student info if you need it
-            ...payload.new.team, // merge in the actual team structure
+            ...payload.new,
+            ...payload.new.team,
           }));
         }
       )
@@ -72,13 +75,32 @@ function Team({ players, studentId, team }) {
     };
   }, []);
 
-  const handleAddPlayer = (selectedPlayer, positionOnField, type) => {
+  const handleAddPlayer = (
+    selectedPlayer,
+    positionOnField,
+    type,
+    position,
+    hasValidationError = false
+  ) => {
+    if (!selectedPlayer) return;
+
+    if (hasValidationError) {
+      // Handle validation error - show error message but don't add player
+      setErrorMsg(
+        `Error: Selected player's position (${selectedPlayer.position}) does not match target position (${position})`
+      );
+      return; // Don't proceed with adding player
+    }
+
+    // Clear any previous errors and add player optimistically
+    setErrorMsg(null);
     addOptimisticPlayer({ selectedPlayer, positionOnField, type });
   };
+
   return (
-    <div className="flex gap-3 items-center translate-y-15">
+    <div className="flex gap-3 items-center translate-y-15 relative">
       <div className="relative">
-        <h2 className=" text-4xl font-semibold absolute bottom-[765px] z-10">
+        <h2 className="text-4xl font-semibold absolute bottom-[765px] z-10">
           Team Name
         </h2>
         <TeamPlayerSelect
@@ -94,6 +116,9 @@ function Team({ players, studentId, team }) {
         team={optimisticTeam}
         onAddPlayer={handleAddPlayer}
       />
+
+      {/* Notification */}
+      {errorMsg && <Notification errorMsg={errorMsg} />}
     </div>
   );
 }

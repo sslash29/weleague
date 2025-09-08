@@ -16,7 +16,14 @@ function Player({
   async function handleClick() {
     if (!selectedPlayer) return;
 
-    // ✅ Then server call
+    if (selectedPlayer.position.toLowerCase() !== label.toLowerCase()) {
+      onAddPlayer(selectedPlayer, positionOnField, type, label, true);
+      return;
+    }
+
+    onAddPlayer(selectedPlayer, positionOnField, type, label, false);
+
+    // ✅ Server call only happens after successful validation
     const formData = new FormData();
     formData.append("studentId", studentId);
     formData.append("playerId", selectedPlayer.id);
@@ -24,7 +31,6 @@ function Player({
     formData.append("selectedPlayer", JSON.stringify(selectedPlayer));
     formData.append("positionOnField", positionOnField);
 
-    onAddPlayer(selectedPlayer, positionOnField, type);
     await addPlayerToTeam(formData);
   }
 
