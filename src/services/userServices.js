@@ -14,10 +14,11 @@ async function addPlayerToTeam(formData) {
   const selectedPlayer = JSON.parse(formData.get("selectedPlayer"));
   const type = formData.get("type");
   const positionOnField = Number(formData.get("positionOnField"));
+  const { mainPlayers, benchPlayers, moneyLeft } =
+    await getStudentTeamRepository(studentId);
 
-  const { mainPlayers, benchPlayers } = await getStudentTeamRepository(
-    studentId
-  );
+  if (moneyLeft < selectedPlayer.price)
+    return { success: false, message: "Don't have enough money" };
 
   const newPlayer = {
     id: selectedPlayer.id,
@@ -47,6 +48,7 @@ async function addPlayerToTeam(formData) {
     teamName: formData.get("teamName") || "",
     mainPlayers: updatedMainPlayers,
     benchPlayers: updatedBenchPlayers,
+    moneyLeft: (moneyLeft - selectedPlayer.price).toFixed(2),
   };
 
   formData.set("team", JSON.stringify(team));

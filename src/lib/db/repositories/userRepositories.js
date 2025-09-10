@@ -24,12 +24,13 @@ async function getStudentTeamRepository(studentId) {
   // Parse team if it exists and ensure arrays
   const team = studentTeam[0]?.team
     ? JSON.parse(studentTeam[0].team)
-    : { teamName: "", mainPlayers: [], benchPlayers: [] };
+    : { teamName: "", mainPlayers: [], benchPlayers: [], moneyLeft: 50 };
 
   const result = {
     teamName: team.teamName || "",
     mainPlayers: Array.isArray(team.mainPlayers) ? team.mainPlayers : [],
     benchPlayers: Array.isArray(team.benchPlayers) ? team.benchPlayers : [],
+    moneyLeft: team.moneyLeft,
   };
 
   return result;

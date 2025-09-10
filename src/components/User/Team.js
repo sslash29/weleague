@@ -24,6 +24,7 @@ function Team({ players, studentId, team }) {
       if (type.trim() === "main") {
         return {
           ...currentTeam,
+          moneyLeft: currentTeam.moneyLeft - selectedPlayer.price,
           mainPlayers: [
             ...currentTeam.mainPlayers.filter(
               (p) => p.positionOnField !== Number(positionOnField)
@@ -36,6 +37,7 @@ function Team({ players, studentId, team }) {
       if (type.trim() === "bench") {
         return {
           ...currentTeam,
+          moneyLeft: currentTeam.moneyLeft - selectedPlayer.price,
           benchPlayers: [
             ...currentTeam.benchPlayers.filter(
               (p) => p.positionOnField !== Number(positionOnField)
@@ -107,6 +109,7 @@ function Team({ players, studentId, team }) {
           players={players}
           selectedPlayer={selectedPlayer}
           setSelectedPlayer={setSelectedPlayer}
+          moneyLeft={optimisticTeam.moneyLeft}
         />
       </div>
 

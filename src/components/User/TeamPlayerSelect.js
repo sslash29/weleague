@@ -3,7 +3,12 @@
 import { useState, useEffect, useRef, startTransition } from "react";
 import Image from "next/image";
 
-function TeamPlayerSelect({ players = [], selectedPlayer, setSelectedPlayer }) {
+function TeamPlayerSelect({
+  players = [],
+  selectedPlayer,
+  setSelectedPlayer,
+  moneyLeft,
+}) {
   const [search, setSearch] = useState("");
   const containerRef = useRef(null);
 
@@ -47,7 +52,7 @@ function TeamPlayerSelect({ players = [], selectedPlayer, setSelectedPlayer }) {
       </div>
 
       {/* Search + Filter */}
-      <div className="flex justify-between items-center px-2 pr-15 mb-4">
+      <div className="flex justify-between items-center px-2 pr-11 mb-4">
         <div className="flex items-center w-fit text-lg">
           <input
             placeholder="Search for player..."
@@ -63,7 +68,7 @@ function TeamPlayerSelect({ players = [], selectedPlayer, setSelectedPlayer }) {
             className="-translate-x-6"
           />
         </div>
-        <Image src="/Filter2.svg" alt="Filter Icon" width={20} height={20} />
+        <span className="text-end text-xl font-medium">${moneyLeft}M</span>
       </div>
 
       {/* Rows */}
