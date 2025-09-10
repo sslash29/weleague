@@ -16,11 +16,13 @@ function Player({
   async function handleClick() {
     if (!selectedPlayer) return;
 
+    // Check for position validation error
     if (selectedPlayer.position.toLowerCase() !== label.toLowerCase()) {
       onAddPlayer(selectedPlayer, positionOnField, type, label, true);
       return;
     }
 
+    // Add player optimistically first
     onAddPlayer(selectedPlayer, positionOnField, type, label, false);
 
     // ✅ Server call only happens after successful validation
@@ -31,7 +33,16 @@ function Player({
     formData.append("selectedPlayer", JSON.stringify(selectedPlayer));
     formData.append("positionOnField", positionOnField);
 
-    await addPlayerToTeam(formData);
+    const data = await addPlayerToTeam(formData);
+
+    // Handle server errors by calling onAddPlayer with error info
+    if (data.success === false) {
+      // Pass the server error message back to parent
+      onAddPlayer(null, positionOnField, type, label, true, data.message);
+      return;
+    }
+
+    console.log(data);
   }
 
   return (

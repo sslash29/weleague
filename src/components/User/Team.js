@@ -14,6 +14,16 @@ function Team({ players, studentId, team }) {
     teamState,
     (currentTeam, action) => {
       const { selectedPlayer, positionOnField, type } = action;
+
+      // Convert to numbers for proper comparison and calculation
+      const currentMoney = parseFloat(currentTeam.moneyLeft);
+      const playerPrice = parseFloat(selectedPlayer.price);
+
+      // Check if there's enough money
+      if (currentMoney < playerPrice) {
+        return currentTeam; // Return unchanged if not enough money
+      }
+
       const newPlayer = {
         id: selectedPlayer.id,
         name: selectedPlayer.full_name,
@@ -21,10 +31,13 @@ function Team({ players, studentId, team }) {
         positionOnField: Number(positionOnField),
       };
 
+      // Calculate new money left and convert back to string with 2 decimal places
+      const newMoneyLeft = (currentMoney - playerPrice).toFixed(2);
+
       if (type.trim() === "main") {
         return {
           ...currentTeam,
-          moneyLeft: currentTeam.moneyLeft - selectedPlayer.price,
+          moneyLeft: newMoneyLeft,
           mainPlayers: [
             ...currentTeam.mainPlayers.filter(
               (p) => p.positionOnField !== Number(positionOnField)
@@ -37,7 +50,7 @@ function Team({ players, studentId, team }) {
       if (type.trim() === "bench") {
         return {
           ...currentTeam,
-          moneyLeft: currentTeam.moneyLeft - selectedPlayer.price,
+          moneyLeft: newMoneyLeft,
           benchPlayers: [
             ...currentTeam.benchPlayers.filter(
               (p) => p.positionOnField !== Number(positionOnField)
@@ -82,17 +95,24 @@ function Team({ players, studentId, team }) {
     positionOnField,
     type,
     position,
-    hasValidationError = false
+    hasValidationError = false,
+    serverErrorMessage = null
   ) => {
-    if (!selectedPlayer) return;
-
     if (hasValidationError) {
-      // Handle validation error - show error message but don't add player
-      setErrorMsg(
-        `Error: Selected player's position (${selectedPlayer.position}) does not match target position (${position})`
-      );
+      // Handle validation error or server error
+      if (serverErrorMessage) {
+        // This is a server error (like "Don't have enough money")
+        setErrorMsg(`Error: ${serverErrorMessage}`);
+      } else if (selectedPlayer) {
+        // This is a position validation error
+        setErrorMsg(
+          `Error: Selected player's position (${selectedPlayer.position}) does not match target position (${position})`
+        );
+      }
       return; // Don't proceed with adding player
     }
+
+    if (!selectedPlayer) return;
 
     // Clear any previous errors and add player optimistically
     setErrorMsg(null);
