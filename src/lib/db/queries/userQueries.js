@@ -80,9 +80,55 @@ async function getStudentTeamQuery(studentId) {
   return data;
 }
 
+async function updateTeamNameQuery(newTeamName, studentId) {
+  const supabase = await createClient();
+
+  // 1. Get current team JSON
+  const { data, error } = await supabase
+    .from("student")
+    .select("team")
+    .eq("auth_user_id", studentId)
+    .single(); // ensure only one row
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  if (!data || !data.team) {
+    return { success: false, message: "No team found for this student" };
+  }
+
+  // 2. Parse team JSON (in case it's stored as string)
+  let currentTeam;
+  try {
+    currentTeam =
+      typeof data.team === "string" ? JSON.parse(data.team) : data.team;
+  } catch (err) {
+    return { success: false, message: "Invalid team JSON format" };
+  }
+
+  // 3. Update team name
+  const updatedTeam = { ...currentTeam, teamName: newTeamName };
+
+  // 4. Save back to DB
+  const { data: updated, updateError } = await supabase
+    .from("student")
+    .update({ team: updatedTeam }) // Supabase handles JSONB
+    .eq("auth_user_id", studentId)
+    .select("team")
+    .single();
+
+  if (updateError) {
+    return { success: false, message: updateError.message };
+  }
+
+  return { success: true, team: updated.team };
+}
+
 export {
   createReportQuery,
   addPlayerToAssignmentQuery,
   addPlayerToStudentTeamQuery,
   getStudentTeamQuery,
+  updateTeamNameQuery,
 };

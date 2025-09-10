@@ -1,28 +1,35 @@
 "use client";
-import { useEffect, useOptimistic, useState } from "react";
+import { startTransition, useEffect, useOptimistic, useState } from "react";
 import TeamPlayers from "./TeamPlayers";
 import TeamPlayerSelect from "./TeamPlayerSelect";
 import { supabase } from "@/utils/supabase/client";
 import Notification from "../Notifcation";
+import { updateTeamName } from "@/services/userServices";
 
 function Team({ players, studentId, team }) {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [teamState, setTeamState] = useState(team);
-  const [errorMsg, setErrorMsg] = useState(null); // State for Notification
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  const [editingTeamName, setEditingTeamName] = useState(false);
+  const [tempTeamName, setTempTeamName] = useState(team?.teamName || "");
 
   const [optimisticTeam, addOptimisticPlayer] = useOptimistic(
     teamState,
     (currentTeam, action) => {
+      if (action.type === "updateTeamName") {
+        return {
+          ...currentTeam,
+          teamName: action.teamName,
+        };
+      }
+
       const { selectedPlayer, positionOnField, type } = action;
 
-      // Convert to numbers for proper comparison and calculation
       const currentMoney = parseFloat(currentTeam.moneyLeft);
       const playerPrice = parseFloat(selectedPlayer.price);
 
-      // Check if there's enough money
-      if (currentMoney < playerPrice) {
-        return currentTeam; // Return unchanged if not enough money
-      }
+      if (currentMoney < playerPrice) return currentTeam;
 
       const newPlayer = {
         id: selectedPlayer.id,
@@ -31,7 +38,6 @@ function Team({ players, studentId, team }) {
         positionOnField: Number(positionOnField),
       };
 
-      // Calculate new money left and convert back to string with 2 decimal places
       const newMoneyLeft = (currentMoney - playerPrice).toFixed(2);
 
       if (type.trim() === "main") {
@@ -99,32 +105,59 @@ function Team({ players, studentId, team }) {
     serverErrorMessage = null
   ) => {
     if (hasValidationError) {
-      // Handle validation error or server error
       if (serverErrorMessage) {
-        // This is a server error (like "Don't have enough money")
         setErrorMsg(`Error: ${serverErrorMessage}`);
       } else if (selectedPlayer) {
-        // This is a position validation error
         setErrorMsg(
           `Error: Selected player's position (${selectedPlayer.position}) does not match target position (${position})`
         );
       }
-      return; // Don't proceed with adding player
+      return;
     }
 
     if (!selectedPlayer) return;
 
-    // Clear any previous errors and add player optimistically
     setErrorMsg(null);
     addOptimisticPlayer({ selectedPlayer, positionOnField, type });
+  };
+
+  const handleTeamNameCommit = () => {
+    if (!tempTeamName.trim()) {
+      setEditingTeamName(false);
+      return;
+    }
+
+    setEditingTeamName(false);
+    startTransition(async () => {
+      addOptimisticPlayer({ type: "updateTeamName", teamName: tempTeamName });
+      await updateTeamName(tempTeamName, studentId);
+    });
   };
 
   return (
     <div className="flex gap-3 items-center translate-y-15 relative">
       <div className="relative">
-        <h2 className="text-4xl font-semibold absolute bottom-[765px] z-10">
-          Team Name
-        </h2>
+        {editingTeamName ? (
+          <input
+            className="text-4xl font-semibold absolute bottom-[765px] z-10 bg-transparent border-b-2 border-gray-400 outline-none"
+            value={tempTeamName}
+            autoFocus
+            onChange={(e) => setTempTeamName(e.target.value)}
+            onBlur={handleTeamNameCommit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleTeamNameCommit();
+              if (e.key === "Escape") setEditingTeamName(false);
+            }}
+          />
+        ) : (
+          <h2
+            className="text-4xl font-semibold absolute bottom-[765px] z-10 cursor-pointer"
+            onDoubleClick={() => setEditingTeamName(true)}
+          >
+            {optimisticTeam.teamName || "Team Name"}
+          </h2>
+        )}
+
         <TeamPlayerSelect
           players={players}
           selectedPlayer={selectedPlayer}
@@ -140,7 +173,6 @@ function Team({ players, studentId, team }) {
         onAddPlayer={handleAddPlayer}
       />
 
-      {/* Notification */}
       {errorMsg && <Notification errorMsg={errorMsg} />}
     </div>
   );

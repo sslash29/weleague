@@ -3,6 +3,7 @@ import {
   addPlayerToTeamRepository,
   createReportRepository,
   getStudentTeamRepository,
+  updateTeamNameRepository,
 } from "@/lib/db/repositories/userRepositories";
 
 async function createReport(prevState, formData) {
@@ -66,4 +67,8 @@ async function getStudentTeam(studentId) {
   return await getStudentTeamRepository(studentId);
 }
 
-export { createReport, addPlayerToTeam, getStudentTeam };
+async function updateTeamName(teamName, studentId) {
+  return await updateTeamNameRepository(teamName, studentId);
+}
+
+export { createReport, addPlayerToTeam, getStudentTeam, updateTeamName };

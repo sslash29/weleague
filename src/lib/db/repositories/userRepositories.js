@@ -4,6 +4,7 @@ import {
   addPlayerToStudentTeamQuery,
   createReportQuery,
   getStudentTeamQuery,
+  updateTeamNameQuery,
 } from "../queries/userQueries";
 
 async function createReportRepository(prevState, formData) {
@@ -23,7 +24,7 @@ async function getStudentTeamRepository(studentId) {
 
   // Parse team if it exists and ensure arrays
   const team = studentTeam[0]?.team
-    ? JSON.parse(studentTeam[0].team)
+    ? studentTeam[0]?.team
     : { teamName: "", mainPlayers: [], benchPlayers: [], moneyLeft: 50 };
 
   const result = {
@@ -35,9 +36,12 @@ async function getStudentTeamRepository(studentId) {
 
   return result;
 }
-
+async function updateTeamNameRepository(teamName, studentId) {
+  return await updateTeamNameQuery(teamName, studentId);
+}
 export {
   createReportRepository,
   addPlayerToTeamRepository,
   getStudentTeamRepository,
+  updateTeamNameRepository,
 };
