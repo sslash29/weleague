@@ -2,8 +2,9 @@
 
 import { truncateName } from "@/utils/helpers";
 import { LogOut } from "./LogOut";
+import DeleteAccount from "./DeleteAccount";
 
-function Account({ userData }) {
+function Account({ userData, userId }) {
   console.log(userData);
   return (
     <div className="flex flex-col gap-5 justify-center">
@@ -35,9 +36,7 @@ function Account({ userData }) {
         </div>
         <div className="w-full flex gap-3 items-center">
           <LogOut />
-          <button className=" bg-red-normal text-white font-semibold text-xl px-2 py-1 rounded w-full">
-            Delete
-          </button>
+          <DeleteAccount userId={userId} />
         </div>
       </div>
     </div>

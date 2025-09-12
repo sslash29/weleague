@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 async function getAllTeamsQuery() {
   const supabase = await createClient();
   const { data, error } = await supabase.from("team").select("*");
@@ -327,6 +328,27 @@ async function getUserDataQuery(studentId) {
   return data;
 }
 
+async function deleteAccountQuery(prevState, formData) {
+  const userID = formData.get("userId");
+
+  if (!userID) {
+    return { success: false, message: "Missing userId" };
+  }
+
+  // Make sure this client is created with the service role key
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.admin.deleteUser(userID);
+
+  if (error) {
+    console.error("❌ Failed to delete user:", error); // logs the full object
+    return { success: false, message: error.message, status: error.status };
+  }
+
+  console.log("✅ User deleted:", userID);
+  redirect("/");
+}
+
 export {
   getAllTeamsQuery,
   getTeamDataQuery,
@@ -343,4 +365,5 @@ export {
   addVoteQuery,
   getVoteQuery,
   getUserDataQuery,
+  deleteAccountQuery,
 };

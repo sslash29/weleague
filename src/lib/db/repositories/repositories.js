@@ -3,6 +3,7 @@
 import { getUser } from "@/services/server/services";
 import {
   addVoteQuery,
+  deleteAccountQuery,
   getAllTeamsQuery,
   getBestAssistVideoQuery,
   getBestGoalVideoQuery,
@@ -74,6 +75,10 @@ async function getUserDataRepository(studentId) {
   return await getUserDataQuery(studentId);
 }
 
+async function deleteAccountRepository(prevState, formData) {
+  return await deleteAccountQuery(prevState, formData);
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -86,4 +91,5 @@ export {
   addVoteRepository,
   getVoteRepository,
   getUserDataRepository,
+  deleteAccountRepository,
 };
