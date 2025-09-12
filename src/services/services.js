@@ -10,6 +10,7 @@ const {
   getBestAwardsRepository,
   addVoteRepository,
   getVoteRepository,
+  getUserDataRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -60,6 +61,10 @@ async function getVote(student_id = "aa20eca5-773e-444d-9391-489739ce3a9d") {
     bestTackles,
   };
 }
+
+async function getUserData(studentId) {
+  return await getUserDataRepository(studentId);
+}
 export {
   getAllTeams,
   getTeamData,
@@ -70,4 +75,5 @@ export {
   getBestAwards,
   addVote,
   getVote,
+  getUserData,
 };

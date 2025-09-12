@@ -70,7 +70,7 @@ async function signOutQuery() {
   if (error) {
     throw new Error(error.message || "Log out failed");
   }
-  return { success: true, message: "logged out sucessfully" };
+  redirect("/");
 }
 
 export { createStudentQuery, getUserQuery, logInQuery, signOutQuery };

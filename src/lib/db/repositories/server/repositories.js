@@ -2,6 +2,7 @@
 
 import {
   createStudentQuery,
+  getUserDataQuery,
   getUserQuery,
   logInQuery,
   signOutQuery,

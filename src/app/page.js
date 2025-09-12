@@ -3,7 +3,6 @@ import { getUser } from "@/services/server/services";
 import Link from "next/link";
 
 async function page() {
-  const user = await getUser();
   return (
     <div className="flex flex-col items-center justify center h-dvh relative w-full ">
       <Link href="/admin" className="text-3xl font-bold">
@@ -24,7 +23,6 @@ async function page() {
       <Link href="/auth/log-in" className="text-3xl font-bold">
         Log in
       </Link>
-      <LogOut />
       <Link href="/moderator/add-best" className="text-3xl font-bold">
         Add Best
       </Link>
@@ -36,6 +34,9 @@ async function page() {
       </Link>
       <Link href="/user/team" className="text-3xl font-bold">
         User Team
+      </Link>
+      <Link href="/account" className="text-3xl font-bold">
+        Account
       </Link>
     </div>
   );

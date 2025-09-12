@@ -69,7 +69,7 @@ function Team({ players, studentId, team }) {
       return currentTeam;
     }
   );
-
+  console.log(optimisticTeam.moneyLeft);
   useEffect(() => {
     const channel = supabase
       .channel("student-table-changes")

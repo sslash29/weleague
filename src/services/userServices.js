@@ -54,12 +54,9 @@ async function addPlayerToTeam(formData) {
 
   formData.set("team", JSON.stringify(team));
 
-  // save in DB
   const { assignment, team: savedTeam } = await addPlayerToTeamRepository(
     formData
   );
-  ("team");
-  savedTeam;
   return savedTeam;
 }
 

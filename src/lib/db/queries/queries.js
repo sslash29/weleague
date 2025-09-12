@@ -295,7 +295,6 @@ async function addVoteQuery(prevState, formData) {
 
 async function getVoteQuery(student_id) {
   const supabase = await createClient();
-  const userFullName = formData.get("fullName");
   const { data, error } = await supabase
     .from("votes_assignment")
     .select("*, best_award:best_award(award_type, id)")
@@ -308,6 +307,23 @@ async function getVoteQuery(student_id) {
     };
   }
 
+  return data;
+}
+
+async function getUserDataQuery(studentId) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("student")
+    .select("full_name, phone_number, email, class")
+    .eq("auth_user_id", studentId);
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+  console.log(data);
   return data;
 }
 
@@ -326,4 +342,5 @@ export {
   getBestGoalVideoQuery,
   addVoteQuery,
   getVoteQuery,
+  getUserDataQuery,
 };

@@ -53,7 +53,7 @@ async function addPlayerToStudentTeamQuery(formData) {
   const { data, error } = await supabase
     .from("student")
     .update({
-      team, // if `team` column is jsonb, Supabase will accept JSON.parse(team)
+      team,
     })
     .eq("auth_user_id", studentId)
     .select("team");

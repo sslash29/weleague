@@ -21,21 +21,24 @@ async function addPlayerToTeamRepository(formData) {
 
 async function getStudentTeamRepository(studentId) {
   const studentTeam = await getStudentTeamQuery(studentId);
+  console.log("student team:", studentTeam);
 
-  // Parse team if it exists and ensure arrays
+  // Parse JSON if it exists, otherwise fallback
   const team = studentTeam[0]?.team
-    ? studentTeam[0]?.team
+    ? JSON.parse(studentTeam[0].team) // <-- FIXED
     : { teamName: "", mainPlayers: [], benchPlayers: [], moneyLeft: 50 };
 
   const result = {
-    teamName: team.teamName || "",
+    teamName: team.teamName || "Team Name",
     mainPlayers: Array.isArray(team.mainPlayers) ? team.mainPlayers : [],
     benchPlayers: Array.isArray(team.benchPlayers) ? team.benchPlayers : [],
     moneyLeft: team.moneyLeft,
   };
 
+  console.log("parsed result:", result);
   return result;
 }
+
 async function updateTeamNameRepository(teamName, studentId) {
   return await updateTeamNameQuery(teamName, studentId);
 }
