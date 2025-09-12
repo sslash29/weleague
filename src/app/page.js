@@ -37,6 +37,9 @@ async function page() {
       </Link>
       <Link href="/account" className="text-3xl font-bold">
         Account
+      </Link>{" "}
+      <Link href="/faq" className="text-3xl font-bold">
+        FAQ
       </Link>
     </div>
   );
