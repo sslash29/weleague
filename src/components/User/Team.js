@@ -14,6 +14,12 @@ function Team({ players, studentId, team }) {
   const [editingTeamName, setEditingTeamName] = useState(false);
   const [tempTeamName, setTempTeamName] = useState(team?.teamName || "");
 
+  // New state for right team name
+  const [editingRightTeamName, setEditingRightTeamName] = useState(false);
+  const [tempRightTeamName, setTempRightTeamName] = useState(
+    team?.rightTeamName || ""
+  );
+
   const [optimisticTeam, addOptimisticPlayer] = useOptimistic(
     teamState,
     (currentTeam, action) => {
@@ -21,6 +27,14 @@ function Team({ players, studentId, team }) {
         return {
           ...currentTeam,
           teamName: action.teamName,
+        };
+      }
+
+      // New action for right team name
+      if (action.type === "updateRightTeamName") {
+        return {
+          ...currentTeam,
+          rightTeamName: action.rightTeamName,
         };
       }
 
@@ -69,7 +83,9 @@ function Team({ players, studentId, team }) {
       return currentTeam;
     }
   );
+
   console.log(optimisticTeam.moneyLeft);
+
   useEffect(() => {
     const channel = supabase
       .channel("student-table-changes")
@@ -134,9 +150,28 @@ function Team({ players, studentId, team }) {
     });
   };
 
+  // New handler for right team name
+  const handleRightTeamNameCommit = () => {
+    if (!tempRightTeamName.trim()) {
+      setEditingRightTeamName(false);
+      return;
+    }
+
+    setEditingRightTeamName(false);
+    startTransition(async () => {
+      addOptimisticPlayer({
+        type: "updateRightTeamName",
+        rightTeamName: tempRightTeamName,
+      });
+      // You'll need to create this function or modify updateTeamName to handle right team name
+      await updateRightTeamName(tempRightTeamName, studentId);
+    });
+  };
+
   return (
     <div className="flex gap-3 items-center translate-y-15 relative">
       <div className="relative">
+        {/* Left Team Name */}
         {editingTeamName ? (
           <input
             className="text-4xl font-semibold absolute bottom-[765px] z-10 bg-transparent border-b-2 border-gray-400 outline-none"
@@ -166,12 +201,21 @@ function Team({ players, studentId, team }) {
         />
       </div>
 
-      <TeamPlayers
-        selectedPlayer={selectedPlayer}
-        studentId={studentId}
-        team={optimisticTeam}
-        onAddPlayer={handleAddPlayer}
-      />
+      <div className="relative flex-1">
+        {/* Power-Up Buttons */}
+        <div className="absolute bottom-[765px] right-0 z-10 gap-3 flex items-center">
+          <button>Triple Captain</button>
+          <button>Bench Boost</button>
+          <button>Free Hit</button>
+        </div>
+
+        <TeamPlayers
+          selectedPlayer={selectedPlayer}
+          studentId={studentId}
+          team={optimisticTeam}
+          onAddPlayer={handleAddPlayer}
+        />
+      </div>
 
       {errorMsg && <Notification errorMsg={errorMsg} />}
     </div>
