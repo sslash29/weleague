@@ -1,4 +1,5 @@
 "use server";
+import { getPlayerDataRepository } from "@/lib/db/repositories/repositories";
 import {
   addPlayerToTeamRepository,
   createReportRepository,
@@ -61,7 +62,34 @@ async function addPlayerToTeam(formData) {
 }
 
 async function getStudentTeam(studentId) {
-  return await getStudentTeamRepository(studentId);
+  // Fetch the base team data from repository
+  const team = await getStudentTeamRepository(studentId);
+
+  if (!team) return null;
+
+  // Helper to fetch enriched player data
+  async function enrichPlayers(players) {
+    const enriched = await Promise.all(
+      players.map(async (player) => {
+        const extraData = await getPlayerDataRepository(player.id);
+        return {
+          ...player, // keep existing props (name, positionOnField, etc.)
+          ...extraData, // merge Supabase player data
+        };
+      })
+    );
+    return enriched;
+  }
+
+  // Enrich both main and bench players
+  const mainPlayers = await enrichPlayers(team.mainPlayers || []);
+  const benchPlayers = await enrichPlayers(team.benchPlayers || []);
+
+  return {
+    ...team,
+    mainPlayers,
+    benchPlayers,
+  };
 }
 
 async function updateTeamName(teamName, studentId) {

@@ -1,9 +1,9 @@
-import Accordion from "@/components/FAQ/Dropdown";
+import FAQ from "@/components/FAQ/FAQ";
 
 function page() {
   return (
     <div>
-      <Accordion header={"is this for all we schools"} />
+      <FAQ />
     </div>
   );
 }

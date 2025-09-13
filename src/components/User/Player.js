@@ -15,7 +15,6 @@ function Player({
 }) {
   async function handleClick() {
     if (!selectedPlayer) return;
-
     // Check for position validation error
     if (selectedPlayer.position.toLowerCase() !== label.toLowerCase()) {
       onAddPlayer(selectedPlayer, positionOnField, type, label, true);
@@ -65,7 +64,10 @@ function Player({
           width={100}
           height={100}
         />
-        <span className="text-md mr-2.5">{playerData?.name || label}</span>
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-md mr-2.5">{playerData?.name || label}</span>
+          <span className="text-md mr-2.5">{playerData?.point_this_week}</span>
+        </div>
       </motion.button>
     </form>
   );

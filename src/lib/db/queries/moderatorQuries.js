@@ -943,10 +943,21 @@ async function addCoolImgQuery(prevState, formData) {
   const supabase = await createClient();
   const coolImg = formData.get("coolImg");
   const playerId = formData.get("playerId");
+
+  if (!(coolImg instanceof File)) {
+    return {
+      success: false,
+      message: "No valid file uploaded",
+    };
+  }
+
   const fileExt = coolImg.name?.split(".").pop() || "bin";
   const safeName = coolImg.name?.replace(/[^a-zA-Z0-9_.-]/g, "_") || "upload";
   const filePath = `${Date.now()}-${safeName}`;
+
+  // ✅ This will now work
   const arrayBuffer = await coolImg.arrayBuffer();
+
   const { data: uploadData, error: imgError } = await supabase.storage
     .from("cool_image")
     .upload(filePath, arrayBuffer, {
@@ -955,13 +966,9 @@ async function addCoolImgQuery(prevState, formData) {
     });
 
   if (imgError) {
-    return {
-      success: false,
-      message: imgError.message,
-    };
+    return { success: false, message: imgError.message };
   }
 
-  // Get a public URL for the uploaded video
   const {
     data: { publicUrl: imgUrl },
     error: imgUrlError,
@@ -970,31 +977,19 @@ async function addCoolImgQuery(prevState, formData) {
     .getPublicUrl(uploadData?.path || filePath);
 
   if (imgUrlError) {
-    return {
-      success: false,
-      message: imgUrlError.message,
-    };
+    return { success: false, message: imgUrlError.message };
   }
 
-  // Insert the player record
   const { error } = await supabase
     .from("player")
-    .update({
-      cool_img: imgUrl,
-    })
+    .update({ cool_img: imgUrl })
     .eq("id", playerId);
 
   if (error) {
-    return {
-      success: false,
-      message: error.message,
-    };
+    return { success: false, message: error.message };
   }
 
-  return {
-    success: true,
-    message: "Video added successfully",
-  };
+  return { success: true, message: "Image added successfully" };
 }
 
 export {
