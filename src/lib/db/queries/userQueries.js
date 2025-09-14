@@ -125,10 +125,29 @@ async function updateTeamNameQuery(newTeamName, studentId) {
   return { success: true, team: updated.team };
 }
 
+async function applyTripleCaptainQuery(prevState, formData) {
+  const supabase = await createClient();
+
+  const team = formData.get("team");
+  const studentId = formData.get("studentId");
+
+  const { data, error } = await supabase
+    .from("student")
+    .update({ team })
+    .eq("auth_user_id", studentId);
+  if (error) throw new Error(error.message);
+
+  return {
+    success: true,
+    message: "added triple captain to player succesfuly",
+  };
+}
+
 export {
   createReportQuery,
   addPlayerToAssignmentQuery,
   addPlayerToStudentTeamQuery,
   getStudentTeamQuery,
   updateTeamNameQuery,
+  applyTripleCaptainQuery,
 };

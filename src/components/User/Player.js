@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { addPlayerToTeam } from "@/services/userServices";
+import { addPlayerToTeam, applyTripleCaptain } from "@/services/userServices";
+import { startTransition, useActionState } from "react";
 
 function Player({
   label,
@@ -12,36 +13,47 @@ function Player({
   positionOnField,
   playerData,
   onAddPlayer,
+  selectedPowerUp,
+  team,
 }) {
+  console.log(playerData);
+  const [tripleCaptainState, tripleCaptainAction] = useActionState(
+    applyTripleCaptain,
+    {}
+  );
+
   async function handleClick() {
-    if (!selectedPlayer) return;
-    // Check for position validation error
-    if (selectedPlayer.position.toLowerCase() !== label.toLowerCase()) {
+    // ✅ If using Triple Captain power-up
+    if (selectedPowerUp === "triple-captain") {
+      const formData = new FormData();
+      formData.append("studentId", studentId);
+      formData.append("playerType", type);
+      formData.append("currentTeam", JSON.stringify(team)); // serialize
+      formData.append("playerData", JSON.stringify(playerData)); // serialize
+
+      startTransition(() => {
+        tripleCaptainAction(formData);
+      });
+      return;
+    }
+    if (selectedPlayer?.position?.toLowerCase() === label.toLowerCase()) {
       onAddPlayer(selectedPlayer, positionOnField, type, label, true);
-      return;
+
+      // ✅ Normal add player flow
+      const formData = new FormData();
+      formData.append("studentId", studentId);
+      formData.append("playerId", selectedPlayer?.id);
+      formData.append("type", type);
+      formData.append("selectedPlayer", JSON.stringify(selectedPlayer));
+      formData.append("positionOnField", positionOnField);
+
+      const data = await addPlayerToTeam(formData);
+
+      if (data.success === false) {
+        onAddPlayer(null, positionOnField, type, label, true, data.message);
+        return;
+      }
     }
-
-    // Add player optimistically first
-    onAddPlayer(selectedPlayer, positionOnField, type, label, false);
-
-    // ✅ Server call only happens after successful validation
-    const formData = new FormData();
-    formData.append("studentId", studentId);
-    formData.append("playerId", selectedPlayer.id);
-    formData.append("type", type);
-    formData.append("selectedPlayer", JSON.stringify(selectedPlayer));
-    formData.append("positionOnField", positionOnField);
-
-    const data = await addPlayerToTeam(formData);
-
-    // Handle server errors by calling onAddPlayer with error info
-    if (data.success === false) {
-      // Pass the server error message back to parent
-      onAddPlayer(null, positionOnField, type, label, true, data.message);
-      return;
-    }
-
-    console.log(data);
   }
 
   return (

@@ -2,6 +2,7 @@
 import {
   addPlayerToAssignmentQuery,
   addPlayerToStudentTeamQuery,
+  applyTripleCaptainQuery,
   createReportQuery,
   getStudentTeamQuery,
   updateTeamNameQuery,
@@ -21,7 +22,6 @@ async function addPlayerToTeamRepository(formData) {
 
 async function getStudentTeamRepository(studentId) {
   const studentTeam = await getStudentTeamQuery(studentId);
-  console.log("student team:", studentTeam);
 
   // Parse JSON if it exists, otherwise fallback
   const team = studentTeam[0]?.team
@@ -35,16 +35,19 @@ async function getStudentTeamRepository(studentId) {
     moneyLeft: team.moneyLeft,
   };
 
-  console.log("parsed result:", result);
   return result;
 }
 
 async function updateTeamNameRepository(teamName, studentId) {
   return await updateTeamNameQuery(teamName, studentId);
 }
+async function applyTripleCaptainRepository(prevState, FormData) {
+  return await applyTripleCaptainQuery(prevState, FormData);
+}
 export {
   createReportRepository,
   addPlayerToTeamRepository,
   getStudentTeamRepository,
   updateTeamNameRepository,
+  applyTripleCaptainRepository,
 };

@@ -2,6 +2,7 @@
 import { getPlayerDataRepository } from "@/lib/db/repositories/repositories";
 import {
   addPlayerToTeamRepository,
+  applyTripleCaptainRepository,
   createReportRepository,
   getStudentTeamRepository,
   updateTeamNameRepository,
@@ -60,7 +61,6 @@ async function addPlayerToTeam(formData) {
   );
   return savedTeam;
 }
-
 async function getStudentTeam(studentId) {
   // Fetch the base team data from repository
   const team = await getStudentTeamRepository(studentId);
@@ -71,10 +71,23 @@ async function getStudentTeam(studentId) {
   async function enrichPlayers(players) {
     const enriched = await Promise.all(
       players.map(async (player) => {
+        console.log(player);
         const extraData = await getPlayerDataRepository(player.id);
+
+        if (!extraData) return player;
+
+        // 🚀 Keep boosted points if player has Triple Captain
+        if (player.isTripleCaptain) {
+          return {
+            ...extraData,
+            ...player, // put player last so boosted values + flag win
+          };
+        }
+
+        // Normal merge (DB wins)
         return {
-          ...player, // keep existing props (name, positionOnField, etc.)
-          ...extraData, // merge Supabase player data
+          ...player,
+          ...extraData,
         };
       })
     );
@@ -96,4 +109,42 @@ async function updateTeamName(teamName, studentId) {
   return await updateTeamNameRepository(teamName, studentId);
 }
 
-export { createReport, addPlayerToTeam, getStudentTeam, updateTeamName };
+async function applyTripleCaptain(prevState, formData) {
+  const currentTeam = JSON.parse(formData.get("currentTeam")); // parse back
+  const playerData = JSON.parse(formData.get("playerData")); // parse back
+  const playerType = formData.get("playerType");
+
+  const updatedPlayerData = {
+    ...playerData,
+    point_this_week: playerData.point_this_week * 3,
+    isTripleCaptain: true,
+  };
+
+  let updatedTeamData;
+  if (playerType === "bench") {
+    updatedTeamData = {
+      ...currentTeam,
+      benchPlayers: currentTeam.benchPlayers.map((p) =>
+        p.id === playerData.id ? updatedPlayerData : p
+      ),
+    };
+  } else {
+    updatedTeamData = {
+      ...currentTeam,
+      mainPlayers: currentTeam.mainPlayers.map((p) =>
+        p.id === playerData.id ? updatedPlayerData : p
+      ),
+    };
+  }
+
+  formData.append("team", JSON.stringify(updatedTeamData)); // store serialized
+  return await applyTripleCaptainRepository(prevState, formData);
+}
+
+export {
+  createReport,
+  addPlayerToTeam,
+  getStudentTeam,
+  updateTeamName,
+  applyTripleCaptain,
+};

@@ -17,7 +17,7 @@ function TeamPlayerSelect({
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target) &&
-        event.target.id !== "playerSelect" // 👈 ignore clicks on #playerSelect
+        event.target.id !== "playerSelect" //
       ) {
         startTransition(() => {
           setSelectedPlayer(null);
