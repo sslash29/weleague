@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { formatDynamicAPIAccesses } from "next/dist/server/app-render/dynamic-rendering";
 
 async function createReportQuery(prevState, formData) {
   const supabase = await createClient();
@@ -126,15 +127,21 @@ async function updateTeamNameQuery(newTeamName, studentId) {
 }
 
 async function applyTripleCaptainQuery(prevState, formData) {
+  console.log(formData);
   const supabase = await createClient();
 
   const team = formData.get("team");
   const studentId = formData.get("studentId");
-
-  const { data, error } = await supabase
+  const currentWeek = formData.get("currentWeek");
+  const { error } = await supabase
     .from("student")
-    .update({ team })
+    .update({
+      team,
+      triple_captain_used: true,
+      triple_captain_week: currentWeek,
+    })
     .eq("auth_user_id", studentId);
+
   if (error) throw new Error(error.message);
 
   return {
@@ -142,7 +149,17 @@ async function applyTripleCaptainQuery(prevState, formData) {
     message: "added triple captain to player succesfuly",
   };
 }
+async function isTripleCaptainUsedQuery(studentId) {
+  const supabase = await createClient();
+  const { data: student, error: studentError } = await supabase
+    .from("student")
+    .select("triple_captain_used, triple_captain_week")
+    .eq("auth_user_id", studentId)
+    .single();
 
+  if (studentError) throw new Error(studentError.message);
+  return student;
+}
 export {
   createReportQuery,
   addPlayerToAssignmentQuery,
@@ -150,4 +167,5 @@ export {
   getStudentTeamQuery,
   updateTeamNameQuery,
   applyTripleCaptainQuery,
+  isTripleCaptainUsedQuery,
 };

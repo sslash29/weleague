@@ -5,6 +5,7 @@ import {
   applyTripleCaptainQuery,
   createReportQuery,
   getStudentTeamQuery,
+  isTripleCaptainUsedQuery,
   updateTeamNameQuery,
 } from "../queries/userQueries";
 
@@ -41,13 +42,19 @@ async function getStudentTeamRepository(studentId) {
 async function updateTeamNameRepository(teamName, studentId) {
   return await updateTeamNameQuery(teamName, studentId);
 }
-async function applyTripleCaptainRepository(prevState, FormData) {
-  return await applyTripleCaptainQuery(prevState, FormData);
+async function applyTripleCaptainRepository(prevState, formData) {
+  return await applyTripleCaptainQuery(prevState, formData);
 }
+
+async function isTripleCaptainUsedRepository(studentId) {
+  return await isTripleCaptainUsedQuery(studentId);
+}
+
 export {
   createReportRepository,
   addPlayerToTeamRepository,
   getStudentTeamRepository,
   updateTeamNameRepository,
   applyTripleCaptainRepository,
+  isTripleCaptainUsedRepository,
 };

@@ -1,12 +1,15 @@
 "use server";
+import { getPlayerDataQuery } from "@/lib/db/queries/queries";
 import { getPlayerDataRepository } from "@/lib/db/repositories/repositories";
 import {
   addPlayerToTeamRepository,
   applyTripleCaptainRepository,
   createReportRepository,
   getStudentTeamRepository,
+  isTripleCaptainUsedRepository,
   updateTeamNameRepository,
 } from "@/lib/db/repositories/userRepositories";
+import { getWeekNumber } from "@/utils/helpers";
 
 async function createReport(prevState, formData) {
   return await createReportRepository(prevState, formData);
@@ -23,10 +26,13 @@ async function addPlayerToTeam(formData) {
   if (moneyLeft < selectedPlayer.price)
     return { success: false, message: "Don't have enough money" };
 
+  const playerData = await getPlayerDataQuery(selectedPlayer.id);
+
   const newPlayer = {
     id: selectedPlayer.id,
     name: selectedPlayer.full_name,
     player_img: selectedPlayer.player_image,
+    point_this_week: playerData.point_this_week,
     positionOnField,
   };
 
@@ -61,6 +67,7 @@ async function addPlayerToTeam(formData) {
   );
   return savedTeam;
 }
+
 async function getStudentTeam(studentId) {
   // Fetch the base team data from repository
   const team = await getStudentTeamRepository(studentId);
@@ -72,6 +79,7 @@ async function getStudentTeam(studentId) {
     const enriched = await Promise.all(
       players.map(async (player) => {
         console.log(player);
+        console.log("player");
         const extraData = await getPlayerDataRepository(player.id);
 
         if (!extraData) return player;
@@ -110,10 +118,25 @@ async function updateTeamName(teamName, studentId) {
 }
 
 async function applyTripleCaptain(prevState, formData) {
-  const currentTeam = JSON.parse(formData.get("currentTeam")); // parse back
-  const playerData = JSON.parse(formData.get("playerData")); // parse back
+  const currentTeam = JSON.parse(formData.get("currentTeam"));
+  const playerData = JSON.parse(formData.get("playerData"));
   const playerType = formData.get("playerType");
+  const studentId = formData.get("studentId");
 
+  const currentWeek = getWeekNumber();
+  formData.append("currentWeek", currentWeek);
+  const student = await isTripleCaptainUsedRepository(studentId);
+  if (
+    student.triple_captain_used &&
+    student.triple_captain_week === currentWeek
+  ) {
+    return {
+      success: false,
+      message: "You can only use Triple Captain once per week!",
+    };
+  }
+
+  // 🚀 Update player points
   const updatedPlayerData = {
     ...playerData,
     point_this_week: playerData.point_this_week * 3,
@@ -137,7 +160,11 @@ async function applyTripleCaptain(prevState, formData) {
     };
   }
 
-  formData.append("team", JSON.stringify(updatedTeamData)); // store serialized
+  // FIX: Serialize the JavaScript object to a JSON string before appending.
+  // This ensures the data is correctly passed to the next function.
+  formData.append("team", JSON.stringify(updatedTeamData));
+
+  // Save team + mark Triple Captain used
   return await applyTripleCaptainRepository(prevState, formData);
 }
 

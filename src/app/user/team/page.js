@@ -7,8 +7,6 @@ async function page() {
   const players = await getAllPlayers();
   const student = await getUser();
   const team = await getStudentTeam(student.id);
-  console.log("team");
-  console.log(team);
   return <Team players={players} studentId={student.id} team={team} />;
 }
 

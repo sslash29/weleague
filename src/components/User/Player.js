@@ -16,27 +16,54 @@ function Player({
   selectedPowerUp,
   team,
 }) {
-  console.log(playerData);
   const [tripleCaptainState, tripleCaptainAction] = useActionState(
     applyTripleCaptain,
     {}
   );
 
   async function handleClick() {
-    // ✅ If using Triple Captain power-up
     if (selectedPowerUp === "triple-captain") {
+      const hasTripleCaptain =
+        team.mainPlayers.some((p) => p.isTripleCaptain) ||
+        team.benchPlayers.some((p) => p.isTripleCaptain);
+
+      if (hasTripleCaptain) {
+        onAddPlayer(
+          null,
+          positionOnField,
+          type,
+          label,
+          true,
+          "You can only use Triple Captain on one player per week!"
+        );
+        return;
+      }
+
+      const boostedPlayer = {
+        ...playerData,
+        point_this_week: playerData.point_this_week * 3,
+        isTripleCaptain: true,
+      };
+
+      onAddPlayer(boostedPlayer, positionOnField, type, label);
+
       const formData = new FormData();
       formData.append("studentId", studentId);
       formData.append("playerType", type);
-      formData.append("currentTeam", JSON.stringify(team)); // serialize
-      formData.append("playerData", JSON.stringify(playerData)); // serialize
+      formData.append("currentTeam", JSON.stringify(team));
+      formData.append("playerData", JSON.stringify(playerData));
 
       startTransition(() => {
         tripleCaptainAction(formData);
       });
+
       return;
     }
-    if (selectedPlayer?.position?.toLowerCase() === label.toLowerCase()) {
+
+    if (
+      selectedPlayer?.position?.toLowerCase() !== label.toLowerCase() &&
+      playerData
+    ) {
       onAddPlayer(selectedPlayer, positionOnField, type, label, true);
 
       // ✅ Normal add player flow
@@ -50,7 +77,14 @@ function Player({
       const data = await addPlayerToTeam(formData);
 
       if (data.success === false) {
-        onAddPlayer(null, positionOnField, type, label, true, data.message);
+        onAddPlayer(
+          null,
+          positionOnField,
+          type,
+          label,
+          true,
+          data.message // ❌ Pass error message for Notification
+        );
         return;
       }
     }
@@ -78,7 +112,10 @@ function Player({
         />
         <div className="flex flex-col items-center gap-2">
           <span className="text-md mr-2.5">{playerData?.name || label}</span>
-          <span className="text-md mr-2.5">{playerData?.point_this_week}</span>
+          <span className="text-md mr-2.5">
+            {playerData?.point_this_week}
+            {playerData?.isTripleCaptain && " (TC)"}
+          </span>
         </div>
       </motion.button>
     </form>

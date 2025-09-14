@@ -7,4 +7,12 @@ function capitalizeFirst(input) {
 
 const truncateName = (name, maxLength = 10) =>
   name?.length > maxLength ? name.slice(0, maxLength) + "..." : name;
-export { capitalizeFirst, truncateName };
+
+// Extend Date with getWeekNumber
+function getWeekNumber(date = new Date()) {
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date - firstDay) / (24 * 60 * 60 * 1000));
+  return Math.ceil((days + firstDay.getDay() + 1) / 7);
+}
+
+export { capitalizeFirst, truncateName, getWeekNumber };
