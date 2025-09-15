@@ -61,17 +61,38 @@ function Player({
     }
 
     if (
-      selectedPlayer?.position?.toLowerCase() !== label.toLowerCase() &&
-      playerData
+      selectedPlayer?.position?.toLowerCase() === label.toLowerCase() &&
+      playerData?.id !== selectedPlayer?.id
     ) {
-      onAddPlayer(selectedPlayer, positionOnField, type, label, true);
+      const price = selectedPlayer.price - playerData?.playerPrice;
+      const updatedSelectedPlayer = {
+        ...selectedPlayer,
+        calculationPrice: price,
+      };
 
-      // ✅ Normal add player flow
+      console.log(
+        price,
+        updatedSelectedPlayer,
+        selectedPlayer.price,
+        playerData?.playerPrice
+      );
+
+      onAddPlayer(
+        playerData ? updatedSelectedPlayer : selectedPlayer,
+        positionOnField,
+        type,
+        label,
+        true
+      );
+
       const formData = new FormData();
       formData.append("studentId", studentId);
       formData.append("playerId", selectedPlayer?.id);
       formData.append("type", type);
-      formData.append("selectedPlayer", JSON.stringify(selectedPlayer));
+      formData.append(
+        "selectedPlayer",
+        JSON.stringify(playerData ? updatedSelectedPlayer : selectedPlayer)
+      );
       formData.append("positionOnField", positionOnField);
 
       const data = await addPlayerToTeam(formData);

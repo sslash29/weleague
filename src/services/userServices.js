@@ -23,7 +23,7 @@ async function addPlayerToTeam(formData) {
   const { mainPlayers, benchPlayers, moneyLeft } =
     await getStudentTeamRepository(studentId);
 
-  if (moneyLeft < selectedPlayer.price)
+  if (moneyLeft < selectedPlayer.playerPrice)
     return { success: false, message: "Don't have enough money" };
 
   const playerData = await getPlayerDataQuery(selectedPlayer.id);
@@ -33,6 +33,7 @@ async function addPlayerToTeam(formData) {
     name: selectedPlayer.full_name,
     player_img: selectedPlayer.player_image,
     point_this_week: playerData.point_this_week,
+    playerPrice: selectedPlayer.price,
     positionOnField,
   };
 
@@ -57,7 +58,12 @@ async function addPlayerToTeam(formData) {
     teamName: formData.get("teamName") || "",
     mainPlayers: updatedMainPlayers,
     benchPlayers: updatedBenchPlayers,
-    moneyLeft: (moneyLeft - selectedPlayer.price).toFixed(2),
+    moneyLeft: (
+      moneyLeft -
+      (selectedPlayer?.calculationPrice
+        ? selectedPlayer?.calculationPrice
+        : selectedPlayer?.price)
+    ).toFixed(2),
   };
 
   formData.set("team", JSON.stringify(team));
