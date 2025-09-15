@@ -21,11 +21,20 @@ function Player({
     {}
   );
 
-  async function handleClick() {
+  const normalize = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .trim();
+
+  async function handleClick(e) {
+    // prevent default if inside a <form>
+    e?.preventDefault?.();
+
+    // --- Triple Captain flow ---
     if (selectedPowerUp === "triple-captain") {
       const hasTripleCaptain =
-        team.mainPlayers.some((p) => p.isTripleCaptain) ||
-        team.benchPlayers.some((p) => p.isTripleCaptain);
+        (team?.mainPlayers ?? []).some((p) => p.isTripleCaptain) ||
+        (team?.benchPlayers ?? []).some((p) => p.isTripleCaptain);
 
       if (hasTripleCaptain) {
         onAddPlayer(
@@ -41,10 +50,11 @@ function Player({
 
       const boostedPlayer = {
         ...playerData,
-        point_this_week: playerData.point_this_week * 3,
+        point_this_week: (Number(playerData?.point_this_week) || 0) * 3,
         isTripleCaptain: true,
       };
 
+      // optimistic update
       onAddPlayer(boostedPlayer, positionOnField, type, label);
 
       const formData = new FormData();
@@ -60,86 +70,94 @@ function Player({
       return;
     }
 
-    if (
-      selectedPlayer?.position?.toLowerCase() === label.toLowerCase() &&
-      playerData?.id !== selectedPlayer?.id
-    ) {
-      const price = selectedPlayer.price - playerData?.playerPrice;
-      const updatedSelectedPlayer = {
-        ...selectedPlayer,
-        calculationPrice: price,
-      };
+    // --- Normal add player flow (assign selectedPlayer into this slot) ---
+    if (!selectedPlayer) {
+      // nothing selected from selector — nothing to do
+      return;
+    }
 
-      console.log(
-        price,
-        updatedSelectedPlayer,
-        selectedPlayer.price,
-        playerData?.playerPrice
-      );
+    const selectedPos = normalize(
+      selectedPlayer.position ??
+        selectedPlayer.pos ??
+        selectedPlayer.position_label
+    );
+    const targetPos = normalize(label);
 
+    // case-insensitive mismatch -> show validation error
+    if (selectedPos && targetPos && selectedPos !== targetPos) {
       onAddPlayer(
-        playerData ? updatedSelectedPlayer : selectedPlayer,
+        null,
         positionOnField,
         type,
         label,
-        true
+        true,
+        `Selected player's position (${
+          selectedPlayer.position ?? selectedPlayer.pos
+        }) does not match target position (${label})`
       );
+      return;
+    }
 
-      const formData = new FormData();
-      formData.append("studentId", studentId);
-      formData.append("playerId", selectedPlayer?.id);
-      formData.append("type", type);
-      formData.append(
-        "selectedPlayer",
-        JSON.stringify(playerData ? updatedSelectedPlayer : selectedPlayer)
-      );
-      formData.append("positionOnField", positionOnField);
+    // Price calculation (defensive number parsing)
+    const price =
+      (Number(selectedPlayer.price ?? 0) || 0) -
+      (Number(playerData?.playerPrice ?? 0) || 0);
 
-      const data = await addPlayerToTeam(formData);
+    const updatedSelectedPlayer = {
+      ...selectedPlayer,
+      calculationPrice: price,
+    };
 
-      if (data.success === false) {
-        onAddPlayer(
-          null,
-          positionOnField,
-          type,
-          label,
-          true,
-          data.message // ❌ Pass error message for Notification
-        );
-        return;
-      }
+    // optimistic update
+    onAddPlayer(updatedSelectedPlayer, positionOnField, type, label);
+
+    // server call
+    const formData = new FormData();
+    formData.append("studentId", studentId);
+    formData.append("playerId", selectedPlayer?.id);
+    formData.append("type", type);
+    formData.append(
+      "selectedPlayer",
+      JSON.stringify(updatedSelectedPlayer ?? selectedPlayer)
+    );
+    formData.append("positionOnField", positionOnField);
+
+    const data = await addPlayerToTeam(formData);
+    if (data?.success === false) {
+      // rollback / show server error
+      onAddPlayer(null, positionOnField, type, label, true, data.message);
+      return;
     }
   }
 
   return (
-    <form>
-      <motion.button
-        className="flex items-center justify-center flex-col cursor-pointer"
+    <motion.button
+      type="button"
+      className="flex items-center justify-center flex-col cursor-pointer"
+      id="playerSelect"
+      animate={isActive ? { rotate: [0, 5, -5, 5, -5, 0] } : { rotate: 0 }}
+      transition={
+        isActive
+          ? { repeat: Infinity, duration: 0.6, ease: "easeInOut" }
+          : { duration: 0.2 }
+      }
+      onClick={handleClick}
+    >
+      <Image
         id="playerSelect"
-        animate={isActive ? { rotate: [0, 5, -5, 5, -5, 0] } : { rotate: 0 }}
-        transition={
-          isActive
-            ? { repeat: Infinity, duration: 0.6, ease: "easeInOut" }
-            : { duration: 0.2 }
-        }
-        formAction={handleClick}
-      >
-        <Image
-          id="playerSelect"
-          src={playerData?.player_img || "/player.png"}
-          alt={playerData?.name || "Player"}
-          width={100}
-          height={100}
-        />
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-md mr-2.5">{playerData?.name || label}</span>
-          <span className="text-md mr-2.5">
-            {playerData?.point_this_week}
-            {playerData?.isTripleCaptain && " (TC)"}
-          </span>
-        </div>
-      </motion.button>
-    </form>
+        src={playerData?.player_img || "/player.png"}
+        alt={playerData?.name || "Player"}
+        width={100}
+        height={100}
+      />
+      <div className="flex flex-col items-center gap-2">
+        <span className="text-md mr-2.5">{playerData?.name || label}</span>
+        <span className="text-md mr-2.5">
+          {playerData?.point_this_week}
+          {playerData?.isTripleCaptain && " (TC)"}
+        </span>
+      </div>
+    </motion.button>
   );
 }
 

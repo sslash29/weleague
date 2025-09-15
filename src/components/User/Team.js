@@ -13,7 +13,6 @@ function Team({ players, studentId, team }) {
   const [selectedPowerUp, setSelectedPowerUp] = useState(null);
   const [editingTeamName, setEditingTeamName] = useState(false);
   const [tempTeamName, setTempTeamName] = useState(team?.teamName || "");
-  // New state for right team name
 
   const [optimisticTeam, addOptimisticPlayer] = useOptimistic(
     teamState,
@@ -25,13 +24,14 @@ function Team({ players, studentId, team }) {
         };
       }
 
-      // New action for right team name
-
       const { selectedPlayer, positionOnField, type } = action;
 
       const currentMoney = parseFloat(currentTeam.moneyLeft);
-      const playerPrice = parseFloat(selectedPlayer.price);
+      const playerPrice = parseFloat(
+        selectedPlayer?.price ?? selectedPlayer?.playerPrice ?? 0
+      );
 
+      if (isNaN(currentMoney) || isNaN(playerPrice)) return currentTeam;
       if (currentMoney < playerPrice) return currentTeam;
 
       const newPlayer = {
@@ -41,7 +41,7 @@ function Team({ players, studentId, team }) {
 
       const newMoneyLeft = (currentMoney - playerPrice).toFixed(2);
 
-      if (type.trim() === "main") {
+      if (type?.trim() === "main") {
         return {
           ...currentTeam,
           moneyLeft: newMoneyLeft,
@@ -54,7 +54,7 @@ function Team({ players, studentId, team }) {
         };
       }
 
-      if (type.trim() === "bench") {
+      if (type?.trim() === "bench") {
         return {
           ...currentTeam,
           moneyLeft: newMoneyLeft,
@@ -93,33 +93,71 @@ function Team({ players, studentId, team }) {
       .subscribe();
 
     return () => {
+      // removeChannel is fine; if your supabase client needs await, adapt accordingly
       supabase.removeChannel(channel);
     };
   }, []);
 
+  const normalize = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .trim();
+
+  /**
+   * selectedPlayerArg: the player object chosen from the selector (or boosted player)
+   * positionOnField: slot index
+   * type: "main" | "bench"
+   * positionLabel: the target position label (the slot's position, e.g. "Midfielder")
+   * hasValidationError / serverErrorMessage: fallback from child if server returned an error
+   */
   const handleAddPlayer = (
-    selectedPlayer,
+    selectedPlayerArg,
     positionOnField,
     type,
-    position,
+    positionLabel,
     hasValidationError = false,
     serverErrorMessage = null
   ) => {
-    if (hasValidationError) {
-      if (serverErrorMessage) {
-        setErrorMsg(`Error: ${serverErrorMessage}`);
-      } else if (selectedPlayer) {
-        setErrorMsg(
-          `Error: Selected player's position (${selectedPlayer.position}) does not match target position (${position})`
-        );
-      }
+    // server-side message takes precedence
+    if (serverErrorMessage) {
+      setErrorMsg(`Error: ${serverErrorMessage}`);
       return;
     }
 
-    if (!selectedPlayer) return;
+    const sel = selectedPlayerArg;
 
+    // If no player provided, nothing to add (or maybe it's intended to clear)
+    if (!sel) {
+      // you can choose to clear the slot if that's intended; for now do nothing
+      return;
+    }
+
+    // Defensive / case-insensitive compare
+    const selectedPos = normalize(
+      sel.position ?? sel.pos ?? sel.position_label ?? ""
+    );
+    const targetPos = normalize(positionLabel ?? "");
+
+    if (selectedPos && targetPos && selectedPos !== targetPos) {
+      setErrorMsg(
+        `Error: Selected player's position (${
+          sel.position ?? sel.pos
+        }) does not match target position (${positionLabel})`
+      );
+      return;
+    }
+
+    // If child flagged a validation error (but no server message), show generic message
+    if (hasValidationError) {
+      setErrorMsg("Error: Validation failed while adding player.");
+      return;
+    }
+
+    // All good -> clear error and optimistic update
     setErrorMsg(null);
-    addOptimisticPlayer({ selectedPlayer, positionOnField, type });
+    startTransition(() => {
+      addOptimisticPlayer({ selectedPlayer: sel, positionOnField, type });
+    });
   };
 
   const handleTeamNameCommit = () => {
