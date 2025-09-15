@@ -20,6 +20,18 @@ async function addPlayerToTeam(formData) {
   const selectedPlayer = JSON.parse(formData.get("selectedPlayer"));
   const type = formData.get("type");
   const positionOnField = Number(formData.get("positionOnField"));
+
+  // ✅ deserialize otherPositions properly
+  let otherPositions = [];
+  try {
+    const raw = formData.get("otherPositions");
+    if (raw) {
+      otherPositions = JSON.parse(raw);
+    }
+  } catch (e) {
+    console.error("Failed to parse otherPositions:", e);
+  }
+
   const { mainPlayers, benchPlayers, moneyLeft } =
     await getStudentTeamRepository(studentId);
 
@@ -37,10 +49,16 @@ async function addPlayerToTeam(formData) {
     positionOnField,
   };
 
-  let updatedMainPlayers = Array.isArray(mainPlayers) ? [...mainPlayers] : [];
-  let updatedBenchPlayers = Array.isArray(benchPlayers)
-    ? [...benchPlayers]
+  let updatedMainPlayers = Array.isArray(mainPlayers)
+    ? [...mainPlayers].filter((p) => p.id !== otherPositions?.[0]?.id)
     : [];
+  let updatedBenchPlayers = Array.isArray(benchPlayers)
+    ? [...benchPlayers].filter((p) => p.id !== otherPositions?.[0]?.id)
+    : [];
+
+  // ✅ full object logged now
+  console.log("selectedPlayerPositions:", otherPositions);
+  console.log(updatedMainPlayers);
 
   if (type === "main") {
     updatedMainPlayers = updatedMainPlayers.filter(
@@ -75,30 +93,23 @@ async function addPlayerToTeam(formData) {
 }
 
 async function getStudentTeam(studentId) {
-  // Fetch the base team data from repository
   const team = await getStudentTeamRepository(studentId);
 
   if (!team) return null;
 
-  // Helper to fetch enriched player data
   async function enrichPlayers(players) {
     const enriched = await Promise.all(
       players.map(async (player) => {
-        console.log(player);
-        console.log("player");
         const extraData = await getPlayerDataRepository(player.id);
-
         if (!extraData) return player;
 
-        // 🚀 Keep boosted points if player has Triple Captain
         if (player.isTripleCaptain) {
           return {
             ...extraData,
-            ...player, // put player last so boosted values + flag win
+            ...player,
           };
         }
 
-        // Normal merge (DB wins)
         return {
           ...player,
           ...extraData,
@@ -108,7 +119,6 @@ async function getStudentTeam(studentId) {
     return enriched;
   }
 
-  // Enrich both main and bench players
   const mainPlayers = await enrichPlayers(team.mainPlayers || []);
   const benchPlayers = await enrichPlayers(team.benchPlayers || []);
 
@@ -142,7 +152,6 @@ async function applyTripleCaptain(prevState, formData) {
     };
   }
 
-  // 🚀 Update player points
   const updatedPlayerData = {
     ...playerData,
     point_this_week: playerData.point_this_week * 3,
@@ -166,11 +175,8 @@ async function applyTripleCaptain(prevState, formData) {
     };
   }
 
-  // FIX: Serialize the JavaScript object to a JSON string before appending.
-  // This ensures the data is correctly passed to the next function.
   formData.append("team", JSON.stringify(updatedTeamData));
 
-  // Save team + mark Triple Captain used
   return await applyTripleCaptainRepository(prevState, formData);
 }
 

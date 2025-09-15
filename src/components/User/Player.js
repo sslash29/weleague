@@ -26,10 +26,7 @@ function Player({
       .toLowerCase()
       .trim();
 
-  async function handleClick(e) {
-    // prevent default if inside a <form>
-    e?.preventDefault?.();
-
+  async function handleClick() {
     // --- Triple Captain flow ---
     if (selectedPowerUp === "triple-captain") {
       const hasTripleCaptain =
@@ -54,7 +51,6 @@ function Player({
         isTripleCaptain: true,
       };
 
-      // optimistic update
       onAddPlayer(boostedPlayer, positionOnField, type, label);
 
       const formData = new FormData();
@@ -70,11 +66,17 @@ function Player({
       return;
     }
 
-    // --- Normal add player flow (assign selectedPlayer into this slot) ---
-    if (!selectedPlayer) {
-      // nothing selected from selector — nothing to do
-      return;
-    }
+    // --- Normal add player flow ---
+    if (!selectedPlayer) return;
+
+    const allPlayers = [
+      ...(team?.mainPlayers ?? []),
+      ...(team?.benchPlayers ?? []),
+    ];
+
+    const selectedPlayerPositions = allPlayers.filter(
+      (p) => p.id === selectedPlayer.id
+    );
 
     const selectedPos = normalize(
       selectedPlayer.position ??
@@ -83,7 +85,6 @@ function Player({
     );
     const targetPos = normalize(label);
 
-    // case-insensitive mismatch -> show validation error
     if (selectedPos && targetPos && selectedPos !== targetPos) {
       onAddPlayer(
         null,
@@ -98,7 +99,6 @@ function Player({
       return;
     }
 
-    // Price calculation (defensive number parsing)
     const price =
       (Number(selectedPlayer.price ?? 0) || 0) -
       (Number(playerData?.playerPrice ?? 0) || 0);
@@ -108,10 +108,8 @@ function Player({
       calculationPrice: price,
     };
 
-    // optimistic update
     onAddPlayer(updatedSelectedPlayer, positionOnField, type, label);
 
-    // server call
     const formData = new FormData();
     formData.append("studentId", studentId);
     formData.append("playerId", selectedPlayer?.id);
@@ -122,9 +120,11 @@ function Player({
     );
     formData.append("positionOnField", positionOnField);
 
+    // ✅ serialize array before sending
+    formData.append("otherPositions", JSON.stringify(selectedPlayerPositions));
+
     const data = await addPlayerToTeam(formData);
     if (data?.success === false) {
-      // rollback / show server error
       onAddPlayer(null, positionOnField, type, label, true, data.message);
       return;
     }
