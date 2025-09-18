@@ -119,33 +119,48 @@ function Player({
       return;
     }
 
+    // ✅ Check if this is a position switch (same player, different position)
+    const isPositionSwitch = selectedPlayerPositions.length > 0;
+
     // ✅ calculate effective price difference
-    const price =
-      (Number(selectedPlayer.price ?? 0) || 0) -
-      (Number(playerData?.playerPrice ?? 0) || 0);
+    let price;
+    let playerPrice;
 
-    // ✅ Check if user has enough money before proceeding
-    const currentMoney = parseFloat(team?.moneyLeft || 0);
-    const playerPrice = parseFloat(
-      selectedPlayer?.calculationPrice ??
-        selectedPlayer?.price ??
-        selectedPlayer?.playerPrice ??
-        0
-    );
+    if (isPositionSwitch) {
+      // For position switches, no money change needed
+      price = 0;
+      playerPrice = 0;
+    } else {
+      // For new players, calculate the price difference
+      price =
+        (Number(selectedPlayer.price ?? 0) || 0) -
+        (Number(playerData?.playerPrice ?? 0) || 0);
 
-    // If insufficient funds, show error and return early
-    if (currentMoney < playerPrice) {
-      onAddPlayer(
-        null,
-        positionOnField,
-        type,
-        label,
-        true,
-        `Insufficient funds! You need $${playerPrice.toFixed(
-          2
-        )} but only have $${currentMoney.toFixed(2)}`
+      playerPrice = parseFloat(
+        selectedPlayer?.calculationPrice ??
+          selectedPlayer?.price ??
+          selectedPlayer?.playerPrice ??
+          0
       );
-      return;
+    }
+
+    // ✅ Check if user has enough money before proceeding (only for new players)
+    if (!isPositionSwitch) {
+      const currentMoney = parseFloat(team?.moneyLeft || 0);
+
+      if (currentMoney < playerPrice) {
+        onAddPlayer(
+          null,
+          positionOnField,
+          type,
+          label,
+          true,
+          `Insufficient funds! You need ${playerPrice.toFixed(
+            2
+          )} but only have ${currentMoney.toFixed(2)}`
+        );
+        return;
+      }
     }
 
     // ✅ always override price so reducer sees correct value

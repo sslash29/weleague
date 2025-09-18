@@ -13,7 +13,6 @@ function Team({ players, studentId, team }) {
   const [selectedPowerUp, setSelectedPowerUp] = useState(null);
   const [editingTeamName, setEditingTeamName] = useState(false);
   const [tempTeamName, setTempTeamName] = useState(team?.teamName || "");
-
   const [optimisticTeam, addOptimisticPlayer] = useOptimistic(
     teamState,
     (currentTeam, action) => {
@@ -26,27 +25,42 @@ function Team({ players, studentId, team }) {
 
       const { selectedPlayer, positionOnField, type } = action;
 
-      const currentMoney = parseFloat(currentTeam.moneyLeft);
-      // ✅ prefer calculationPrice or overridden price
-      const playerPrice = parseFloat(
-        selectedPlayer?.calculationPrice ??
-          selectedPlayer?.price ??
-          selectedPlayer?.playerPrice ??
-          0
+      // ✅ Check if this is a position switch
+      const allCurrentPlayers = [
+        ...currentTeam.mainPlayers,
+        ...currentTeam.benchPlayers,
+      ];
+
+      const isPositionSwitch = allCurrentPlayers.some(
+        (p) => p.id === selectedPlayer.id
       );
 
-      if (isNaN(currentMoney) || isNaN(playerPrice)) return currentTeam;
+      const currentMoney = parseFloat(currentTeam.moneyLeft);
+      let playerPrice = 0;
+      let newMoneyLeft = currentMoney;
 
-      if (currentMoney < playerPrice) {
-        return currentTeam;
+      // Only deduct money for new players, not position switches
+      if (!isPositionSwitch) {
+        playerPrice = parseFloat(
+          selectedPlayer?.calculationPrice ??
+            selectedPlayer?.price ??
+            selectedPlayer?.playerPrice ??
+            0
+        );
+
+        if (isNaN(currentMoney) || isNaN(playerPrice)) return currentTeam;
+
+        if (currentMoney < playerPrice) {
+          return currentTeam;
+        }
+
+        newMoneyLeft = (currentMoney - playerPrice).toFixed(2);
       }
 
       const newPlayer = {
         ...selectedPlayer,
         positionOnField: Number(positionOnField),
       };
-
-      const newMoneyLeft = (currentMoney - playerPrice).toFixed(2);
 
       if (type?.trim() === "main") {
         return {
@@ -58,6 +72,10 @@ function Team({ players, studentId, team }) {
             ),
             newPlayer,
           ],
+          // Remove player from bench if switching from bench to main
+          benchPlayers: currentTeam.benchPlayers.filter(
+            (p) => p.id !== selectedPlayer.id
+          ),
         };
       }
 
@@ -71,6 +89,10 @@ function Team({ players, studentId, team }) {
             ),
             newPlayer,
           ],
+          // Remove player from main if switching from main to bench
+          mainPlayers: currentTeam.mainPlayers.filter(
+            (p) => p.id !== selectedPlayer.id
+          ),
         };
       }
 
