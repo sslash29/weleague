@@ -26,7 +26,19 @@ function Player({
       .toLowerCase()
       .trim();
 
+  console.log(playerData);
+
   async function handleClick() {
+    if (type === "bench" && selectedPowerUp === "bench-boost") {
+      //?  you will make each player double their points in the ui then you will call to updated in the server
+      //? so then you will need to updated in the team componenet
+      const updatedPlayerData = {
+        ...playerData,
+        point_this_week: playerData.point_this_week * 2,
+        isBenchBoost: true,
+      };
+      onAddPlayer(updatedPlayerData, positionOnField, type, label);
+    }
     // --- Triple Captain flow ---
     if (selectedPowerUp === "triple-captain") {
       const hasTripleCaptain =
@@ -219,6 +231,9 @@ function Player({
 
             // Apply half points for bench players
             if (type === "bench") {
+              if (selectedPowerUp === "bench-boost") {
+                return points;
+              }
               points = Math.floor(points / 2);
             }
 

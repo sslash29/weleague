@@ -228,7 +228,9 @@ function Team({ players, studentId, team }) {
           <button onClick={() => setSelectedPowerUp("triple-captain")}>
             Triple Captain
           </button>
-          <button>Bench Boost</button>
+          <button onClick={() => setSelectedPowerUp("bench-boost")}>
+            Bench Boost
+          </button>
           <button>Free Hit</button>
         </div>
 
