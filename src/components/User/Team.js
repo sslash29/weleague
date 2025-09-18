@@ -60,6 +60,11 @@ function Team({ players, studentId, team }) {
       const newPlayer = {
         ...selectedPlayer,
         positionOnField: Number(positionOnField),
+        // Apply half points if player is being added to bench
+        point_this_week:
+          type?.trim() === "bench"
+            ? Math.floor((selectedPlayer.point_this_week || 0) / 2)
+            : selectedPlayer.point_this_week,
       };
 
       if (type?.trim() === "main") {

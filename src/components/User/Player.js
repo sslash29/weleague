@@ -214,8 +214,20 @@ function Player({
       <div className="flex flex-col items-center gap-2">
         <span className="text-md mr-2.5">{playerData?.name || label}</span>
         <span className="text-md mr-2.5">
-          {playerData?.point_this_week}
+          {(() => {
+            let points = playerData?.point_this_week || 0;
+
+            // Apply half points for bench players
+            if (type === "bench") {
+              points = Math.floor(points / 2);
+            }
+
+            return points;
+          })()}
           {playerData?.isTripleCaptain && " (TC)"}
+          {type === "bench" &&
+            playerData?.point_this_week !== undefined &&
+            " (Bench)"}
         </span>
       </div>
     </motion.button>
