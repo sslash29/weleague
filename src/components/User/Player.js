@@ -66,13 +66,33 @@ function Player({
       return;
     }
 
-    // --- Normal add player flow ---
     if (!selectedPlayer) return;
 
     const allPlayers = [
       ...(team?.mainPlayers ?? []),
       ...(team?.benchPlayers ?? []),
     ];
+
+    // ✅ Check if the same player is already in the same position
+    const isPlayerInSamePosition = allPlayers.some(
+      (p) =>
+        p.id === selectedPlayer.id &&
+        p.positionOnField === Number(positionOnField)
+    );
+
+    if (isPlayerInSamePosition) {
+      onAddPlayer(
+        null,
+        positionOnField,
+        type,
+        label,
+        true,
+        `${
+          selectedPlayer.full_name || selectedPlayer.name
+        } is already added in this position!`
+      );
+      return;
+    }
 
     const selectedPlayerPositions = allPlayers.filter(
       (p) => p.id === selectedPlayer.id
@@ -99,17 +119,44 @@ function Player({
       return;
     }
 
+    // ✅ calculate effective price difference
     const price =
       (Number(selectedPlayer.price ?? 0) || 0) -
       (Number(playerData?.playerPrice ?? 0) || 0);
 
+    // ✅ Check if user has enough money before proceeding
+    const currentMoney = parseFloat(team?.moneyLeft || 0);
+    const playerPrice = parseFloat(
+      selectedPlayer?.calculationPrice ??
+        selectedPlayer?.price ??
+        selectedPlayer?.playerPrice ??
+        0
+    );
+
+    // If insufficient funds, show error and return early
+    if (currentMoney < playerPrice) {
+      onAddPlayer(
+        null,
+        positionOnField,
+        type,
+        label,
+        true,
+        `Insufficient funds! You need $${playerPrice.toFixed(
+          2
+        )} but only have $${currentMoney.toFixed(2)}`
+      );
+      return;
+    }
+
+    // ✅ always override price so reducer sees correct value
     const updatedSelectedPlayer = {
       ...selectedPlayer,
-      calculationPrice: price,
+      price,
     };
 
     onAddPlayer(updatedSelectedPlayer, positionOnField, type, label);
 
+    // ✅ Only call server if we have enough money
     const formData = new FormData();
     formData.append("studentId", studentId);
     formData.append("playerId", selectedPlayer?.id);
@@ -120,7 +167,6 @@ function Player({
     );
     formData.append("positionOnField", positionOnField);
 
-    // ✅ serialize array before sending
     formData.append("otherPositions", JSON.stringify(selectedPlayerPositions));
 
     const data = await addPlayerToTeam(formData);

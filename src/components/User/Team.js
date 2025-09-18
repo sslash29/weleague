@@ -27,12 +27,19 @@ function Team({ players, studentId, team }) {
       const { selectedPlayer, positionOnField, type } = action;
 
       const currentMoney = parseFloat(currentTeam.moneyLeft);
+      // ✅ prefer calculationPrice or overridden price
       const playerPrice = parseFloat(
-        selectedPlayer?.price ?? selectedPlayer?.playerPrice ?? 0
+        selectedPlayer?.calculationPrice ??
+          selectedPlayer?.price ??
+          selectedPlayer?.playerPrice ??
+          0
       );
 
       if (isNaN(currentMoney) || isNaN(playerPrice)) return currentTeam;
-      if (currentMoney < playerPrice) return currentTeam;
+
+      if (currentMoney < playerPrice) {
+        return currentTeam;
+      }
 
       const newPlayer = {
         ...selectedPlayer,
@@ -82,7 +89,6 @@ function Team({ players, studentId, team }) {
           table: "student",
         },
         (payload) => {
-          console.log("Student table updated:", payload);
           setTeamState((prev) => ({
             ...prev,
             ...payload.new,
@@ -93,7 +99,6 @@ function Team({ players, studentId, team }) {
       .subscribe();
 
     return () => {
-      // removeChannel is fine; if your supabase client needs await, adapt accordingly
       supabase.removeChannel(channel);
     };
   }, []);
@@ -103,13 +108,6 @@ function Team({ players, studentId, team }) {
       .toLowerCase()
       .trim();
 
-  /**
-   * selectedPlayerArg: the player object chosen from the selector (or boosted player)
-   * positionOnField: slot index
-   * type: "main" | "bench"
-   * positionLabel: the target position label (the slot's position, e.g. "Midfielder")
-   * hasValidationError / serverErrorMessage: fallback from child if server returned an error
-   */
   const handleAddPlayer = (
     selectedPlayerArg,
     positionOnField,
@@ -118,21 +116,14 @@ function Team({ players, studentId, team }) {
     hasValidationError = false,
     serverErrorMessage = null
   ) => {
-    // server-side message takes precedence
     if (serverErrorMessage) {
       setErrorMsg(`Error: ${serverErrorMessage}`);
       return;
     }
 
     const sel = selectedPlayerArg;
+    if (!sel) return;
 
-    // If no player provided, nothing to add (or maybe it's intended to clear)
-    if (!sel) {
-      // you can choose to clear the slot if that's intended; for now do nothing
-      return;
-    }
-
-    // Defensive / case-insensitive compare
     const selectedPos = normalize(
       sel.position ?? sel.pos ?? sel.position_label ?? ""
     );
@@ -147,13 +138,11 @@ function Team({ players, studentId, team }) {
       return;
     }
 
-    // If child flagged a validation error (but no server message), show generic message
     if (hasValidationError) {
       setErrorMsg("Error: Validation failed while adding player.");
       return;
     }
 
-    // All good -> clear error and optimistic update
     setErrorMsg(null);
     startTransition(() => {
       addOptimisticPlayer({ selectedPlayer: sel, positionOnField, type });
