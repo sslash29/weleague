@@ -4,7 +4,7 @@ import TeamPlayers from "./TeamPlayers";
 import TeamPlayerSelect from "./TeamPlayerSelect";
 import { supabase } from "@/utils/supabase/client";
 import Notification from "../Notifcation";
-import { updateTeamName } from "@/services/userServices";
+import { applyBenchBoost, updateTeamName } from "@/services/userServices";
 
 function Team({ players, studentId, team }) {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -188,6 +188,53 @@ function Team({ players, studentId, team }) {
       await updateTeamName(tempTeamName, studentId);
     });
   };
+
+  useEffect(() => {
+    (async function () {
+      if (selectedPowerUp === "bench-boost") {
+        try {
+          // ✅ Check if bench boost already used from DB
+          const { data, error } = await supabase
+            .from("student")
+            .select("bench_boost_used, bench_boost_week")
+            .eq("auth_user_id", studentId)
+            .single();
+
+          if (error) throw error;
+
+          if (data?.bench_boost_used) {
+            setErrorMsg("Error: Bench Boost has already been used!");
+            setSelectedPowerUp(null);
+            return;
+          }
+
+          // ✅ Build boosted team locally
+          const boostedTeam = {
+            ...teamState,
+            benchPlayers: teamState.benchPlayers.map((p) => ({
+              ...p,
+              point_this_week: (Number(p.point_this_week) || 0) * 2,
+              isBenchBoost: true,
+            })),
+          };
+
+          setTeamState(boostedTeam);
+          setSelectedPowerUp(null);
+
+          // ✅ Send correct data to server
+          const formData = new FormData();
+          formData.append("currentTeam", JSON.stringify(boostedTeam));
+          formData.append("studentId", studentId);
+
+          await applyBenchBoost(formData);
+        } catch (err) {
+          console.error("Bench Boost error:", err.message);
+          setErrorMsg("Error applying Bench Boost. Please try again.");
+          setSelectedPowerUp(null);
+        }
+      }
+    })();
+  }, [selectedPowerUp, studentId, teamState]);
 
   return (
     <div className="flex gap-3 items-center translate-y-15 relative">

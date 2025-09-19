@@ -1,8 +1,10 @@
 "use server";
 import { getPlayerDataQuery } from "@/lib/db/queries/queries";
+import { isBenchBoostUsedQuery } from "@/lib/db/queries/userQueries";
 import { getPlayerDataRepository } from "@/lib/db/repositories/repositories";
 import {
   addPlayerToTeamRepository,
+  applyBenchBoostRepository,
   applyTripleCaptainRepository,
   createReportRepository,
   getStudentTeamRepository,
@@ -44,7 +46,10 @@ async function addPlayerToTeam(formData) {
     id: selectedPlayer.id,
     name: selectedPlayer.full_name,
     player_img: selectedPlayer.player_image,
-    point_this_week: playerData.point_this_week,
+    point_this_week:
+      type === "main"
+        ? playerData.point_this_week
+        : Math.floor(playerData.point_this_week / 2),
     playerPrice: selectedPlayer.price,
     positionOnField,
   };
@@ -111,8 +116,8 @@ async function getStudentTeam(studentId) {
         }
 
         return {
-          ...player,
           ...extraData,
+          ...player,
         };
       })
     );
@@ -180,10 +185,53 @@ async function applyTripleCaptain(prevState, formData) {
   return await applyTripleCaptainRepository(prevState, formData);
 }
 
+async function applyBenchBoost(formData) {
+  console.log(formData);
+  const studentId = formData.get("studentId");
+  const currentWeek = getWeekNumber();
+  formData.append("currentWeek", currentWeek);
+
+  // ✅ Check if already used
+  const student = await isBenchBoostUsedQuery(studentId);
+  if (student.bench_boost_used || student.bench_boost_week === currentWeek) {
+    return {
+      success: false,
+      message: "You can only bench boost once per week!",
+    };
+  }
+
+  // ✅ Parse the current team from formData
+  let currentTeam;
+  try {
+    currentTeam = JSON.parse(formData.get("currentTeam"));
+  } catch (e) {
+    currentTeam = prevState;
+  }
+
+  // ✅ Boost all bench players locally
+  const boostedBenchPlayers = (currentTeam?.benchPlayers || []).map((p) => ({
+    ...p,
+    point_this_week: (Number(p.point_this_week) || 0) * 2,
+    isBenchBoost: true,
+  }));
+
+  const boostedTeam = {
+    ...currentTeam,
+    benchPlayers: boostedBenchPlayers,
+  };
+
+  // ✅ Replace `currentTeam` in formData with boosted version
+  formData.set("currentTeam", JSON.stringify(boostedTeam));
+
+  // ✅ Call repo with boosted team
+  return await applyBenchBoostRepository(formData);
+}
+
 export {
   createReport,
   addPlayerToTeam,
   getStudentTeam,
   updateTeamName,
   applyTripleCaptain,
+  applyBenchBoost,
 };

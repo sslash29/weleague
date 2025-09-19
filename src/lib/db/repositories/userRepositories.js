@@ -2,9 +2,11 @@
 import {
   addPlayerToAssignmentQuery,
   addPlayerToStudentTeamQuery,
+  applyBenchBoostQuery,
   applyTripleCaptainQuery,
   createReportQuery,
   getStudentTeamQuery,
+  isBenchBoostUsedQuery,
   isTripleCaptainUsedQuery,
   updateTeamNameQuery,
 } from "../queries/userQueries";
@@ -50,6 +52,14 @@ async function isTripleCaptainUsedRepository(studentId) {
   return await isTripleCaptainUsedQuery(studentId);
 }
 
+async function applyBenchBoostRepository(formData) {
+  return await applyBenchBoostQuery(formData);
+}
+
+async function isBenchBoostUsedRepository(studentId) {
+  return await isBenchBoostUsedQuery(studentId);
+}
+
 export {
   createReportRepository,
   addPlayerToTeamRepository,
@@ -57,4 +67,6 @@ export {
   updateTeamNameRepository,
   applyTripleCaptainRepository,
   isTripleCaptainUsedRepository,
+  applyBenchBoostRepository,
+  isBenchBoostUsedRepository,
 };

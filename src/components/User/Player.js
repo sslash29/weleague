@@ -1,7 +1,11 @@
 "use client";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { addPlayerToTeam, applyTripleCaptain } from "@/services/userServices";
+import {
+  addPlayerToTeam,
+  applyBenchBoost,
+  applyTripleCaptain,
+} from "@/services/userServices";
 import { startTransition, useActionState } from "react";
 
 function Player({
@@ -16,29 +20,20 @@ function Player({
   selectedPowerUp,
   team,
 }) {
-  const [tripleCaptainState, tripleCaptainAction] = useActionState(
-    applyTripleCaptain,
-    {}
-  );
+
 
   const normalize = (s) =>
     String(s || "")
       .toLowerCase()
       .trim();
 
-  console.log(playerData);
-
   async function handleClick() {
-    if (type === "bench" && selectedPowerUp === "bench-boost") {
-      //?  you will make each player double their points in the ui then you will call to updated in the server
-      //? so then you will need to updated in the team componenet
-      const updatedPlayerData = {
-        ...playerData,
-        point_this_week: playerData.point_this_week * 2,
-        isBenchBoost: true,
-      };
-      onAddPlayer(updatedPlayerData, positionOnField, type, label);
-    }
+    const formData = new FormData();
+    formData.append("studentId", studentId);
+    formData.append("playerType", type);
+    formData.append("currentTeam", JSON.stringify(team));
+    formData.append("playerData", JSON.stringify(playerData));
+
     // --- Triple Captain flow ---
     if (selectedPowerUp === "triple-captain") {
       const hasTripleCaptain =
@@ -64,12 +59,6 @@ function Player({
       };
 
       onAddPlayer(boostedPlayer, positionOnField, type, label);
-
-      const formData = new FormData();
-      formData.append("studentId", studentId);
-      formData.append("playerType", type);
-      formData.append("currentTeam", JSON.stringify(team));
-      formData.append("playerData", JSON.stringify(playerData));
 
       startTransition(() => {
         tripleCaptainAction(formData);
@@ -184,7 +173,6 @@ function Player({
     onAddPlayer(updatedSelectedPlayer, positionOnField, type, label);
 
     // ✅ Only call server if we have enough money
-    const formData = new FormData();
     formData.append("studentId", studentId);
     formData.append("playerId", selectedPlayer?.id);
     formData.append("type", type);
@@ -228,14 +216,6 @@ function Player({
         <span className="text-md mr-2.5">
           {(() => {
             let points = playerData?.point_this_week || 0;
-
-            // Apply half points for bench players
-            if (type === "bench") {
-              if (selectedPowerUp === "bench-boost") {
-                return points;
-              }
-              points = Math.floor(points / 2);
-            }
 
             return points;
           })()}

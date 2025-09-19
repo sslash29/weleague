@@ -18,7 +18,7 @@ function TeamPlayers({
   selectedPowerUp,
 }) {
   const selectedPos = selectedPlayer?.position?.toLowerCase();
-
+  console.log(team);
   return (
     <div
       className="flex-1 h-[80vh] rounded-lg border relative"

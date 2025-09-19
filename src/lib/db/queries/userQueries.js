@@ -127,7 +127,6 @@ async function updateTeamNameQuery(newTeamName, studentId) {
 }
 
 async function applyTripleCaptainQuery(prevState, formData) {
-  console.log(formData);
   const supabase = await createClient();
 
   const team = formData.get("team");
@@ -149,6 +148,7 @@ async function applyTripleCaptainQuery(prevState, formData) {
     message: "added triple captain to player succesfuly",
   };
 }
+
 async function isTripleCaptainUsedQuery(studentId) {
   const supabase = await createClient();
   const { data: student, error: studentError } = await supabase
@@ -160,6 +160,41 @@ async function isTripleCaptainUsedQuery(studentId) {
   if (studentError) throw new Error(studentError.message);
   return student;
 }
+
+async function applyBenchBoostQuery(formData) {
+  const supabase = await createClient();
+  const team = formData.get("currentTeam");
+  const studentId = formData.get("studentId");
+  const currentWeek = formData.get("currentWeek");
+  const { error } = await supabase
+    .from("student")
+    .update({
+      team,
+      bench_boost_used: true,
+      bench_boost_week: currentWeek,
+    })
+    .eq("auth_user_id", studentId);
+
+  if (error) throw new Error(error.message);
+
+  return {
+    success: true,
+    message: "added bench boost to bench players succesfuly",
+  };
+}
+
+async function isBenchBoostUsedQuery(studentId) {
+  const supabase = await createClient();
+  const { data: student, error: studentError } = await supabase
+    .from("student")
+    .select("bench_boost_used, bench_boost_week")
+    .eq("auth_user_id", studentId)
+    .single();
+
+  if (studentError) throw new Error(studentError.message);
+  return student;
+}
+
 export {
   createReportQuery,
   addPlayerToAssignmentQuery,
@@ -168,4 +203,6 @@ export {
   updateTeamNameQuery,
   applyTripleCaptainQuery,
   isTripleCaptainUsedQuery,
+  applyBenchBoostQuery,
+  isBenchBoostUsedQuery,
 };
