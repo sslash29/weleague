@@ -11,7 +11,7 @@ import {
   isTripleCaptainUsedRepository,
   updateTeamNameRepository,
 } from "@/lib/db/repositories/userRepositories";
-import { getWeekNumber } from "@/utils/helpers";
+import { getCurrentDate, getWeekNumber } from "@/utils/helpers";
 
 async function createReport(prevState, formData) {
   return await createReportRepository(prevState, formData);
@@ -186,29 +186,13 @@ async function applyTripleCaptain(prevState, formData) {
 }
 
 async function applyBenchBoost(formData) {
-  console.log(formData);
-  const studentId = formData.get("studentId");
-  const currentWeek = getWeekNumber();
-  formData.append("currentWeek", currentWeek);
-
-  // ✅ Check if already used
-  const student = await isBenchBoostUsedQuery(studentId);
-  if (student.bench_boost_used || student.bench_boost_week === currentWeek) {
-    return {
-      success: false,
-      message: "You can only bench boost once per week!",
-    };
-  }
-
-  // ✅ Parse the current team from formData
   let currentTeam;
   try {
     currentTeam = JSON.parse(formData.get("currentTeam"));
   } catch (e) {
-    currentTeam = prevState;
+    currentTeam = {};
   }
 
-  // ✅ Boost all bench players locally
   const boostedBenchPlayers = (currentTeam?.benchPlayers || []).map((p) => ({
     ...p,
     point_this_week: (Number(p.point_this_week) || 0) * 2,
@@ -220,10 +204,8 @@ async function applyBenchBoost(formData) {
     benchPlayers: boostedBenchPlayers,
   };
 
-  // ✅ Replace `currentTeam` in formData with boosted version
   formData.set("currentTeam", JSON.stringify(boostedTeam));
 
-  // ✅ Call repo with boosted team
   return await applyBenchBoostRepository(formData);
 }
 

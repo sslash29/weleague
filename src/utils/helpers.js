@@ -15,4 +15,12 @@ function getWeekNumber(date = new Date()) {
   return Math.ceil((days + firstDay.getDay() + 1) / 7);
 }
 
-export { capitalizeFirst, truncateName, getWeekNumber };
+function getCurrentDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`; // format: YYYY-MM-DD
+}
+
+export { capitalizeFirst, truncateName, getWeekNumber, getCurrentDate };

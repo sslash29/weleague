@@ -171,7 +171,7 @@ async function applyBenchBoostQuery(formData) {
     .update({
       team,
       bench_boost_used: true,
-      bench_boost_week: currentDate,
+      bench_boost_month: currentDate,
     })
     .eq("auth_user_id", studentId);
 
@@ -187,7 +187,7 @@ async function isBenchBoostUsedQuery(studentId) {
   const supabase = await createClient();
   const { data: student, error: studentError } = await supabase
     .from("student")
-    .select("bench_boost_used, bench_boost_week")
+    .select("bench_boost_used, bench_boost_month")
     .eq("auth_user_id", studentId)
     .single();
 

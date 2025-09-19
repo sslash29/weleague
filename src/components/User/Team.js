@@ -5,6 +5,7 @@ import TeamPlayerSelect from "./TeamPlayerSelect";
 import { supabase } from "@/utils/supabase/client";
 import Notification from "../Notifcation";
 import { applyBenchBoost, updateTeamName } from "@/services/userServices";
+import { getCurrentDate } from "@/utils/helpers";
 
 function Team({ players, studentId, team }) {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -193,25 +194,30 @@ function Team({ players, studentId, team }) {
     (async function () {
       if (selectedPowerUp === "bench-boost") {
         try {
-          // ✅ Check if bench boost already used from DB
           const { data, error } = await supabase
             .from("student")
-            .select("bench_boost_used, bench_boost_week")
+            .select("bench_boost_used, bench_boost_month")
             .eq("auth_user_id", studentId)
             .single();
 
           if (error) throw error;
 
-          if (data?.bench_boost_used) {
-            setErrorMsg("Error: Bench Boost has already been used!");
+          const currentDate = getCurrentDate(); // "2025-09-19"
+          const currentMonth = currentDate.split("-")[1];
+          const studentMonth = data?.bench_boost_month
+            ? data.bench_boost_month.split("-")[1]
+            : null;
+
+          // 🚫 Already used this month
+          if (data?.bench_boost_used && studentMonth === currentMonth) {
+            setErrorMsg("Error: You can only Bench Boost once per month!");
             setSelectedPowerUp(null);
             return;
           }
 
-          // ✅ Build boosted team locally
           const boostedTeam = {
             ...teamState,
-            benchPlayers: teamState.benchPlayers.map((p) => ({
+            benchPlayers: (teamState?.benchPlayers || []).map((p) => ({
               ...p,
               point_this_week: (Number(p.point_this_week) || 0) * 2,
               isBenchBoost: true,
@@ -221,15 +227,18 @@ function Team({ players, studentId, team }) {
           setTeamState(boostedTeam);
           setSelectedPowerUp(null);
 
-          // ✅ Send correct data to server
+          // ✅ Send RAW team, not boosted one
           const formData = new FormData();
-          formData.append("currentTeam", JSON.stringify(boostedTeam));
+          formData.append("currentTeam", JSON.stringify(teamState)); // 🔥 raw
           formData.append("studentId", studentId);
+          formData.append("currentDate", currentDate);
 
           await applyBenchBoost(formData);
         } catch (err) {
-          console.error("Bench Boost error:", err.message);
-          setErrorMsg("Error applying Bench Boost. Please try again.");
+          console.error("❌ Bench Boost error:", err);
+          setErrorMsg(
+            err.message || "Error applying Bench Boost. Please try again."
+          );
           setSelectedPowerUp(null);
         }
       }
