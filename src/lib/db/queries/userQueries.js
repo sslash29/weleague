@@ -89,7 +89,7 @@ async function updateTeamNameQuery(newTeamName, studentId) {
     .from("student")
     .select("team")
     .eq("auth_user_id", studentId)
-    .single(); // ensure only one row
+    .single();
 
   if (error) {
     return { success: false, message: error.message };
@@ -111,10 +111,10 @@ async function updateTeamNameQuery(newTeamName, studentId) {
   // 3. Update team name
   const updatedTeam = { ...currentTeam, teamName: newTeamName };
 
-  // 4. Save back to DB
-  const { data: updated, updateError } = await supabase
+  // 4. Save back to DB as **stringified JSON**
+  const { data: updated, error: updateError } = await supabase
     .from("student")
-    .update({ team: updatedTeam }) // Supabase handles JSONB
+    .update({ team: JSON.stringify(updatedTeam) }) // 👈 send JSON string
     .eq("auth_user_id", studentId)
     .select("team")
     .single();
@@ -165,13 +165,13 @@ async function applyBenchBoostQuery(formData) {
   const supabase = await createClient();
   const team = formData.get("currentTeam");
   const studentId = formData.get("studentId");
-  const currentWeek = formData.get("currentWeek");
+  const currentDate = formData.get("currentDate");
   const { error } = await supabase
     .from("student")
     .update({
       team,
       bench_boost_used: true,
-      bench_boost_week: currentWeek,
+      bench_boost_week: currentDate,
     })
     .eq("auth_user_id", studentId);
 
