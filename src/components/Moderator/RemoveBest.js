@@ -14,9 +14,9 @@ function RemoveBest({ players }) {
   ];
 
   const playerOptions = players.map((player) => ({
-    id: player.id,
-    name: player.full_name,
-    value: player.id,
+    id: player.player_id,
+    name: player.player.full_name,
+    value: player.player_id,
   }));
 
   return (

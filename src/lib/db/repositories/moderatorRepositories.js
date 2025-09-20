@@ -10,6 +10,7 @@ import {
   deleteBestAwardQuery,
   deletePlayerrQuery,
   deleteTeamQuery,
+  getAllBestAwardsPlayersQuery,
   getAllPlayersQuery,
   getPlayerImgByIdQuery,
   getPlayerNameByIdQuery,
@@ -128,6 +129,10 @@ async function getAllPlayerRepository() {
 async function deleteBestAwardRepository(prevState, formData) {
   return await deleteBestAwardQuery(prevState, formData);
 }
+
+async function getAllBestAwardsPlayersRepository() {
+  return await getAllBestAwardsPlayersQuery();
+}
 export {
   createPlayerRepository,
   deletePlayerRepository,
@@ -145,4 +150,5 @@ export {
   addCoolImgRepository,
   getAllPlayerRepository,
   deleteBestAwardRepository,
+  getAllBestAwardsPlayersRepository,
 };

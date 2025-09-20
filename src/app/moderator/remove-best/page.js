@@ -1,8 +1,9 @@
 import RemoveBest from "@/components/Moderator/RemoveBest";
-import { getAllPlayers } from "@/services/moderatorServices";
+import { getAllBestAwardsPlayers } from "@/services/moderatorServices";
 
 async function page() {
-  const players = await getAllPlayers();
+  const players = await getAllBestAwardsPlayers();
+  console.log(players);
   return (
     <div className="flex items-center h-dvh justify-center ">
       <div className="flex flex-col gap-2.5">

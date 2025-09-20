@@ -500,6 +500,22 @@ async function getAllPlayersQuery() {
   return data;
 }
 
+async function getAllBestAwardsPlayersQuery() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.from("best_award").select(`
+      player_id,
+      player:player_id (
+        id,
+        full_name
+      )
+    `);
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
 async function addPlayerDataQuery(prevState, formData) {
   const supabase = await createClient();
   const playerId = formData.get("playerId");
@@ -1003,7 +1019,11 @@ async function deleteBestAwardQuery(prevState, formData) {
     .eq("player_id", playerId)
     .eq("award_type", awardType)
     .single();
-  if (error) throw new Error(error.message);
+  if (error)
+    return {
+      success: false,
+      message: "the player doesn't have this award",
+    };
   console.log(data);
   return {
     success: true,
@@ -1036,4 +1056,5 @@ export {
   addBestTackleVideoQuery,
   addCoolImgQuery,
   deleteBestAwardQuery,
+  getAllBestAwardsPlayersQuery,
 };
