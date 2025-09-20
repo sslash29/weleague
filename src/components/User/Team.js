@@ -296,6 +296,7 @@ function Team({ players, studentId, team }) {
           team={optimisticTeam}
           onAddPlayer={handleAddPlayer}
           selectedPowerUp={selectedPowerUp}
+          setSelectedPowerUp={setSelectedPowerUp}
         />
       </div>
 

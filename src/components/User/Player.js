@@ -15,7 +15,9 @@ function Player({
   onAddPlayer,
   selectedPowerUp,
   team,
+  setSelectedPowerUp,
 }) {
+  console.log(playerData);
   const normalize = (s) =>
     String(s || "")
       .toLowerCase()
@@ -57,7 +59,7 @@ function Player({
       startTransition(async () => {
         await applyTripleCaptain(formData);
       });
-
+      setSelectedPowerUp(null);
       return;
     }
 

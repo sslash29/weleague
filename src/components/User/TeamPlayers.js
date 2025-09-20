@@ -16,6 +16,7 @@ function TeamPlayers({
   team,
   onAddPlayer,
   selectedPowerUp,
+  setSelectedPowerUp,
 }) {
   const selectedPos = selectedPlayer?.position?.toLowerCase();
   console.log(team);
@@ -41,6 +42,7 @@ function TeamPlayers({
           onAddPlayer={onAddPlayer}
           selectedPowerUp={selectedPowerUp}
           team={team}
+          setSelectedPowerUp={setSelectedPowerUp}
         />
       </div>
 
@@ -48,6 +50,7 @@ function TeamPlayers({
       <div className="flex items-center gap-10 justify-center w-full absolute top-35 ml-4">
         <Player
           type="main"
+          setSelectedPowerUp={setSelectedPowerUp}
           team={team}
           positionOnField={2}
           isActive={selectedPos === "defender" || selectedPowerUp}
@@ -62,6 +65,7 @@ function TeamPlayers({
           type="main"
           positionOnField={3}
           isActive={selectedPos === "defender" || selectedPowerUp}
+          setSelectedPowerUp={setSelectedPowerUp}
           label="defender"
           selectedPlayer={selectedPlayer}
           studentId={studentId}
@@ -77,6 +81,7 @@ function TeamPlayers({
         <Player
           type="main"
           positionOnField={4}
+          setSelectedPowerUp={setSelectedPowerUp}
           isActive={selectedPos === "midfield" || selectedPowerUp}
           label="midfield"
           selectedPlayer={selectedPlayer}
@@ -92,6 +97,7 @@ function TeamPlayers({
           team={team}
           isActive={selectedPos === "midfield" || selectedPowerUp}
           label="midfield"
+          setSelectedPowerUp={setSelectedPowerUp}
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 5)}
@@ -104,6 +110,7 @@ function TeamPlayers({
           positionOnField={6}
           isActive={selectedPos === "midfield" || selectedPowerUp}
           label="midfield"
+          setSelectedPowerUp={setSelectedPowerUp}
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 6)}
@@ -120,6 +127,7 @@ function TeamPlayers({
           isActive={selectedPos === "attacker" || selectedPowerUp}
           label="attacker"
           selectedPlayer={selectedPlayer}
+          setSelectedPowerUp={setSelectedPowerUp}
           studentId={studentId}
           team={team}
           playerData={findPlayerByPosition(team.mainPlayers, 7)}
@@ -134,6 +142,7 @@ function TeamPlayers({
           selectedPlayer={selectedPlayer}
           studentId={studentId}
           playerData={findPlayerByPosition(team.mainPlayers, 8)}
+          setSelectedPowerUp={setSelectedPowerUp}
           onAddPlayer={onAddPlayer}
           team={team}
           selectedPowerUp={selectedPowerUp}
@@ -146,6 +155,7 @@ function TeamPlayers({
         <div className="flex items-center px-4 justify-between">
           <Player
             type="bench"
+            setSelectedPowerUp={setSelectedPowerUp}
             positionOnField={9}
             isActive={selectedPos === "attacker" || selectedPowerUp}
             label="attacker"
@@ -160,6 +170,7 @@ function TeamPlayers({
             type="bench"
             positionOnField={10}
             isActive={selectedPos === "midfield" || selectedPowerUp}
+            setSelectedPowerUp={setSelectedPowerUp}
             label="midfield"
             selectedPlayer={selectedPlayer}
             studentId={studentId}
@@ -173,6 +184,7 @@ function TeamPlayers({
             positionOnField={11}
             isActive={selectedPos === "defender" || selectedPowerUp}
             label="defender"
+            setSelectedPowerUp={setSelectedPowerUp}
             selectedPlayer={selectedPlayer}
             team={team}
             studentId={studentId}
@@ -185,6 +197,7 @@ function TeamPlayers({
             positionOnField={12}
             isActive={selectedPos === "goalkeeper" || selectedPowerUp}
             label="goalkeeper"
+            setSelectedPowerUp={setSelectedPowerUp}
             selectedPlayer={selectedPlayer}
             studentId={studentId}
             playerData={findPlayerByPosition(team.benchPlayers, 12)}
