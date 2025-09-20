@@ -1,12 +1,8 @@
 "use client";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import {
-  addPlayerToTeam,
-  applyBenchBoost,
-  applyTripleCaptain,
-} from "@/services/userServices";
-import { startTransition, useActionState } from "react";
+import { addPlayerToTeam, applyTripleCaptain } from "@/services/userServices";
+import { startTransition } from "react";
 
 function Player({
   label,
@@ -20,8 +16,6 @@ function Player({
   selectedPowerUp,
   team,
 }) {
-
-
   const normalize = (s) =>
     String(s || "")
       .toLowerCase()
@@ -60,8 +54,8 @@ function Player({
 
       onAddPlayer(boostedPlayer, positionOnField, type, label);
 
-      startTransition(() => {
-        tripleCaptainAction(formData);
+      startTransition(async () => {
+        await applyTripleCaptain(formData);
       });
 
       return;

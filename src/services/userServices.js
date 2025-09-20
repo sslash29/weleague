@@ -138,22 +138,24 @@ async function updateTeamName(teamName, studentId) {
   return await updateTeamNameRepository(teamName, studentId);
 }
 
-async function applyTripleCaptain(prevState, formData) {
+async function applyTripleCaptain(formData) {
   const currentTeam = JSON.parse(formData.get("currentTeam"));
   const playerData = JSON.parse(formData.get("playerData"));
   const playerType = formData.get("playerType");
   const studentId = formData.get("studentId");
 
-  const currentWeek = getWeekNumber();
-  formData.append("currentWeek", currentWeek);
+  const currentDate = getCurrentDate();
+  const currentMonth = currentDate.split("-")[1];
+
+  formData.append("currentMonth", currentDate);
   const student = await isTripleCaptainUsedRepository(studentId);
   if (
     student.triple_captain_used &&
-    student.triple_captain_week === currentWeek
+    student.triple_captain_month === currentMonth
   ) {
     return {
       success: false,
-      message: "You can only use Triple Captain once per week!",
+      message: "You can only use Triple Captain once per month!",
     };
   }
 
@@ -182,7 +184,7 @@ async function applyTripleCaptain(prevState, formData) {
 
   formData.append("team", JSON.stringify(updatedTeamData));
 
-  return await applyTripleCaptainRepository(prevState, formData);
+  return await applyTripleCaptainRepository(formData);
 }
 
 async function applyBenchBoost(formData) {

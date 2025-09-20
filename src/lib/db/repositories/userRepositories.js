@@ -44,8 +44,8 @@ async function getStudentTeamRepository(studentId) {
 async function updateTeamNameRepository(teamName, studentId) {
   return await updateTeamNameQuery(teamName, studentId);
 }
-async function applyTripleCaptainRepository(prevState, formData) {
-  return await applyTripleCaptainQuery(prevState, formData);
+async function applyTripleCaptainRepository(formData) {
+  return await applyTripleCaptainQuery(formData);
 }
 
 async function isTripleCaptainUsedRepository(studentId) {

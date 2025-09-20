@@ -126,18 +126,18 @@ async function updateTeamNameQuery(newTeamName, studentId) {
   return { success: true, team: updated.team };
 }
 
-async function applyTripleCaptainQuery(prevState, formData) {
+async function applyTripleCaptainQuery(formData) {
   const supabase = await createClient();
 
   const team = formData.get("team");
   const studentId = formData.get("studentId");
-  const currentWeek = formData.get("currentWeek");
+  const currentMonth = formData.get("currentMonth");
   const { error } = await supabase
     .from("student")
     .update({
       team,
       triple_captain_used: true,
-      triple_captain_week: currentWeek,
+      triple_captain_month: currentMonth,
     })
     .eq("auth_user_id", studentId);
 
@@ -153,7 +153,7 @@ async function isTripleCaptainUsedQuery(studentId) {
   const supabase = await createClient();
   const { data: student, error: studentError } = await supabase
     .from("student")
-    .select("triple_captain_used, triple_captain_week")
+    .select("triple_captain_used, triple_captain_month")
     .eq("auth_user_id", studentId)
     .single();
 
