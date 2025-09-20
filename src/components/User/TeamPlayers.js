@@ -150,8 +150,8 @@ function TeamPlayers({
       </div>
 
       {/* Bench */}
-      <div className="flex flex-col absolute bottom-0 w-full bg-white/70 py-3 px-4 gap-3">
-        <h3 className="text-3xl font-semibold text-center">Bench Players</h3>
+      <div className="flex flex-col absolute bottom-0 w-full bg-white/50  px-4 gap-1.5 ">
+        <h3 className="text-2xl font-semibold text-center">Bench Players</h3>
         <div className="flex items-center px-4 justify-between">
           <Player
             type="bench"
