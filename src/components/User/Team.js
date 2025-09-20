@@ -7,31 +7,36 @@ import Notification from "../Notifcation";
 import { applyBenchBoost, updateTeamName } from "@/services/userServices";
 import { getCurrentDate } from "@/utils/helpers";
 
-function Team({ players, studentId, team }) {
+function Team({
+  players,
+  studentId,
+  team,
+  isTripleCaptainUsed: isTripleCaptainUsedProp,
+  benchBoostUsed: benchBoostUsedProp,
+}) {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [teamState, setTeamState] = useState(team);
   const [errorMsg, setErrorMsg] = useState(null);
   const [selectedPowerUp, setSelectedPowerUp] = useState(null);
   const [editingTeamName, setEditingTeamName] = useState(false);
   const [tempTeamName, setTempTeamName] = useState(team?.teamName || "");
+  const [benchBoostUsed, setBenchBoostUsed] = useState(benchBoostUsedProp);
+  const [isTripleCaptainUsed, setIsTripleCaptainUsed] = useState(
+    isTripleCaptainUsedProp
+  );
+
   const [optimisticTeam, addOptimisticPlayer] = useOptimistic(
     teamState,
     (currentTeam, action) => {
       if (action.type === "updateTeamName") {
-        return {
-          ...currentTeam,
-          teamName: action.teamName,
-        };
+        return { ...currentTeam, teamName: action.teamName };
       }
 
       const { selectedPlayer, positionOnField, type } = action;
-
-      // ✅ Check if this is a position switch
       const allCurrentPlayers = [
         ...currentTeam.mainPlayers,
         ...currentTeam.benchPlayers,
       ];
-
       const isPositionSwitch = allCurrentPlayers.some(
         (p) => p.id === selectedPlayer.id
       );
@@ -40,7 +45,6 @@ function Team({ players, studentId, team }) {
       let playerPrice = 0;
       let newMoneyLeft = currentMoney;
 
-      // Only deduct money for new players, not position switches
       if (!isPositionSwitch) {
         playerPrice = parseFloat(
           selectedPlayer?.calculationPrice ??
@@ -48,20 +52,14 @@ function Team({ players, studentId, team }) {
             selectedPlayer?.playerPrice ??
             0
         );
-
         if (isNaN(currentMoney) || isNaN(playerPrice)) return currentTeam;
-
-        if (currentMoney < playerPrice) {
-          return currentTeam;
-        }
-
+        if (currentMoney < playerPrice) return currentTeam;
         newMoneyLeft = (currentMoney - playerPrice).toFixed(2);
       }
 
       const newPlayer = {
         ...selectedPlayer,
         positionOnField: Number(positionOnField),
-        // Apply half points if player is being added to bench
         point_this_week:
           type?.trim() === "bench"
             ? Math.floor((selectedPlayer.point_this_week || 0) / 2)
@@ -78,7 +76,6 @@ function Team({ players, studentId, team }) {
             ),
             newPlayer,
           ],
-          // Remove player from bench if switching from bench to main
           benchPlayers: currentTeam.benchPlayers.filter(
             (p) => p.id !== selectedPlayer.id
           ),
@@ -95,7 +92,6 @@ function Team({ players, studentId, team }) {
             ),
             newPlayer,
           ],
-          // Remove player from main if switching from main to bench
           mainPlayers: currentTeam.mainPlayers.filter(
             (p) => p.id !== selectedPlayer.id
           ),
@@ -106,6 +102,7 @@ function Team({ players, studentId, team }) {
     }
   );
 
+  // 🔔 Realtime subscription for power-ups
   useEffect(() => {
     const channel = supabase
       .channel("student-table-changes")
@@ -115,13 +112,19 @@ function Team({ players, studentId, team }) {
           event: "UPDATE",
           schema: "public",
           table: "student",
+          filter: `auth_user_id=eq.${studentId}`,
         },
         (payload) => {
-          setTeamState((prev) => ({
-            ...prev,
-            ...payload.new,
-            ...payload.new.team,
-          }));
+          const updated = payload.new;
+          if (updated) {
+            setBenchBoostUsed(updated.bench_boost_used);
+            setIsTripleCaptainUsed(updated.triple_captain_used);
+            setTeamState((prev) => ({
+              ...prev,
+              ...updated,
+              ...updated.team,
+            }));
+          }
         }
       )
       .subscribe();
@@ -129,7 +132,7 @@ function Team({ players, studentId, team }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [studentId]);
 
   const normalize = (s) =>
     String(s || "")
@@ -190,6 +193,7 @@ function Team({ players, studentId, team }) {
     });
   };
 
+  // 🚀 Handle Bench Boost selection
   useEffect(() => {
     (async function () {
       if (selectedPowerUp === "bench-boost") {
@@ -202,13 +206,12 @@ function Team({ players, studentId, team }) {
 
           if (error) throw error;
 
-          const currentDate = getCurrentDate(); // "2025-09-19"
+          const currentDate = getCurrentDate();
           const currentMonth = currentDate.split("-")[1];
           const studentMonth = data?.bench_boost_month
             ? data.bench_boost_month.split("-")[1]
             : null;
 
-          // 🚫 Already used this month
           if (data?.bench_boost_used && studentMonth === currentMonth) {
             setErrorMsg("Error: You can only Bench Boost once per month!");
             setSelectedPowerUp(null);
@@ -227,9 +230,8 @@ function Team({ players, studentId, team }) {
           setTeamState(boostedTeam);
           setSelectedPowerUp(null);
 
-          // ✅ Send RAW team, not boosted one
           const formData = new FormData();
-          formData.append("currentTeam", JSON.stringify(teamState)); // 🔥 raw
+          formData.append("currentTeam", JSON.stringify(teamState)); // raw team
           formData.append("studentId", studentId);
           formData.append("currentDate", currentDate);
 
@@ -281,13 +283,31 @@ function Team({ players, studentId, team }) {
       <div className="relative flex-1">
         {/* Power-Up Buttons */}
         <div className="absolute bottom-[765px] right-0 z-10 gap-3 flex items-center">
-          <button onClick={() => setSelectedPowerUp("triple-captain")}>
+          <button
+            onClick={() =>
+              !isTripleCaptainUsed && setSelectedPowerUp("triple-captain")
+            }
+            disabled={isTripleCaptainUsed}
+            className={`px-3 py-1 rounded ${
+              isTripleCaptainUsed
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
+          >
             Triple Captain
           </button>
-          <button onClick={() => setSelectedPowerUp("bench-boost")}>
+
+          <button
+            onClick={() => !benchBoostUsed && setSelectedPowerUp("bench-boost")}
+            disabled={benchBoostUsed}
+            className={`px-3 py-1 rounded ${
+              benchBoostUsed
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600 text-white"
+            }`}
+          >
             Bench Boost
           </button>
-          <button>Free Hit</button>
         </div>
 
         <TeamPlayers

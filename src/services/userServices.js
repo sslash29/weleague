@@ -8,10 +8,12 @@ import {
   applyTripleCaptainRepository,
   createReportRepository,
   getStudentTeamRepository,
+  isBenchBoostUsedRepository,
   isTripleCaptainUsedRepository,
   updateTeamNameRepository,
 } from "@/lib/db/repositories/userRepositories";
 import { getCurrentDate, getWeekNumber } from "@/utils/helpers";
+import { createClient } from "@/utils/supabase/server";
 
 async function createReport(prevState, formData) {
   return await createReportRepository(prevState, formData);
@@ -211,6 +213,43 @@ async function applyBenchBoost(formData) {
   return await applyBenchBoostRepository(formData);
 }
 
+async function isBenchBoostUsed(studentId) {
+  const benchBoost = await isBenchBoostUsedRepository(studentId);
+  const currentDate = getCurrentDate(); // "YYYY-MM-DD"
+  const currentMonth = currentDate.split("-")[1]; // "09"
+  const usedMonth = benchBoost?.bench_boost_month?.split("-")[1]; // "08" or null
+
+  // Never used before → not used
+  if (!benchBoost?.bench_boost_used || !usedMonth) {
+    return false;
+  }
+
+  // Used in current month → used
+  if (usedMonth === currentMonth) {
+    return true;
+  }
+
+  // Used in a past month → reset
+  return false;
+}
+
+async function isTripleCaptain(studentId) {
+  const tripleCaptain = await isTripleCaptainUsedRepository(studentId);
+  const currentDate = getCurrentDate(); // "YYYY-MM-DD"
+  const currentMonth = currentDate.split("-")[1];
+  const usedMonth = tripleCaptain?.triple_captain_month?.split("-")[1];
+
+  if (!tripleCaptain?.triple_captain_used || !usedMonth) {
+    return false;
+  }
+
+  if (usedMonth === currentMonth) {
+    return true;
+  }
+
+  return false;
+}
+
 export {
   createReport,
   addPlayerToTeam,
@@ -218,4 +257,6 @@ export {
   updateTeamName,
   applyTripleCaptain,
   applyBenchBoost,
+  isBenchBoostUsed,
+  isTripleCaptain,
 };
