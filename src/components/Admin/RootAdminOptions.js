@@ -10,9 +10,9 @@ function RootAdminOptions({ adminType }) {
       id: "view-suspension-statistics",
       label: "View Suspension Statistics",
     },
-    ...(adminType !== "root-admin"
-      ? []
-      : [{ id: "manage-admins", label: "Manage Admins" }]),
+    ...(adminType === "root-admin"
+      ? [{ id: "manage-admins", label: "Manage Admins" }]
+      : []),
     { id: "manage-moderators", label: "Manage Moderators" },
     { id: "view-reports", label: "View Reports" },
   ];
