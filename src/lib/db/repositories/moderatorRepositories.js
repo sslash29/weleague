@@ -7,6 +7,7 @@ import {
   addPlayerDataQuery,
   addPlayerrQuery,
   addTeamQuery,
+  deleteBestAwardQuery,
   deletePlayerrQuery,
   deleteTeamQuery,
   getAllPlayersQuery,
@@ -124,6 +125,9 @@ async function getAllPlayerRepository() {
   return await getAllPlayersQuery();
 }
 
+async function deleteBestAwardRepository(prevState, formData) {
+  return await deleteBestAwardQuery(prevState, formData);
+}
 export {
   createPlayerRepository,
   deletePlayerRepository,
@@ -140,4 +144,5 @@ export {
   addBestTackleVideoRepository,
   addCoolImgRepository,
   getAllPlayerRepository,
+  deleteBestAwardRepository,
 };

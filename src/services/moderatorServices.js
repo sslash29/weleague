@@ -11,6 +11,7 @@ import {
   addBestAssistVideoRepository,
   addBestTackleVideoRepository,
   getAllPlayerRepository,
+  deleteBestAwardRepository,
 } from "@/lib/db/repositories/moderatorRepositories";
 import { getRulePointsRepository } from "@/lib/db/repositories/repositories";
 import { toNumber } from "@/utils/toNumber";
@@ -166,6 +167,10 @@ async function addBestAward(prevState, formData) {
     return await addBestTackleVideoRepository(prevState, formData);
 }
 
+async function deleteBestAward(prevState, formData) {
+  return await deleteBestAwardRepository(prevState, formData);
+}
+
 export {
   getAllPlayers,
   createPlayer,
@@ -174,4 +179,5 @@ export {
   deleteTeam,
   addPlayerData,
   addBestAward,
+  deleteBestAward,
 };

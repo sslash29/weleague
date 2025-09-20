@@ -992,6 +992,25 @@ async function addCoolImgQuery(prevState, formData) {
   return { success: true, message: "Image added successfully" };
 }
 
+async function deleteBestAwardQuery(prevState, formData) {
+  const supabase = await createClient();
+  const playerId = formData.get("playerId");
+  const awardType = formData.get("awardType");
+
+  const { data, error } = await supabase
+    .from("best_award")
+    .delete()
+    .eq("player_id", playerId)
+    .eq("award_type", awardType)
+    .single();
+  if (error) throw new Error(error.message);
+  console.log(data);
+  return {
+    success: true,
+    message: "deleted award successfully",
+  };
+}
+
 export {
   addPlayerrQuery,
   deletePlayerrQuery,
@@ -1016,4 +1035,5 @@ export {
   addBestAssistVideoQuery,
   addBestTackleVideoQuery,
   addCoolImgQuery,
+  deleteBestAwardQuery,
 };

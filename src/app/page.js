@@ -41,6 +41,9 @@ async function page() {
       <Link href="/faq" className="text-3xl font-bold">
         FAQ
       </Link>
+      <Link href="/moderator/remove-best" className="text-3xl font-bold">
+        Remove Best
+      </Link>
     </div>
   );
 }
