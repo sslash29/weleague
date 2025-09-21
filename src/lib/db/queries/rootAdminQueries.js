@@ -133,17 +133,6 @@ async function getAllModeratorsQuery() {
   return data;
 }
 
-async function getStudentsQuery() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from("student").select("*");
-
-  if (error) {
-    return { success: false, message: error.message };
-  }
-
-  return data;
-}
-
 async function deleteStudentQuery(prevState, formData) {
   const supabase = await createClient();
   const studentId = formData.get("studentId");
@@ -171,6 +160,5 @@ export {
   getTeamsRedCardsQuery,
   getAllReportsQuery,
   getAllModeratorsQuery,
-  getStudentsQuery,
   deleteStudentQuery,
 };

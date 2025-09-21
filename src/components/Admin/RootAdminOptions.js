@@ -15,6 +15,7 @@ function RootAdminOptions({ adminType }) {
       : []),
     { id: "manage-moderators", label: "Manage Moderators" },
     { id: "view-reports", label: "View Reports" },
+    { id: "manage-users", label: "Manage Users" },
   ];
 
   return (

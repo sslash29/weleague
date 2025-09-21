@@ -50,11 +50,6 @@ async function deleteTeamRepository(prevState, formData) {
   return data;
 }
 
-async function getStudentsRepository() {
-  const data = await getStudentsQuery();
-  return data;
-}
-
 async function deleteStudentRepository(prevState, formData) {
   const data = await deleteStudentQuery(prevState, formData);
   return data;
@@ -138,7 +133,6 @@ export {
   deletePlayerRepository,
   createTeamRepository,
   deleteTeamRepository,
-  getStudentsRepository,
   deleteStudentRepository,
   getAllPlayers,
   addPlayerDataRepository,

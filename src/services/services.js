@@ -12,6 +12,7 @@ const {
   getVoteRepository,
   getUserDataRepository,
   deleteAccountRepository,
+  getStudentsRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -70,6 +71,10 @@ async function getUserData(studentId) {
 async function deleteAccount(prevState, formData) {
   return await deleteAccountRepository(prevState, formData);
 }
+
+async function getStudents() {
+  return await getStudentsRepository();
+}
 export {
   getAllTeams,
   getTeamData,
@@ -82,4 +87,5 @@ export {
   getVote,
   getUserData,
   deleteAccount,
+  getStudents,
 };

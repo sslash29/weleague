@@ -349,6 +349,20 @@ async function deleteAccountQuery(prevState, formData) {
   redirect("/");
 }
 
+async function getStudentsQuery() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("student").select("*");
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return data;
+}
+
 export {
   getAllTeamsQuery,
   getTeamDataQuery,
@@ -366,4 +380,5 @@ export {
   getVoteQuery,
   getUserDataQuery,
   deleteAccountQuery,
+  getStudentsQuery,
 };

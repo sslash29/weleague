@@ -11,6 +11,7 @@ import {
   getPlayerDataQuery,
   getPlayerTeamQuery,
   getRulePointsQuery,
+  getStudentsQuery,
   getTeamDataQuery,
   getTeamPlayersQuery,
   getUserDataQuery,
@@ -79,6 +80,10 @@ async function deleteAccountRepository(prevState, formData) {
   return await deleteAccountQuery(prevState, formData);
 }
 
+async function getStudentsRepository() {
+  return await getStudentsQuery();
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -92,4 +97,5 @@ export {
   getVoteRepository,
   getUserDataRepository,
   deleteAccountRepository,
+  getStudentsRepository,
 };
