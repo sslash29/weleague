@@ -1,5 +1,3 @@
-import { LogOut } from "@/components/LogOut";
-import { getUser } from "@/services/server/services";
 import Link from "next/link";
 
 async function page() {
@@ -43,6 +41,9 @@ async function page() {
       </Link>
       <Link href="/moderator/remove-best" className="text-3xl font-bold">
         Remove Best
+      </Link>
+      <Link href="/admin/create-league" className="text-3xl font-bold">
+        create league
       </Link>
     </div>
   );

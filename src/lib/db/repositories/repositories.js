@@ -2,6 +2,8 @@
 
 import { getUser } from "@/services/server/services";
 import {
+  addGroupQuery,
+  addMatchQuery,
   addVoteQuery,
   deleteAccountQuery,
   getAllTeamsQuery,
@@ -84,6 +86,10 @@ async function getStudentsRepository() {
   return await getStudentsQuery();
 }
 
+async function addLeagueDataRepository(matches, groups) {
+  return await Promise.all([addMatchQuery(matches), addGroupQuery(groups)]);
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -98,4 +104,5 @@ export {
   getUserDataRepository,
   deleteAccountRepository,
   getStudentsRepository,
+  addLeagueDataRepository,
 };

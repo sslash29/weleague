@@ -363,6 +363,22 @@ async function getStudentsQuery() {
   return data;
 }
 
+async function addGroupQuery(groups) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("group").insert(groups);
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+async function addMatchQuery(matches) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("match").insert(matches);
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 export {
   getAllTeamsQuery,
   getTeamDataQuery,
@@ -381,4 +397,6 @@ export {
   getUserDataQuery,
   deleteAccountQuery,
   getStudentsQuery,
+  addGroupQuery,
+  addMatchQuery,
 };

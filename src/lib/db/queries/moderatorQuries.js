@@ -199,6 +199,7 @@ async function addTeamQuery(prevState, formData) {
     });
 
   if (teamCrestImgError) {
+    throw new Error(teamCrestImgError.message);
     return {
       success: false,
       message: teamCrestImgError.message,
@@ -214,6 +215,7 @@ async function addTeamQuery(prevState, formData) {
     .getPublicUrl(uploadData?.path || filePath);
 
   if (publicUrlError) {
+    throw new Error(publicUrlError.message);
     return {
       success: false,
       message: publicUrlError.message,
@@ -227,6 +229,7 @@ async function addTeamQuery(prevState, formData) {
   });
 
   if (error) {
+    throw new Error(error.message);
     return {
       success: false,
       message: error.message,

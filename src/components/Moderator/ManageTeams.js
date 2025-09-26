@@ -27,7 +27,7 @@ function ManageTeams({ teams }) {
       )}
       <Link
         href="/moderator/create-team"
-        className="absolute bottom-5 right-3 border px-3 py-1 font-semibold cursor-pointer transition-all hover:scale-95 text-lg rounded-full z-10"
+        className="fixed bottom-6 right-15 border px-3 py-1 font-semibold cursor-pointer transition-all hover:scale-95 text-lg rounded-full z-10 bg-white shadow-md"
       >
         Create Team
       </Link>

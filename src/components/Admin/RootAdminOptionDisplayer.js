@@ -8,6 +8,7 @@ import ManageUsers from "../ManageUsers";
 
 function RootAdminOptionDisplayer({ reports, teamData }) {
   const { active } = useRootAdmin();
+  console.log(teamData);
 
   if (active === "manage-admins")
     return <ManageAdminAndModerator type="Admin" />;
