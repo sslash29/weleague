@@ -136,6 +136,7 @@ async function getAllModeratorsQuery() {
 async function deleteStudentQuery(prevState, formData) {
   const supabase = await createClient();
   const studentId = formData.get("studentId");
+  console.log(studentId);
 
   const { _, error } = await supabase
     .from("student")

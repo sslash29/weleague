@@ -5,6 +5,7 @@ import {
   createModeratorRepsitory,
   deleteAdminRepository,
   deleteModeratorRepsitory,
+  deleteStudentRepository,
   getAllAdminsRepository,
   getAllModeratorsRepository,
   getAllReportsRepository,
@@ -75,6 +76,10 @@ async function getAllReports() {
   return data;
 }
 
+async function deleteStudent(prevState, formData) {
+  return await deleteStudentRepository(prevState, formData);
+}
+
 export {
   createAdmin,
   deleteAdmin,
@@ -85,4 +90,5 @@ export {
   getSuspentionStatistics,
   getAllReports,
   getAllModerators,
+  deleteStudent,
 };

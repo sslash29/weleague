@@ -12,8 +12,8 @@ function ModeratorOptions() {
     },
 
     { id: "manage-teams", label: "Manage Teams" },
-    { id: "manage-users", label: "Manage Users" },
     { id: "view-reports", label: "View Reports" },
+    { id: "manage-users", label: "Manage Users" },
   ];
 
   return (

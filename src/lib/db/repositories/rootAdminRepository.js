@@ -5,6 +5,7 @@ import {
   addModeratorQuery,
   deleteAdminQuery,
   deleteModeratorQuery,
+  deleteStudentQuery,
   getAllAdminsQuery,
   getAllModeratorsQuery,
   getAllReportsQuery,
@@ -64,9 +65,9 @@ async function getStudentsRepository() {
 }
 
 async function deleteStudentRepository(prevState, formData) {
-  const data = await deleteStudentQuery(prevState, formData);
-  return data;
+  return await deleteStudentQuery(prevState, formData);
 }
+
 export {
   createAdminRepository,
   deleteAdminRepository,
