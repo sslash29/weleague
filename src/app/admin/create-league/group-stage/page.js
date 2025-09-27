@@ -1,4 +1,4 @@
-import GroupStage from "@/components/GroupStage";
+import GroupStage from "@/components/league/GroupStage";
 import { createGroupStage } from "@/services/services";
 
 async function page() {

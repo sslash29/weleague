@@ -3,6 +3,7 @@
 import { getUser } from "@/services/server/services";
 import {
   addGroupQuery,
+  addMatchDateQuery,
   addMatchQuery,
   addVoteQuery,
   deleteAccountQuery,
@@ -10,6 +11,8 @@ import {
   getBestAssistVideoQuery,
   getBestGoalVideoQuery,
   getBestTackleVideoQuery,
+  getGroupsQuery,
+  getMatchesQuery,
   getPlayerDataQuery,
   getPlayerTeamQuery,
   getRulePointsQuery,
@@ -90,6 +93,22 @@ async function addLeagueDataRepository(matches, groups) {
   return await Promise.all([addMatchQuery(matches), addGroupQuery(groups)]);
 }
 
+async function addMatchDateRepository(prevState, formData) {
+  return await addMatchDateQuery(prevState, formData);
+}
+
+async function isThereLeagueRepository() {
+  const data = await getMatchesQuery();
+  const groups = await getGroupsQuery();
+  return {
+    isThereLeague: data.length > 0,
+    data: {
+      data,
+      groups,
+    },
+  };
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -105,4 +124,6 @@ export {
   deleteAccountRepository,
   getStudentsRepository,
   addLeagueDataRepository,
+  addMatchDateRepository,
+  isThereLeagueRepository,
 };

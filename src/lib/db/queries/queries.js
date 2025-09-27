@@ -365,7 +365,7 @@ async function getStudentsQuery() {
 
 async function addGroupQuery(groups) {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("group").insert(groups);
+  const { data, error } = await supabase.from("group").insert(groups).select();
 
   if (error) throw new Error(error.message);
   return data;
@@ -373,8 +373,59 @@ async function addGroupQuery(groups) {
 
 async function addMatchQuery(matches) {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("match").insert(matches);
+  const { data, error } = await supabase.from("match").insert(matches).select();
 
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+async function addMatchDateQuery(prevState, formData) {
+  const supabase = await createClient();
+  const date = formData.get("date");
+  const matchId = formData.get("matchId");
+
+  const { data, error } = await supabase
+    .from("match")
+    .update({
+      match_date: date,
+    })
+    .eq("id", matchId);
+
+  if (error) throw new Error(error.message);
+  return {
+    success: true,
+    message: "sucessfully updated date of match",
+  };
+}
+
+async function getMatchesQuery() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.from("match").select("*");
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+async function getGroupsQuery() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("group").select("*");
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+async function addGameweekQuery(gameweekNumber) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("gameweek")
+    .insert({
+      gameweek_number: gameweekNumber,
+    })
+    .select() // Add select to get the inserted data
+    .single();
   if (error) throw new Error(error.message);
   return data;
 }
@@ -399,4 +450,8 @@ export {
   getStudentsQuery,
   addGroupQuery,
   addMatchQuery,
+  addMatchDateQuery,
+  getMatchesQuery,
+  getGroupsQuery,
+  addGameweekQuery,
 };

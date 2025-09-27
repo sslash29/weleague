@@ -1,5 +1,7 @@
 "use server";
 
+import { addGameweekQuery } from "@/lib/db/queries/queries";
+
 const {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -14,6 +16,8 @@ const {
   deleteAccountRepository,
   getStudentsRepository,
   addLeagueDataRepository,
+  addMatchDateRepository,
+  isThereLeagueRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -78,6 +82,8 @@ async function getStudents() {
 }
 
 async function createGroupStage() {
+  const isThereLeague = await isThereLeagueRepository();
+  if (isThereLeague.isThereLeague) return isThereLeague.data;
   // get all teams from repo
   const teams = await getAllTeamsRepository();
 
@@ -178,40 +184,54 @@ async function createGroupStage() {
 }
 
 async function addLeagueData(prevState, formData) {
+  const isThereLeague = await isThereLeagueRepository();
+  if (isThereLeague.isThereLeague) {
+    return {
+      success: false,
+      message:
+        "there is already a league created you need to get the admins approvement",
+    };
+  }
   try {
     const groupStageString = formData.get("groupStage");
-
     // Add error handling and JSON parsing
     if (!groupStageString) {
       return { success: false, error: "No groupStage data provided" };
     }
-
     let groupStage;
     try {
       groupStage = JSON.parse(groupStageString);
     } catch (error) {
       return { success: false, error: "Invalid JSON in groupStage data" };
     }
-
     // Add additional validation
     if (!groupStage.groups || !groupStage.gameweeks) {
       return { success: false, error: "Invalid groupStage structure" };
     }
 
-    console.log(groupStage);
+    // 1️⃣ Create Gameweeks first and get their IDs
+    const gameweekIds = {};
+    for (let i = 0; i < groupStage.gameweeks.length; i++) {
+      const gameweek = groupStage.gameweeks[i];
+      const gameweekData = await addGameweekQuery(
+        gameweek.gameweek_number || i + 1
+      );
+      gameweekIds[i] = gameweekData.id; // Store the gameweek ID using index as key
+    }
 
-    // 1️⃣ Groups
+    // 2️⃣ Groups
     const groups = Object.values(groupStage.groups).map((g) => ({
       name: g.group_name,
       teams: g.teams, // jsonb column, can store full object
     }));
 
-    // 2️⃣ Matches
-    const matches = groupStage.gameweeks.flatMap((gw) =>
+    // 3️⃣ Matches with gameweek_id
+    const matches = groupStage.gameweeks.flatMap((gw, gameweekIndex) =>
       gw.matches.map((m) => ({
         team1: m.home.id,
         team2: m.away.id,
         stage: m.group,
+        gameweek_id: gameweekIds[gameweekIndex], // Add the gameweek ID
         match_date: null, // set later if needed
       }))
     );
@@ -227,6 +247,7 @@ async function addLeagueData(prevState, formData) {
       message: "League data added successfully!",
       groupsResult,
       matchesResult,
+      gameweekIds, // Include gameweek IDs in response
     };
   } catch (error) {
     console.error("Error adding league data:", error);
@@ -235,6 +256,10 @@ async function addLeagueData(prevState, formData) {
       error: error.message || "An error occurred while adding league data",
     };
   }
+}
+
+async function addMatchDate(prevState, formData) {
+  return await addMatchDateRepository(prevState, formData);
 }
 
 export {
@@ -252,4 +277,5 @@ export {
   getStudents,
   createGroupStage,
   addLeagueData,
+  addMatchDate,
 };
