@@ -381,16 +381,17 @@ async function addMatchQuery(matches) {
 
 async function addMatchDateQuery(prevState, formData) {
   const supabase = await createClient();
-  const date = formData.get("date");
+  const date = formData.get("matchDate");
   const matchId = formData.get("matchId");
-
+  console.log(formData);
   const { data, error } = await supabase
     .from("match")
     .update({
       match_date: date,
     })
-    .eq("id", matchId);
-
+    .eq("id", matchId)
+    .single();
+  console.log(data);
   if (error) throw new Error(error.message);
   return {
     success: true,
@@ -400,20 +401,18 @@ async function addMatchDateQuery(prevState, formData) {
 
 async function getMatchesQuery() {
   const supabase = await createClient();
-
-  const { data, error } = await supabase.from("match").select("*");
-
+  const { data, error } = await supabase
+    .from("match")
+    .select("*")
+    .order("gameweek_id"); // Order by gameweek for better organization
   if (error) throw new Error(error.message);
-
   return data;
 }
 
 async function getGroupsQuery() {
   const supabase = await createClient();
   const { data, error } = await supabase.from("group").select("*");
-
   if (error) throw new Error(error.message);
-
   return data;
 }
 
@@ -428,6 +427,17 @@ async function addGameweekQuery(gameweekNumber) {
     .single();
   if (error) throw new Error(error.message);
   return data;
+}
+
+async function getGameWeekQuery() {
+  const supabase = await createClient();
+  const { data: gameweeksData, error } = await supabase
+    .from("gameweek")
+    .select("*")
+    .order("gameweek_number");
+
+  if (error) throw new Error(error.message);
+  return gameweeksData;
 }
 
 export {
@@ -454,4 +464,5 @@ export {
   getMatchesQuery,
   getGroupsQuery,
   addGameweekQuery,
+  getGameWeekQuery,
 };

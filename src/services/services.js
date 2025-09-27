@@ -1,6 +1,7 @@
 "use server";
 
 import { addGameweekQuery } from "@/lib/db/queries/queries";
+import { createClient } from "@/utils/supabase/server";
 
 const {
   getAllTeamsRepository,
@@ -18,6 +19,7 @@ const {
   addLeagueDataRepository,
   addMatchDateRepository,
   isThereLeagueRepository,
+  getGameWeekRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -81,12 +83,81 @@ async function getStudents() {
   return await getStudentsRepository();
 }
 
+// Add this helper function to transform database data back to the expected structure
+async function transformDatabaseToGroupStage(matches, groups) {
+  // Get gameweeks to organize matches properly
+  const gameweeksData = await getGameWeekRepository();
+
+  // Transform groups data
+  const transformedGroups = {};
+  groups.forEach((group) => {
+    transformedGroups[group.name] = {
+      group_name: group.name,
+      teams: group.teams, // This is already in the right format (jsonb)
+      matches: [], // Will be filled later
+    };
+  });
+
+  // Create gameweeks structure
+  const gameweeks = gameweeksData
+    .map((gw) => ({
+      gameweek: gw.gameweek_number,
+      matches: matches
+        .filter((match) => match.gameweek_id === gw.id)
+        .map((match) => {
+          // Find the teams from the groups to get full team data
+          let homeTeam = null;
+          let awayTeam = null;
+
+          Object.values(transformedGroups).forEach((group) => {
+            const home = group.teams.find((team) => team.id === match.team1);
+            const away = group.teams.find((team) => team.id === match.team2);
+            if (home) homeTeam = home;
+            if (away) awayTeam = away;
+          });
+
+          return {
+            database_id: match.id, // Add database ID immediately
+            home: homeTeam
+              ? {
+                  id: homeTeam.id,
+                  name: homeTeam.name,
+                  team_img: homeTeam.team_img,
+                }
+              : { id: match.team1, name: "Unknown", team_img: "" },
+            away: awayTeam
+              ? {
+                  id: awayTeam.id,
+                  name: awayTeam.name,
+                  team_img: awayTeam.team_img,
+                }
+              : { id: match.team2, name: "Unknown", team_img: "" },
+            group: match.stage,
+            match_date: match.match_date,
+            gameweek_id: match.gameweek_id,
+          };
+        }),
+    }))
+    .filter((gw) => gw.matches.length > 0); // Only include gameweeks with matches
+
+  return {
+    groups: transformedGroups,
+    gameweeks,
+  };
+}
+
 async function createGroupStage() {
   const isThereLeague = await isThereLeagueRepository();
-  if (isThereLeague.isThereLeague) return isThereLeague.data;
+  if (isThereLeague.isThereLeague) {
+    // Transform database data to expected structure
+    return await transformDatabaseToGroupStage(
+      isThereLeague.data.data,
+      isThereLeague.data.groups
+    );
+  }
+
   // get all teams from repo
   const teams = await getAllTeamsRepository();
-
   if (!teams || teams.length === 0) {
     throw new Error("No teams available");
   }
@@ -137,7 +208,6 @@ async function createGroupStage() {
       })),
       matches,
     };
-
     groupIndex++;
   }
 

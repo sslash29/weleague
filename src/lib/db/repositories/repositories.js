@@ -11,6 +11,7 @@ import {
   getBestAssistVideoQuery,
   getBestGoalVideoQuery,
   getBestTackleVideoQuery,
+  getGameWeekQuery,
   getGroupsQuery,
   getMatchesQuery,
   getPlayerDataQuery,
@@ -109,6 +110,10 @@ async function isThereLeagueRepository() {
   };
 }
 
+async function getGameWeekRepository() {
+  return await getGameWeekQuery();
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -126,4 +131,5 @@ export {
   addLeagueDataRepository,
   addMatchDateRepository,
   isThereLeagueRepository,
+  getGameWeekRepository,
 };
