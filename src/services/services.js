@@ -20,6 +20,7 @@ const {
   addMatchDateRepository,
   isThereLeagueRepository,
   getGameWeekRepository,
+  addScoreRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -332,6 +333,94 @@ async function addMatchDate(prevState, formData) {
   return await addMatchDateRepository(prevState, formData);
 }
 
+// Updated addScoreData function
+async function addScoreData(prevState, formData) {
+  const player = formData.get("player");
+  const event = formData.get("event"); // Goal or Assist
+  const selectedTeamId = formData.get("team");
+  const team1Id = formData.get("team1Id");
+  const team2Id = formData.get("team2Id");
+  const team1Score = formData.get("team1Score") || null;
+  const team2Score = formData.get("team2Score") || null;
+  const teamPlayersData = JSON.parse(formData.get("teamPlayersData") || "[]");
+
+  // Fetch both team data
+  const [selectedTeamData, team1Data, team2Data] = await Promise.all([
+    getTeamData(selectedTeamId),
+    getTeamData(team1Id),
+    getTeamData(team2Id),
+  ]);
+
+  console.log("Selected Team:", selectedTeamData);
+  console.log("Team 1:", team1Data);
+  console.log("Team 2:", team2Data);
+
+  // Ensure stats is an array
+  const oldScoreData = Array.isArray(selectedTeamData?.stats)
+    ? selectedTeamData.stats
+    : [];
+
+  // Find if teams array already exists in the last entry
+  let teamsArray = [];
+  if (oldScoreData.length > 0) {
+    const lastEntry = oldScoreData[oldScoreData.length - 1];
+    if (lastEntry.teams) {
+      teamsArray = lastEntry.teams;
+    }
+  }
+
+  // Find the selected team in the teams array or create new team objects
+  let team1Entry = teamsArray.find((t) => t.teamId === team1Id) || {
+    teamId: team1Id,
+    teamName: team1Data.name,
+    score: team1Score,
+    data: [],
+  };
+
+  let team2Entry = teamsArray.find((t) => t.teamId === team2Id) || {
+    teamId: team2Id,
+    teamName: team2Data.name,
+    score: team2Score,
+    data: [],
+  };
+
+  // Get player name from the player ID
+  const playerData = teamPlayersData.find((p) => p.id === player);
+  const playerName = playerData?.name || "Unknown Player";
+
+  // Add the new player event to the selected team's data array
+  if (selectedTeamId === team1Id) {
+    team1Entry.data.push({
+      playerId: player,
+      playerName: playerName,
+      event: event,
+    });
+    team1Entry.score = team1Score; // Update score
+  } else if (selectedTeamId === team2Id) {
+    team2Entry.data.push({
+      playerId: player,
+      playerName: playerName,
+      event: event,
+    });
+    team2Entry.score = team2Score; // Update score
+  }
+
+  // Build new entry with updated teams
+  const newEntry = {
+    teams: [team1Entry, team2Entry],
+  };
+
+  // Replace or append the entry
+  const updatedScoreData =
+    oldScoreData.length > 0 && oldScoreData[oldScoreData.length - 1].teams
+      ? [...oldScoreData.slice(0, -1), newEntry]
+      : [...oldScoreData, newEntry];
+
+  // Add to formData
+  formData.append("scoreData", JSON.stringify(updatedScoreData));
+
+  return await addScoreRepository(prevState, formData);
+}
 export {
   getAllTeams,
   getTeamData,
@@ -348,4 +437,5 @@ export {
   createGroupStage,
   addLeagueData,
   addMatchDate,
+  addScoreData,
 };

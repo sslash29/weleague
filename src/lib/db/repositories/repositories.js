@@ -5,6 +5,7 @@ import {
   addGroupQuery,
   addMatchDateQuery,
   addMatchQuery,
+  addScoreQuery,
   addVoteQuery,
   deleteAccountQuery,
   getAllTeamsQuery,
@@ -114,6 +115,10 @@ async function getGameWeekRepository() {
   return await getGameWeekQuery();
 }
 
+async function addScoreRepository(prevState, formData) {
+  return await addScoreQuery(prevState, formData);
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -132,4 +137,5 @@ export {
   addMatchDateRepository,
   isThereLeagueRepository,
   getGameWeekRepository,
+  addScoreRepository,
 };

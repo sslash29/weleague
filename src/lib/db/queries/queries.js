@@ -440,6 +440,26 @@ async function getGameWeekQuery() {
   return gameweeksData;
 }
 
+// this adds the score and the winner
+async function addScoreQuery(prevState, formData) {
+  const supabase = await createClient();
+  const scoreData = formData.get("scoreData");
+  const winner = formData.get("winner") || null;
+  const matchId = formData.get("matchId");
+  console.log(formData);
+  const { data, error } = await supabase
+    .from("match")
+    .update({
+      winner,
+      stats: scoreData,
+    })
+    .eq("id", matchId);
+  if (error) return { success: false, message: error.message };
+  return { success: true, message: "updated score sucessfully" };
+}
+
+
+
 export {
   getAllTeamsQuery,
   getTeamDataQuery,
@@ -465,4 +485,5 @@ export {
   getGroupsQuery,
   addGameweekQuery,
   getGameWeekQuery,
+  addScoreQuery,
 };

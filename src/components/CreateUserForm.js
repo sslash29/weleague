@@ -186,10 +186,25 @@ function CreateUserForm({
     }
   };
 
+  // Separate hidden and visible inputs
+  const hiddenInputs = inputs?.filter((input) => input.type === "hidden") || [];
+  const visibleInputs =
+    inputs?.filter((input) => input.type !== "hidden") || [];
+
   return (
     <form action={formAction} className="flex flex-col gap-4 relative ">
-      {/* Normal inputs */}
-      {inputs?.map((input) => (
+      {/* Hidden inputs - render without styling containers */}
+      {hiddenInputs.map((input) => (
+        <input
+          key={input.name}
+          type="hidden"
+          name={input.name}
+          value={input.value}
+        />
+      ))}
+
+      {/* Visible inputs */}
+      {visibleInputs.map((input) => (
         <div key={input.name} className="flex flex-col">
           <input
             id={input.name}
