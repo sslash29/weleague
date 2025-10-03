@@ -21,6 +21,8 @@ const {
   isThereLeagueRepository,
   getGameWeekRepository,
   addScoreRepository,
+  getMatchDataRepository,
+  updateScoreDataRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -340,87 +342,133 @@ async function addScoreData(prevState, formData) {
   const selectedTeamId = formData.get("team");
   const team1Id = formData.get("team1Id");
   const team2Id = formData.get("team2Id");
-  const team1Score = formData.get("team1Score") || null;
-  const team2Score = formData.get("team2Score") || null;
   const teamPlayersData = JSON.parse(formData.get("teamPlayersData") || "[]");
 
-  // Fetch both team data
-  const [selectedTeamData, team1Data, team2Data] = await Promise.all([
-    getTeamData(selectedTeamId),
-    getTeamData(team1Id),
-    getTeamData(team2Id),
-  ]);
+  const matchDataResult = await getMatchDataRepository(formData.get("matchId"));
+  // getMatchDataQuery returns an array, so we need the first element
+  const matchData = Array.isArray(matchDataResult)
+    ? matchDataResult[0]
+    : matchDataResult;
 
-  console.log("Selected Team:", selectedTeamData);
-  console.log("Team 1:", team1Data);
-  console.log("Team 2:", team2Data);
+  console.log("Raw matchData from repository:", matchData);
 
-  // Ensure stats is an array
-  const oldScoreData = Array.isArray(selectedTeamData?.stats)
-    ? selectedTeamData.stats
-    : [];
+  // Parse existing goals and assists for both teams
+  // The JSONB columns are returned as strings, so we need to parse them
+  let team1Goals = [];
+  let team2Goals = [];
+  let team1Assists = [];
+  let team2Assists = [];
 
-  // Find if teams array already exists in the last entry
-  let teamsArray = [];
-  if (oldScoreData.length > 0) {
-    const lastEntry = oldScoreData[oldScoreData.length - 1];
-    if (lastEntry.teams) {
-      teamsArray = lastEntry.teams;
+  try {
+    // Parse team 1 goals
+    if (matchData?.team_1_goals) {
+      const parsed =
+        typeof matchData.team_1_goals === "string"
+          ? JSON.parse(matchData.team_1_goals)
+          : matchData.team_1_goals;
+      team1Goals = Array.isArray(parsed) ? [...parsed] : [];
+    }
+
+    // Parse team 2 goals
+    if (matchData?.team_2_goal) {
+      const parsed =
+        typeof matchData.team_2_goal === "string"
+          ? JSON.parse(matchData.team_2_goal)
+          : matchData.team_2_goal;
+      team2Goals = Array.isArray(parsed) ? [...parsed] : [];
+    }
+
+    // Parse team 1 assists
+    if (matchData?.team_1_assists) {
+      const parsed =
+        typeof matchData.team_1_assists === "string"
+          ? JSON.parse(matchData.team_1_assists)
+          : matchData.team_1_assists;
+      team1Assists = Array.isArray(parsed) ? [...parsed] : [];
+    }
+
+    // Parse team 2 assists
+    if (matchData?.team_2_assists) {
+      const parsed =
+        typeof matchData.team_2_assists === "string"
+          ? JSON.parse(matchData.team_2_assists)
+          : matchData.team_2_assists;
+      team2Assists = Array.isArray(parsed) ? [...parsed] : [];
+    }
+  } catch (error) {
+    console.error("Error parsing match data:", error);
+  }
+
+  console.log("Parsed existing data:", {
+    team1Goals,
+    team2Goals,
+    team1Assists,
+    team2Assists,
+  });
+
+  // Get player name
+  const playerData = teamPlayersData.find(
+    (p) => String(p.id) === String(player)
+  );
+  const playerName = playerData?.name || "Unknown Player";
+
+  console.log("playerData", playerData);
+
+  // Create new event object for each goal/assist
+  const newEvent = {
+    playerId: player,
+    playerName,
+  };
+
+  // Determine which team and event type, then add to the appropriate array
+  if (String(selectedTeamId) === String(team1Id)) {
+    if (event === "Goal") {
+      team1Goals.push(newEvent);
+    } else if (event === "Assist") {
+      team1Assists.push(newEvent);
+    }
+  } else if (String(selectedTeamId) === String(team2Id)) {
+    if (event === "Goal") {
+      team2Goals.push(newEvent);
+    } else if (event === "Assist") {
+      team2Assists.push(newEvent);
     }
   }
 
-  // Find the selected team in the teams array or create new team objects
-  let team1Entry = teamsArray.find((t) => t.teamId === team1Id) || {
-    teamId: team1Id,
-    teamName: team1Data.name,
-    score: team1Score,
-    data: [],
-  };
+  console.log("Updated arrays before setting formData:", {
+    team1Goals,
+    team2Goals,
+    team1Assists,
+    team2Assists,
+  });
 
-  let team2Entry = teamsArray.find((t) => t.teamId === team2Id) || {
-    teamId: team2Id,
-    teamName: team2Data.name,
-    score: team2Score,
-    data: [],
-  };
-
-  // Get player name from the player ID
-  const playerData = teamPlayersData.find((p) => p.id === player);
-  const playerName = playerData?.name || "Unknown Player";
-
-  // Add the new player event to the selected team's data array
-  if (selectedTeamId === team1Id) {
-    team1Entry.data.push({
-      playerId: player,
-      playerName: playerName,
-      event: event,
-    });
-    team1Entry.score = team1Score; // Update score
-  } else if (selectedTeamId === team2Id) {
-    team2Entry.data.push({
-      playerId: player,
-      playerName: playerName,
-      event: event,
-    });
-    team2Entry.score = team2Score; // Update score
-  }
-
-  // Build new entry with updated teams
-  const newEntry = {
-    teams: [team1Entry, team2Entry],
-  };
-
-  // Replace or append the entry
-  const updatedScoreData =
-    oldScoreData.length > 0 && oldScoreData[oldScoreData.length - 1].teams
-      ? [...oldScoreData.slice(0, -1), newEntry]
-      : [...oldScoreData, newEntry];
-
-  // Add to formData
-  formData.append("scoreData", JSON.stringify(updatedScoreData));
+  // Set all score data in formData
+  formData.set("team1Goals", JSON.stringify(team1Goals));
+  formData.set("team2Goals", JSON.stringify(team2Goals));
+  formData.set("team1Assists", JSON.stringify(team1Assists));
+  formData.set("team2Assists", JSON.stringify(team2Assists));
 
   return await addScoreRepository(prevState, formData);
 }
+
+async function updateScoreData(prevState, formData) {
+  const matchId = formData.get("matchId");
+  const scoreData = formData.get("scoreData");
+
+  try {
+    const result = await updateScoreDataRepository(matchId, scoreData);
+
+    if (result.error) {
+      return { success: false, message: result.error };
+    }
+
+    return { success: true, message: "Score data updated successfully" };
+  } catch (error) {
+    console.error("Error updating score data:", error);
+    return { success: false, message: "Failed to update score data" };
+  }
+}
+
 export {
   getAllTeams,
   getTeamData,
@@ -438,4 +486,5 @@ export {
   addLeagueData,
   addMatchDate,
   addScoreData,
+  updateScoreData,
 };

@@ -443,22 +443,70 @@ async function getGameWeekQuery() {
 // this adds the score and the winner
 async function addScoreQuery(prevState, formData) {
   const supabase = await createClient();
-  const scoreData = formData.get("scoreData");
+
+  const team1Goals = formData.get("team1Goals");
+  const team2Goals = formData.get("team2Goals");
+  const team1Assists = formData.get("team1Assists");
+  const team2Assists = formData.get("team2Assists");
   const winner = formData.get("winner") || null;
   const matchId = formData.get("matchId");
-  console.log(formData);
+
+  console.log("Query receiving formData:", {
+    team1Goals,
+    team2Goals,
+    team1Assists,
+    team2Assists,
+    winner,
+    matchId,
+  });
+
   const { data, error } = await supabase
     .from("match")
     .update({
       winner,
-      stats: scoreData,
+      team_1_goals: team1Goals,
+      team_2_goal: team2Goals,
+      team_1_assists: team1Assists,
+      team_2_assists: team2Assists,
     })
+    .eq("id", matchId)
+    .select();
+
+  if (error) {
+    console.error("Database update error:", error);
+    return { success: false, message: error.message };
+  }
+
+  console.log("Database updated successfully:", data);
+
+  return { success: true, message: "Updated score successfully" };
+}
+async function getMatchDataQuery(matchId) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("match")
+    .select("*")
     .eq("id", matchId);
   if (error) return { success: false, message: error.message };
-  return { success: true, message: "updated score sucessfully" };
+  return data;
 }
 
+async function updateScoreDataQuery(matchId, scoreData) {
+  const supabase = await createClient();
 
+  const { data, error } = await supabase
+    .from("match")
+    .update({ stats: scoreData })
+    .eq("id", matchId)
+    .select();
+
+  if (error) {
+    console.error("Error updating match stats:", error);
+    return { error: error.message };
+  }
+
+  return { data };
+}
 
 export {
   getAllTeamsQuery,
@@ -486,4 +534,6 @@ export {
   addGameweekQuery,
   getGameWeekQuery,
   addScoreQuery,
+  getMatchDataQuery,
+  updateScoreDataQuery,
 };

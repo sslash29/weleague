@@ -14,6 +14,7 @@ import {
   getBestTackleVideoQuery,
   getGameWeekQuery,
   getGroupsQuery,
+  getMatchDataQuery,
   getMatchesQuery,
   getPlayerDataQuery,
   getPlayerTeamQuery,
@@ -24,6 +25,7 @@ import {
   getUserDataQuery,
   getVoteQuery,
   updateReportTypeQuery,
+  updateScoreDataQuery,
 } from "../queries/queries";
 import { getVote } from "@/services/services";
 import { getUserQuery } from "../queries/server/queries";
@@ -119,6 +121,14 @@ async function addScoreRepository(prevState, formData) {
   return await addScoreQuery(prevState, formData);
 }
 
+async function getMatchDataRepository(matchId) {
+  return await getMatchDataQuery(matchId);
+}
+
+async function updateScoreDataRepository(matchId, scoreData) {
+  return await updateScoreDataQuery(matchId, scoreData);
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -138,4 +148,6 @@ export {
   isThereLeagueRepository,
   getGameWeekRepository,
   addScoreRepository,
+  getMatchDataRepository,
+  updateScoreDataRepository,
 };
