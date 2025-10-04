@@ -45,6 +45,9 @@ async function page() {
       <Link href="/admin/create-league" className="text-3xl font-bold">
         create league
       </Link>
+      <Link href="/view-most-used" className="text-3xl font-bold">
+        view most used player you will add to the admin displayer
+      </Link>
     </div>
   );
 }

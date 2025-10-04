@@ -150,6 +150,61 @@ async function deleteStudentQuery(prevState, formData) {
   return { success: true, message: "Student deleted successfully" };
 }
 
+async function viewMostUsedPlayerQuery() {
+  const supabase = await createClient();
+
+  // 1. Get all assignments
+  const { data: assignments, error: assignmentError } = await supabase
+    .from("players_assignemnt")
+    .select("player_id");
+
+  if (assignmentError) {
+    console.error("Error fetching assignments:", assignmentError);
+    return null;
+  }
+
+  if (!assignments || assignments.length === 0) {
+    return null; // no data
+  }
+
+  // 2. Count usage
+  const usageMap = {};
+  for (const row of assignments) {
+    if (!row.player_id) continue;
+    usageMap[row.player_id] = (usageMap[row.player_id] || 0) + 1;
+  }
+
+  // 3. Find most used player_id
+  let mostUsedId = null;
+  let maxCount = 0;
+  for (const [playerId, count] of Object.entries(usageMap)) {
+    if (count > maxCount) {
+      mostUsedId = playerId;
+      maxCount = count;
+    }
+  }
+
+  if (!mostUsedId) return null;
+
+  // 4. Fetch full player data
+  const { data: playerData, error: playerError } = await supabase
+    .from("player")
+    .select("*")
+    .eq("id", mostUsedId)
+    .single();
+
+  if (playerError) {
+    console.error("Error fetching player data:", playerError);
+    return null;
+  }
+
+  // 5. Return player + usage count
+  return {
+    ...playerData,
+    usage_count: maxCount,
+  };
+}
+
 export {
   addAdminQuery,
   deleteAdminQuery,
@@ -162,4 +217,5 @@ export {
   getAllReportsQuery,
   getAllModeratorsQuery,
   deleteStudentQuery,
+  viewMostUsedPlayerQuery,
 };

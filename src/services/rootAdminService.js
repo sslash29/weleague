@@ -10,6 +10,7 @@ import {
   getAllModeratorsRepository,
   getAllReportsRepository,
   getSuspentionStatisticsRepository,
+  viewMostUsedPlayerRepository,
 } from "@/lib/db/repositories/rootAdminRepository";
 import bcrypt from "bcrypt";
 
@@ -80,6 +81,10 @@ async function deleteStudent(prevState, formData) {
   return await deleteStudentRepository(prevState, formData);
 }
 
+async function viewMostUsedPlayer() {
+  return await viewMostUsedPlayerRepository();
+}
+
 export {
   createAdmin,
   deleteAdmin,
@@ -91,4 +96,5 @@ export {
   getAllReports,
   getAllModerators,
   deleteStudent,
+  viewMostUsedPlayer,
 };
