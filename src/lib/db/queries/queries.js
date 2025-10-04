@@ -491,21 +491,37 @@ async function getMatchDataQuery(matchId) {
   return data;
 }
 
-async function updateScoreDataQuery(matchId, scoreData) {
+async function updateMatchFactsQuery(prevState, formData) {
   const supabase = await createClient();
+  const matchId = formData.get("matchId");
+  const winner = formData.get("winner");
+  const team1Goals = formData.get("team1Goals");
+  const team2Goals = formData.get("team2Goals");
+  const team1Assists = formData.get("team1Assists");
+  const team2Assists = formData.get("team2Assists");
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("match")
-    .update({ stats: scoreData })
-    .eq("id", matchId)
-    .select();
+    .update({
+      winner: winner,
+      team_1_goals: team1Goals,
+      team_2_goal: team2Goals, // Note: keeping your schema's typo
+      team_1_assists: team1Assists,
+      team_2_assists: team2Assists,
+    })
+    .eq("id", matchId);
 
   if (error) {
-    console.error("Error updating match stats:", error);
-    return { error: error.message };
+    return {
+      success: false,
+      message: error.message,
+    };
   }
 
-  return { data };
+  return {
+    success: true,
+    message: "Match facts updated successfully",
+  };
 }
 
 export {
@@ -535,5 +551,5 @@ export {
   getGameWeekQuery,
   addScoreQuery,
   getMatchDataQuery,
-  updateScoreDataQuery,
+  updateMatchFactsQuery,
 };

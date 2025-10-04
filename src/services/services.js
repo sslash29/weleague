@@ -23,6 +23,7 @@ const {
   addScoreRepository,
   getMatchDataRepository,
   updateScoreDataRepository,
+  updateMatchFactsRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -469,6 +470,63 @@ async function updateScoreData(prevState, formData) {
   }
 }
 
+async function getMatchData(matchId) {
+  return await getMatchDataRepository(matchId);
+}
+
+async function updateMatchFacts(prevState, formData) {
+  // Extract the events data from formData
+  const eventsData = formData.get("eventsData");
+
+  if (!eventsData) {
+    return {
+      success: false,
+      message: "No events data provided",
+    };
+  }
+
+  let events;
+  try {
+    events = JSON.parse(eventsData);
+  } catch (e) {
+    return {
+      success: false,
+      message: "Invalid events data format",
+    };
+  }
+
+  // Helper function to expand events array (reverse of counting)
+  const expandEvents = (countedEvents) => {
+    const expanded = [];
+    countedEvents.forEach((event) => {
+      for (let i = 0; i < event.count; i++) {
+        expanded.push({
+          playerId: event.playerId,
+          playerName: event.playerName,
+        });
+      }
+    });
+    return expanded;
+  };
+
+  // Expand the counted events back to individual entries
+  const team1GoalsArray = expandEvents(events.team_1_goals);
+  const team2GoalsArray = expandEvents(events.team_2_goals);
+  const team1AssistsArray = expandEvents(events.team_1_assists);
+  const team2AssistsArray = expandEvents(events.team_2_assists);
+
+  // Create new FormData for repository layer
+  const repositoryFormData = new FormData();
+  repositoryFormData.append("matchId", formData.get("matchId"));
+  repositoryFormData.append("winner", events.winner || "");
+  repositoryFormData.append("team1Goals", JSON.stringify(team1GoalsArray));
+  repositoryFormData.append("team2Goals", JSON.stringify(team2GoalsArray));
+  repositoryFormData.append("team1Assists", JSON.stringify(team1AssistsArray));
+  repositoryFormData.append("team2Assists", JSON.stringify(team2AssistsArray));
+
+  return await updateMatchFactsRepository(prevState, repositoryFormData);
+}
+
 export {
   getAllTeams,
   getTeamData,
@@ -487,4 +545,6 @@ export {
   addMatchDate,
   addScoreData,
   updateScoreData,
+  updateMatchFacts,
+  getMatchData,
 };

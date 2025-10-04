@@ -1,132 +1,240 @@
 "use client";
-import { useState } from "react";
-import { updateScoreData } from "@/services/services";
 
-function EditScoreDataForm({ scoreData, matchId }) {
-  const [parsedData, setParsedData] = useState(() => {
-    try {
-      return JSON.parse(scoreData);
-    } catch (e) {
-      console.error("Failed to parse scoreData:", e);
-      return [];
-    }
-  });
+import { updateMatchFacts } from "@/services/services";
+import { useState, useMemo, useActionState } from "react";
 
-  const handleDelete = async (teamId, dataIndex) => {
-    // Create a deep clone of the data
-    const updatedData = JSON.parse(JSON.stringify(parsedData));
-
-    // Find the team and remove the specific data entry
-    const lastEntry = updatedData[updatedData.length - 1];
-    if (lastEntry?.teams) {
-      const team = lastEntry.teams.find((t) => t.teamId === teamId);
-      if (team && team.data) {
-        team.data.splice(dataIndex, 1);
+function MatchEventsEditor({ team1, team2, matchId, matchData }) {
+  // Parse and process match data
+  const initialEvents = useMemo(() => {
+    const parseAndCountEvents = (jsonString) => {
+      if (!jsonString || jsonString === "[]") return [];
+      try {
+        const events = JSON.parse(jsonString);
+        const countMap = new Map();
+        events.forEach((event) => {
+          const key = event.playerId;
+          if (countMap.has(key)) {
+            countMap.get(key).count += 1;
+          } else {
+            countMap.set(key, {
+              playerId: event.playerId,
+              playerName: event.playerName,
+              count: 1,
+            });
+          }
+        });
+        return Array.from(countMap.values());
+      } catch (e) {
+        console.error("Error parsing events:", e);
+        return [];
       }
-    }
+    };
 
-    // Update in database
-    const formData = new FormData();
-    formData.append("matchId", matchId);
-    formData.append("scoreData", JSON.stringify(updatedData));
+    const team1Goals = parseAndCountEvents(matchData.team_1_goals);
+    const team2Goals = parseAndCountEvents(matchData.team_2_goal);
+    const team1Assists = parseAndCountEvents(matchData.team_1_assists);
+    const team2Assists = parseAndCountEvents(matchData.team_2_assists);
 
-    const result = await updateScoreData(null, formData);
+    const team1Score = team1Goals.reduce((sum, goal) => sum + goal.count, 0);
+    const team2Score = team2Goals.reduce((sum, goal) => sum + goal.count, 0);
 
-    if (result?.success) {
-      setParsedData(updatedData);
-    }
+    return {
+      team1Score,
+      team2Score,
+      winner: matchData.winner,
+      team_1_goals: team1Goals,
+      team_2_goals: team2Goals,
+      team_1_assists: team1Assists,
+      team_2_assists: team2Assists,
+    };
+  }, [matchData]);
+
+  const [events, setEvents] = useState(initialEvents);
+  const [formState, formAction] = useActionState(updateMatchFacts, null);
+
+  const handleDeleteEvent = (type, teamKey, index) => {
+    setEvents((prev) => {
+      const updatedEvents = { ...prev };
+      updatedEvents[teamKey] = [...updatedEvents[teamKey]];
+      updatedEvents[teamKey].splice(index, 1);
+      if (type === "goal") {
+        if (teamKey === "team_1_goals") updatedEvents.team1Score -= 1;
+        if (teamKey === "team_2_goals") updatedEvents.team2Score -= 1;
+      }
+      return updatedEvents;
+    });
   };
 
-  const handleScoreUpdate = async (teamId, newScore) => {
-    // Create a deep clone of the data
-    const updatedData = JSON.parse(JSON.stringify(parsedData));
-
-    // Find the team and update the score
-    const lastEntry = updatedData[updatedData.length - 1];
-    if (lastEntry?.teams) {
-      const team = lastEntry.teams.find((t) => t.teamId === teamId);
-      if (team) {
-        team.score = newScore;
-      }
-    }
-
-    // Update in database
-    const formData = new FormData();
-    formData.append("matchId", matchId);
-    formData.append("scoreData", JSON.stringify(updatedData));
-
-    const result = await updateScoreData(null, formData);
-
-    if (result?.success) {
-      setParsedData(updatedData);
-    }
+  const getWinnerName = () => {
+    if (!events.winner) return "No winner yet";
+    if (events.winner === team1.id) return team1.name;
+    if (events.winner === team2.id) return team2.name;
+    return "Unknown";
   };
-
-  // Get the latest entry
-  const latestEntry = parsedData[parsedData.length - 1];
-  const teams = latestEntry?.teams || [];
 
   return (
-    <div className="flex flex-col gap-6">
-      <h2 className="text-xl font-bold">Edit Match Score Data</h2>
+    <form action={formAction} className="w-full max-w-4xl mx-auto p-6">
+      <h1 className="text-4xl font-bold mb-6">Match Events</h1>
 
-      {teams.map((team) => (
-        <div key={team.teamId} className="border rounded-lg p-4 bg-[#f9f9f9]">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">{team.teamName}</h3>
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Score:</label>
-              <input
-                type="number"
-                value={team.score}
-                onChange={(e) => handleScoreUpdate(team.teamId, e.target.value)}
-                className="w-16 p-1 rounded bg-white border border-gray-300 text-center"
-              />
-            </div>
-          </div>
-
-          {team.data && team.data.length > 0 ? (
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-gray-600 mb-2">
-                Goals & Assists:
-              </p>
-              {team.data.map((playerEvent, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center bg-white p-3 rounded border border-gray-200"
-                >
-                  <div className="flex gap-3 items-center">
-                    <span className="font-medium">
-                      {playerEvent.playerName}
-                    </span>
-                    <span
-                      className={`text-sm px-2 py-1 rounded ${
-                        playerEvent.event === "Goal"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-blue-100 text-blue-700"
-                      }`}
-                    >
-                      {playerEvent.event}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => handleDelete(team.teamId, index)}
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500 italic">
-              No goals or assists yet
-            </p>
-          )}
+      {/* Match Score */}
+      <div className="flex items-center justify-center gap-6 mb-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold">{team1.name}</h2>
+          <p className="text-3xl font-bold">{events.team1Score}</p>
         </div>
-      ))}
-    </div>
+        <span className="text-2xl font-bold">-</span>
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold">{team2.name}</h2>
+          <p className="text-3xl font-bold">{events.team2Score}</p>
+        </div>
+      </div>
+
+      {/* Winner */}
+      <div className="mb-6 text-center">
+        <h3 className="text-xl font-semibold">Winner:</h3>
+        <p className="text-lg">{getWinnerName()}</p>
+      </div>
+
+      {/* Goals and Assists */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Team 1 Goals */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">{team1.name} Goals</h3>
+          <ul className="space-y-2">
+            {events.team_1_goals.map((goal, index) => (
+              <li
+                key={index}
+                className="flex items-center justify-between bg-gray-100 p-2 rounded"
+              >
+                <span>
+                  {goal.playerName} ({goal.count})
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleDeleteEvent("goal", "team_1_goals", index)
+                  }
+                  className="px-2 py-1 bg-red-500 text-white rounded"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Team 2 Goals */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">{team2.name} Goals</h3>
+          <ul className="space-y-2">
+            {events.team_2_goals.map((goal, index) => (
+              <li
+                key={index}
+                className="flex items-center justify-between bg-gray-100 p-2 rounded"
+              >
+                <span>
+                  {goal.playerName} ({goal.count})
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleDeleteEvent("goal", "team_2_goals", index)
+                  }
+                  className="px-2 py-1 bg-red-500 text-white rounded"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Team 1 Assists */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">{team1.name} Assists</h3>
+          <ul className="space-y-2">
+            {events.team_1_assists.map((assist, index) => (
+              <li
+                key={index}
+                className="flex items-center justify-between bg-gray-100 p-2 rounded"
+              >
+                <span>
+                  {assist.playerName} ({assist.count})
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleDeleteEvent("assist", "team_1_assists", index)
+                  }
+                  className="px-2 py-1 bg-red-500 text-white rounded"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Team 2 Assists */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">{team2.name} Assists</h3>
+          <ul className="space-y-2">
+            {events.team_2_assists.map((assist, index) => (
+              <li
+                key={index}
+                className="flex items-center justify-between bg-gray-100 p-2 rounded"
+              >
+                <span>
+                  {assist.playerName} ({assist.count})
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleDeleteEvent("assist", "team_2_assists", index)
+                  }
+                  className="px-2 py-1 bg-red-500 text-white rounded"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Hidden inputs for formAction */}
+      <input type="hidden" name="matchId" value={matchId} />
+      <input type="hidden" name="eventsData" value={JSON.stringify(events)} />
+
+      {/* Action Buttons */}
+      <div className="flex gap-4 mt-8">
+        <button
+          type="submit"
+          className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
+        >
+          Save All Changes
+        </button>
+        <button
+          type="button"
+          className="px-6 py-3 bg-gray-400 text-white rounded-lg font-semibold hover:bg-gray-500"
+          onClick={() => setEvents(initialEvents)} // reset to initial state
+        >
+          Cancel
+        </button>
+      </div>
+
+      {/* Show response feedback */}
+      {formState && (
+        <p
+          className={`mt-4 text-sm ${
+            formState.success ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {formState.message}
+        </p>
+      )}
+    </form>
   );
 }
 
-export default EditScoreDataForm;
+export default MatchEventsEditor;

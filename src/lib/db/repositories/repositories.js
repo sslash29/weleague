@@ -24,6 +24,9 @@ import {
   getTeamPlayersQuery,
   getUserDataQuery,
   getVoteQuery,
+  updateMatchAssistsQuery,
+  updateMatchFactsQuery,
+  updateMatchGoalsQuery,
   updateReportTypeQuery,
   updateScoreDataQuery,
 } from "../queries/queries";
@@ -129,6 +132,10 @@ async function updateScoreDataRepository(matchId, scoreData) {
   return await updateScoreDataQuery(matchId, scoreData);
 }
 
+async function updateMatchFactsRepository(prevState, formData) {
+  return await updateMatchFactsQuery(prevState, formData);
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -150,4 +157,5 @@ export {
   addScoreRepository,
   getMatchDataRepository,
   updateScoreDataRepository,
+  updateMatchFactsRepository,
 };

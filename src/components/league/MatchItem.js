@@ -68,12 +68,20 @@ export default function MatchItem({ match, addMatchDateAction }) {
       </form>
 
       <Link
-        href={`/match/${match.database_id || match.id}?team1id=${
+        href={`/match/add-score/${match.database_id || match.id}?team1id=${
           match.home.id
         }&team2id=${match.away.id}`}
         className="cursor-pointer hover:scale-90 px-2 py-1 bg-blue-300 text-white"
       >
         add score
+      </Link>
+      <Link
+        href={`/match/update-score/${match.database_id || match.id}?team1id=${
+          match.home.id
+        }&team2id=${match.away.id}`}
+        className="cursor-pointer hover:scale-90 px-2 py-1 bg-green-300 text-white"
+      >
+        update score
       </Link>
     </div>
   );
