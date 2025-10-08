@@ -49,6 +49,7 @@ function ViewPlayer({ playerData, teamData }) {
             height={65}
             width={65}
             className="rounded-full"
+            alt="player-img"
           />
         </div>
       </div>

@@ -30,6 +30,7 @@ function PlayerDisplay({ player, onDelete }) {
             width={80}
             height={80}
             className="rounded-full w-[80px] h-[80px] object-cover"
+            onDoubleClick={() => router.push(`/player/${player.id}`)}
           />
           <h4 className="text-2xl font-semibold">{player.full_name}</h4>
         </div>
