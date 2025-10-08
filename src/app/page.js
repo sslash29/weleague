@@ -51,6 +51,9 @@ async function page() {
       <Link href="/admin/edit-rules" className="text-3xl font-bold">
         Edit Rules
       </Link>
+      <Link href="/edit-player-price" className="text-3xl font-bold">
+        Edit player price
+      </Link>
     </div>
   );
 }

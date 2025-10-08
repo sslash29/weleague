@@ -24,6 +24,7 @@ const {
   getMatchDataRepository,
   updateScoreDataRepository,
   updateMatchFactsRepository,
+  updatePlayerPriceRepository,
 } = require("@/lib/db/repositories/repositories");
 
 async function getAllTeams() {
@@ -527,6 +528,9 @@ async function updateMatchFacts(prevState, formData) {
   return await updateMatchFactsRepository(prevState, repositoryFormData);
 }
 
+async function updatePlayerPrice(prevState, formData) {
+  return await updatePlayerPriceRepository(prevState, formData);
+}
 export {
   getAllTeams,
   getTeamData,
@@ -547,4 +551,5 @@ export {
   updateScoreData,
   updateMatchFacts,
   getMatchData,
+  updatePlayerPrice,
 };

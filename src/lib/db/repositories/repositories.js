@@ -27,6 +27,7 @@ import {
   updateMatchAssistsQuery,
   updateMatchFactsQuery,
   updateMatchGoalsQuery,
+  updatePlayerPriceQuery,
   updateReportTypeQuery,
   updateScoreDataQuery,
 } from "../queries/queries";
@@ -136,6 +137,10 @@ async function updateMatchFactsRepository(prevState, formData) {
   return await updateMatchFactsQuery(prevState, formData);
 }
 
+async function updatePlayerPriceRepository(prevState, formData) {
+  return await updatePlayerPriceQuery(prevState, formData);
+}
+
 export {
   getAllTeamsRepository,
   getTeamDataRepository,
@@ -158,4 +163,5 @@ export {
   getMatchDataRepository,
   updateScoreDataRepository,
   updateMatchFactsRepository,
+  updatePlayerPriceRepository,
 };

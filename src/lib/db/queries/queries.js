@@ -524,6 +524,21 @@ async function updateMatchFactsQuery(prevState, formData) {
   };
 }
 
+async function updatePlayerPriceQuery(prevState, formData) {
+  const supabase = await createClient();
+  const newPlayerPrice = formData.get("newPlayerPrice");
+  const playerId = formData.get("playerId");
+  const { data, error } = await supabase
+    .from("player")
+    .update({
+      price: newPlayerPrice,
+    })
+    .eq("id", playerId);
+  if (error) return { succes: false, message: error.message };
+
+  return { success: true, message: "updated player price successfully" };
+}
+
 export {
   getAllTeamsQuery,
   getTeamDataQuery,
@@ -552,4 +567,5 @@ export {
   addScoreQuery,
   getMatchDataQuery,
   updateMatchFactsQuery,
+  updatePlayerPriceQuery,
 };
