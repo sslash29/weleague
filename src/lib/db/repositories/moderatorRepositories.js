@@ -25,10 +25,6 @@ import {
   updateTeamWeeklyPointsQuery,
 } from "../queries/moderatorQuries";
 import { getCurrentGameweekQuery } from "../queries/queries";
-import {
-  deleteStudentQuery,
-  getStudentsQuery,
-} from "../queries/rootAdminQueries";
 
 async function createPlayerRepository(prevState, formData) {
   const data = await addPlayerrQuery(prevState, formData);

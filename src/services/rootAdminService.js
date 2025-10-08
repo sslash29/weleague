@@ -1,5 +1,6 @@
 "use server";
 
+import { getRulePointsRepository } from "@/lib/db/repositories/repositories";
 import {
   createAdminRepository,
   createModeratorRepsitory,
@@ -10,6 +11,7 @@ import {
   getAllModeratorsRepository,
   getAllReportsRepository,
   getSuspentionStatisticsRepository,
+  updateRulePointsRepository,
   viewMostUsedPlayerRepository,
 } from "@/lib/db/repositories/rootAdminRepository";
 import bcrypt from "bcrypt";
@@ -85,6 +87,14 @@ async function viewMostUsedPlayer() {
   return await viewMostUsedPlayerRepository();
 }
 
+async function getRulePoints() {
+  return await getRulePointsRepository();
+}
+
+async function updateRulePoints(prevState, formData) {
+  return await updateRulePointsRepository(prevState, formData);
+}
+
 export {
   createAdmin,
   deleteAdmin,
@@ -97,4 +107,6 @@ export {
   getAllModerators,
   deleteStudent,
   viewMostUsedPlayer,
+  getRulePoints,
+  updateRulePoints,
 };

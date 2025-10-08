@@ -48,6 +48,9 @@ async function page() {
       <Link href="/view-most-used" className="text-3xl font-bold">
         view most used player you will add to the admin displayer
       </Link>
+      <Link href="/admin/edit-rules" className="text-3xl font-bold">
+        Edit Rules
+      </Link>
     </div>
   );
 }

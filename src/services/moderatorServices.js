@@ -45,7 +45,7 @@ async function deleteTeam(prevState, formData) {
 
 async function addPlayerData(prevState, formData) {
   const rulePoints = await getRulePointsRepository();
-  const points = rulePoints[0];
+  const points = rulePoints[rulePoints.length - 1];
   const teamId = formData.get("teamId");
   const coolImg = formData.get("coolImg") || "";
   const playerWeeklyData = {

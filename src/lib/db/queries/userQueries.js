@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { formatDynamicAPIAccesses } from "next/dist/server/app-render/dynamic-rendering";
 
 async function createReportQuery(prevState, formData) {
   const supabase = await createClient();

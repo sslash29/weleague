@@ -11,6 +11,7 @@ import {
   getAllReportsQuery,
   getTeamsRedCardsQuery,
   getTeamsYellowCardsQuery,
+  updateRulePointsQuery,
   viewMostUsedPlayerQuery,
 } from "../queries/rootAdminQueries";
 
@@ -73,6 +74,10 @@ async function viewMostUsedPlayerRepository() {
   return await viewMostUsedPlayerQuery();
 }
 
+async function updateRulePointsRepository(prevState, formData) {
+  return await updateRulePointsQuery(prevState, formData);
+}
+
 export {
   createAdminRepository,
   deleteAdminRepository,
@@ -86,4 +91,5 @@ export {
   getStudentsRepository,
   deleteStudentRepository,
   viewMostUsedPlayerRepository,
+  updateRulePointsRepository,
 };
