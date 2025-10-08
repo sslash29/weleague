@@ -2,6 +2,7 @@
 
 import { deleteTeam } from "@/services/moderatorServices";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { startTransition } from "react";
 
 function TeamDisplayer({ team, onDelete }) {
@@ -11,6 +12,8 @@ function TeamDisplayer({ team, onDelete }) {
       await deleteTeam({}, formData);
     });
   }
+  console.log(team);
+  const router = useRouter();
   return (
     <div className="flex flex-col border p-3 w-[calc(1260px/3)] gap-10 rounded-lg h-fit ">
       <div className="flex items-center justify-between w-full">
@@ -35,7 +38,10 @@ function TeamDisplayer({ team, onDelete }) {
       <div className="flex items-center justify-between">
         <p className="text-lg">class: {team.class || "2/2"}</p>
         <div className="flex items-center gap-2">
-          <button className="px-4 py-2 text-white rounded-md bg-[#333333] font-semibold hover:bg-violet-normal-hover transition-all cursor-pointer hover:scale-90 ">
+          <button
+            onClick={() => router.push(`/teams/${team.id}`)}
+            className="px-4 py-2 text-white rounded-md bg-[#333333] font-semibold hover:bg-violet-normal-hover transition-all cursor-pointer hover:scale-90 "
+          >
             View Team
           </button>
           <form action={handleDelete}>
