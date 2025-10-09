@@ -1,6 +1,5 @@
 "use server";
 
-import { getUser } from "@/services/server/services";
 import {
   addGroupQuery,
   addMatchDateQuery,
@@ -24,14 +23,11 @@ import {
   getTeamPlayersQuery,
   getUserDataQuery,
   getVoteQuery,
-  updateMatchAssistsQuery,
   updateMatchFactsQuery,
-  updateMatchGoalsQuery,
   updatePlayerPriceQuery,
   updateReportTypeQuery,
   updateScoreDataQuery,
 } from "../queries/queries";
-import { getVote } from "@/services/services";
 import { getUserQuery } from "../queries/server/queries";
 
 async function getAllTeamsRepository() {

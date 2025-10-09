@@ -5,6 +5,7 @@ import ManageAdminAndModerator from "./ManageAdminAndModerator";
 import ViewReports from "../ViewReports";
 import ViewSuspensionStatistics from "./ViewSuspensionStatistics";
 import ManageUsers from "../ManageUsers";
+import ManageTeams from "../Moderator/ManageTeams";
 
 function RootAdminOptionDisplayer({ reports, teamData }) {
   const { active } = useRootAdmin();
@@ -23,6 +24,7 @@ function RootAdminOptionDisplayer({ reports, teamData }) {
   if (active === "view-suspension-statistics")
     return <ViewSuspensionStatistics teamData={teamData} />;
 
+  if (active === "manage-teams") return <ManageTeams teams={teamData} />;
   return null;
 }
 
