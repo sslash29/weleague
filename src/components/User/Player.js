@@ -17,7 +17,6 @@ function Player({
   team,
   setSelectedPowerUp,
 }) {
-  console.log(playerData);
   const normalize = (s) =>
     String(s || "")
       .toLowerCase()
@@ -64,6 +63,38 @@ function Player({
     }
 
     if (!selectedPlayer) return;
+
+    // ✅ CHECK: Maximum 2 players from the same team
+    const allTeam = [...team.mainPlayers, ...team.benchPlayers];
+
+    // Get the player currently in this position (if replacing)
+    const currentPlayerInPosition = allTeam.find(
+      (p) => p.positionOnField === Number(positionOnField)
+    );
+
+    // Check if the current player in this position is from the same team
+    const isReplacingSameTeam =
+      currentPlayerInPosition?.team_id === selectedPlayer?.team_id;
+
+    // Count players from the same team (excluding current position if replacing same team)
+    const playersWithTheSameTeam = allTeam.filter(
+      (teamPlayer) =>
+        teamPlayer?.team_id === selectedPlayer?.team_id &&
+        teamPlayer.positionOnField !== Number(positionOnField)
+    );
+
+    // Block if already 2 players from same team AND not replacing one from same team
+    if (playersWithTheSameTeam.length >= 2 && !isReplacingSameTeam) {
+      onAddPlayer(
+        null,
+        positionOnField,
+        type,
+        label,
+        true,
+        "You can't add more than 2 players from the same team!"
+      );
+      return;
+    }
 
     const allPlayers = [
       ...(team?.mainPlayers ?? []),
