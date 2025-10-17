@@ -37,9 +37,24 @@ function Team({
         ...currentTeam.mainPlayers,
         ...currentTeam.benchPlayers,
       ];
+      console.log("currentTeam");
+      console.log(currentTeam);
+      console.log("all current players");
+      console.log(allCurrentPlayers);
       const isPositionSwitch = allCurrentPlayers.some(
         (p) => p.id === selectedPlayer.id
       );
+      const playersWithTheSameTeam = allCurrentPlayers.filter(
+        (teamPlayer) =>
+          teamPlayer?.team_id === selectedPlayer?.team_id &&
+          teamPlayer.positionOnField !== Number(positionOnField)
+      );
+      console.log("playerswiththesameteam");
+      console.log(playersWithTheSameTeam);
+      if (playersWithTheSameTeam.length >= 2) {
+        setErrorMsg("can't add more than 2 players from the same team");
+        return currentTeam;
+      }
 
       const currentMoney = parseFloat(currentTeam.moneyLeft);
       let playerPrice = 0;
@@ -60,6 +75,7 @@ function Team({
       const newPlayer = {
         ...selectedPlayer,
         positionOnField: Number(positionOnField),
+        team_id: selectedPlayer.team_id || selectedPlayer.team?.id,
         point_this_week:
           type?.trim() === "bench"
             ? Math.floor((selectedPlayer.point_this_week || 0) / 2)
@@ -119,11 +135,13 @@ function Team({
           if (updated) {
             setBenchBoostUsed(updated.bench_boost_used);
             setIsTripleCaptainUsed(updated.triple_captain_used);
-            setTeamState((prev) => ({
-              ...prev,
-              ...updated,
-              ...updated.team,
-            }));
+            // Only update team-related fields, don't mix student and team data
+            if (updated.team) {
+              setTeamState((prev) => ({
+                ...prev,
+                ...updated.team,
+              }));
+            }
           }
         }
       )
@@ -231,7 +249,7 @@ function Team({
           setSelectedPowerUp(null);
 
           const formData = new FormData();
-          formData.append("currentTeam", JSON.stringify(teamState)); // raw team
+          formData.append("currentTeam", JSON.stringify(teamState));
           formData.append("studentId", studentId);
           formData.append("currentDate", currentDate);
 

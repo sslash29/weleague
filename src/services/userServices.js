@@ -25,25 +25,27 @@ async function addPlayerToTeam(formData) {
   const type = formData.get("type");
   const positionOnField = Number(formData.get("positionOnField"));
 
-  // ✅ deserialize otherPositions properly
+  // ✅ Deserialize otherPositions safely
   let otherPositions = [];
   try {
     const raw = formData.get("otherPositions");
-    if (raw) {
-      otherPositions = JSON.parse(raw);
-    }
+    if (raw) otherPositions = JSON.parse(raw);
   } catch (e) {
     console.error("Failed to parse otherPositions:", e);
   }
 
+  // ✅ Fetch the current team data
   const { mainPlayers, benchPlayers, moneyLeft } =
     await getStudentTeamRepository(studentId);
 
-  if (moneyLeft < selectedPlayer.playerPrice)
+  if (moneyLeft < selectedPlayer.playerPrice) {
     return { success: false, message: "Don't have enough money" };
+  }
 
+  // ✅ Fetch up-to-date player info (like weekly points)
   const playerData = await getPlayerDataQuery(selectedPlayer.id);
 
+  // ✅ Create player object and include team_id
   const newPlayer = {
     id: selectedPlayer.id,
     name: selectedPlayer.full_name,
@@ -54,19 +56,26 @@ async function addPlayerToTeam(formData) {
         : Math.floor(playerData.point_this_week / 2),
     playerPrice: selectedPlayer.price,
     positionOnField,
+    team_id:
+      selectedPlayer.team_id ||
+      selectedPlayer.team?.id ||
+      selectedPlayer.teamId ||
+      null,
   };
 
+  // ✅ Make sure existing players are arrays before filtering
   let updatedMainPlayers = Array.isArray(mainPlayers)
     ? [...mainPlayers].filter((p) => p.id !== otherPositions?.[0]?.id)
     : [];
+
   let updatedBenchPlayers = Array.isArray(benchPlayers)
     ? [...benchPlayers].filter((p) => p.id !== otherPositions?.[0]?.id)
     : [];
 
-  // ✅ full object logged now
   console.log("selectedPlayerPositions:", otherPositions);
-  console.log(updatedMainPlayers);
+  console.log("Updated before push:", updatedMainPlayers, updatedBenchPlayers);
 
+  // ✅ Update appropriate list
   if (type === "main") {
     updatedMainPlayers = updatedMainPlayers.filter(
       (p) => p.positionOnField !== positionOnField
@@ -79,20 +88,20 @@ async function addPlayerToTeam(formData) {
     updatedBenchPlayers.push(newPlayer);
   }
 
+  // ✅ Construct the new team structure
   const team = {
     teamName: formData.get("teamName") || "",
     mainPlayers: updatedMainPlayers,
     benchPlayers: updatedBenchPlayers,
     moneyLeft: (
-      moneyLeft -
-      (selectedPlayer?.calculationPrice
-        ? selectedPlayer?.calculationPrice
-        : selectedPlayer?.price)
+      moneyLeft - (selectedPlayer?.calculationPrice ?? selectedPlayer?.price)
     ).toFixed(2),
   };
 
+  // ✅ Serialize to send to Supabase
   formData.set("team", JSON.stringify(team));
 
+  // ✅ Persist in DB
   const { assignment, team: savedTeam } = await addPlayerToTeamRepository(
     formData
   );

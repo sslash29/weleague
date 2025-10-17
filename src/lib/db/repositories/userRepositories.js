@@ -18,8 +18,10 @@ async function createReportRepository(prevState, formData) {
 async function addPlayerToTeamRepository(formData) {
   const studentId = formData.get("studentId");
   const playerId = formData.get("playerId");
+
   const assignment = await addPlayerToAssignmentQuery(playerId, studentId);
   const team = await addPlayerToStudentTeamQuery(formData);
+
   return { assignment, team };
 }
 

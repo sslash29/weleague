@@ -23,6 +23,7 @@ function Player({
       .trim();
 
   async function handleClick() {
+    if (!selectedPlayer) return;
     const formData = new FormData();
     formData.append("studentId", studentId);
     formData.append("playerType", type);
@@ -67,23 +68,19 @@ function Player({
     // ✅ CHECK: Maximum 2 players from the same team
     const allTeam = [...team.mainPlayers, ...team.benchPlayers];
 
-    // Get the player currently in this position (if replacing)
     const currentPlayerInPosition = allTeam.find(
       (p) => p.positionOnField === Number(positionOnField)
     );
 
-    // Check if the current player in this position is from the same team
     const isReplacingSameTeam =
       currentPlayerInPosition?.team_id === selectedPlayer?.team_id;
 
-    // Count players from the same team (excluding current position if replacing same team)
     const playersWithTheSameTeam = allTeam.filter(
       (teamPlayer) =>
         teamPlayer?.team_id === selectedPlayer?.team_id &&
         teamPlayer.positionOnField !== Number(positionOnField)
     );
 
-    // Block if already 2 players from same team AND not replacing one from same team
     if (playersWithTheSameTeam.length >= 2 && !isReplacingSameTeam) {
       onAddPlayer(
         null,
@@ -147,7 +144,7 @@ function Player({
       return;
     }
 
-    // ✅ Check if this is a position switch (same player, different position)
+    // ✅ Detect if this is a position switch (same player moved to another position)
     const isPositionSwitch = selectedPlayerPositions.length > 0;
 
     // ✅ calculate effective price difference
@@ -155,11 +152,11 @@ function Player({
     let playerPrice;
 
     if (isPositionSwitch) {
-      // For position switches, no money change needed
+      // Same player moved — no money adjustment
       price = 0;
       playerPrice = 0;
     } else {
-      // For new players, calculate the price difference
+      // New player — adjust based on cost difference
       price =
         (Number(selectedPlayer.price ?? 0) || 0) -
         (Number(playerData?.playerPrice ?? 0) || 0);
@@ -172,7 +169,7 @@ function Player({
       );
     }
 
-    // ✅ Check if user has enough money before proceeding (only for new players)
+    // ✅ Check funds (only for new player)
     if (!isPositionSwitch) {
       const currentMoney = parseFloat(team?.moneyLeft || 0);
 
@@ -191,15 +188,17 @@ function Player({
       }
     }
 
-    // ✅ always override price so reducer sees correct value
+    // ✅ Always override price so reducer knows correct value
     const updatedSelectedPlayer = {
       ...selectedPlayer,
       price,
     };
+    console.log("updatedSelectedPlayer");
+    console.log(updatedSelectedPlayer);
 
     onAddPlayer(updatedSelectedPlayer, positionOnField, type, label);
 
-    // ✅ Only call server if we have enough money
+    // ✅ Only call server if everything is valid
     formData.append("studentId", studentId);
     formData.append("playerId", selectedPlayer?.id);
     formData.append("type", type);
@@ -208,7 +207,6 @@ function Player({
       JSON.stringify(updatedSelectedPlayer ?? selectedPlayer)
     );
     formData.append("positionOnField", positionOnField);
-
     formData.append("otherPositions", JSON.stringify(selectedPlayerPositions));
 
     const data = await addPlayerToTeam(formData);
@@ -241,11 +239,7 @@ function Player({
       <div className="flex flex-col items-center gap-2">
         <span className="text-md mr-2.5">{playerData?.name || label}</span>
         <span className="text-md mr-2.5">
-          {(() => {
-            let points = playerData?.point_this_week || 0;
-
-            return points;
-          })()}
+          {playerData?.point_this_week || 0}
           {playerData?.isTripleCaptain && " (TC)"}
           {type === "bench" &&
             playerData?.point_this_week !== undefined &&

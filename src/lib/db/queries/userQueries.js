@@ -31,8 +31,9 @@ async function createReportQuery(prevState, formData) {
 
 async function addPlayerToAssignmentQuery(playerId, studentId) {
   const supabase = await createClient();
-  console.log("player");
-  console.log(studentId, playerId);
+
+  console.log("player assignment:", { studentId, playerId });
+
   const { data, error } = await supabase.from("players_assignemnt").insert({
     player_id: playerId,
     student_id: studentId,
@@ -47,14 +48,12 @@ async function addPlayerToAssignmentQuery(playerId, studentId) {
 
 async function addPlayerToStudentTeamQuery(formData) {
   const supabase = await createClient();
-  const team = formData.get("team"); // this is now a JSON string
+  const team = formData.get("team"); // ✅ JSON string
   const studentId = formData.get("studentId");
 
   const { data, error } = await supabase
     .from("student")
-    .update({
-      team,
-    })
+    .update({ team })
     .eq("auth_user_id", studentId)
     .select("team");
 
